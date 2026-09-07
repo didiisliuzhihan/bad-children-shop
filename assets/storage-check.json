@@ -1,0 +1,90 @@
+{
+  "verifiedAt": "2026-09-07T02:21:17.609Z",
+  "base": "https://kbyobdydythovyagrfgv.supabase.co/storage/v1/object/public/bad-children-assets",
+  "checks": [
+    {
+      "name": "capsule_shell.glb",
+      "bytes": 19580,
+      "status": 200,
+      "sha256": "2095e7b88cd6eb0e800fd472e50cf57cf61b39a8d19efc14bbaa391a246e8668"
+    },
+    {
+      "name": "fredoka.woff2",
+      "bytes": 29732,
+      "status": 200,
+      "sha256": "99d6c78e043710d4f83ed90716779798b7b04eb690f73e0ad0e8f32d1f0e98c2"
+    },
+    {
+      "name": "gashapon_machine.glb",
+      "bytes": 365864,
+      "status": 200,
+      "sha256": "b279ac8b6a06d563e49a7af7c9ce2685ec97b023df202c546d98edd6cb394772"
+    },
+    {
+      "name": "gashapon_machine_v2.glb",
+      "bytes": 675392,
+      "status": 200,
+      "sha256": "af4c142377cd0d137ed9f256578fcfbab034555ec362535f4512889b802a1d73"
+    },
+    {
+      "name": "inter.woff2",
+      "bytes": 48256,
+      "status": 200,
+      "sha256": "3100e775e8616cd2611beecfa23a4263d7037586789b43f035236a2e6fbd4c62"
+    },
+    {
+      "name": "studio-loop.wav",
+      "bytes": 1152044,
+      "status": 200,
+      "sha256": "a3ebe93100a0a2ebd9d7793af8c72aa72f06bfa9766f4fa67a6cc6b02995ef41"
+    },
+    {
+      "name": "toy1 jimao.jpg",
+      "bytes": 128810,
+      "status": 200,
+      "sha256": "364c76236e6c5f958450580984467c39017b612b7766c4a6413dfccad98aff38"
+    },
+    {
+      "name": "toy1 jimao.mp3",
+      "bytes": 271514,
+      "status": 200,
+      "sha256": "05c3f7954dc05730dae237ac270579f95922a0462d63868d3b97ab0108d03ed3"
+    },
+    {
+      "name": "toy2 emok.jpg",
+      "bytes": 23893,
+      "status": 200,
+      "sha256": "f9de7ba41842ed5db7b90f3fb9747495195a5baa5c770fb75b7cb9a548daddd5"
+    },
+    {
+      "name": "toy2 emok.mp3",
+      "bytes": 235152,
+      "status": 200,
+      "sha256": "4a631e24ff9a5f5bd297e3bc7cc60a49e788e423578cfceae7a10595286d3406"
+    },
+    {
+      "name": "toy_jimao.glb",
+      "bytes": 54744,
+      "status": 200,
+      "sha256": "87792ac83037b1018ae2d36c759cf989861444f79f746e0a35de7e419b160306"
+    },
+    {
+      "name": "toy_jimao.png",
+      "bytes": 752549,
+      "status": 200,
+      "sha256": "2a94590b7c6d8ab60d33636960cf6a0cc868f35df703bf5beb39b0cb7adb93de"
+    },
+    {
+      "name": "toy_kuku_sunflower.glb",
+      "bytes": 127580,
+      "status": 200,
+      "sha256": "c3c49e5e2abc9eb6d694bb7e8e1e8a26c5715cfb51c4bc01f8c361b24533d43b"
+    },
+    {
+      "name": "toy_kuku_sunflower.png",
+      "bytes": 807160,
+      "status": 200,
+      "sha256": "b2b293153db158a584208149f8a27f241ece29277fda88f60b09bb7c82f15427"
+    }
+  ]
+}

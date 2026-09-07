@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "directMainView": true,
+  "backgroundText": "BAD CHILDREN",
+  "chineseSloganDominant": true,
+  "questHighlight": true,
+  "chineseCardCopy": true,
+  "originalStoryOnly": true,
+  "pngDownload": true,
+  "mobileFits": true,
+  "webglErrors": [],
+  "hierarchy": {
+    "zh": 22,
+    "en": 13,
+    "accent": "rgb(243, 161, 139)"
+  },
+  "checkedAt": "2026-09-07T02:20:21.328Z"
+}

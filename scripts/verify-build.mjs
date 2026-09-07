@@ -1,0 +1,11 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const html=fs.readFileSync('dist/index.html','utf8');
+assert(!/<script\b[^>]*\bsrc\s*=/i.test(html),'External JavaScript reference found');
+assert(!/<link\b[^>]*rel=["']stylesheet/i.test(html),'External stylesheet found');
+assert(!/data:(?:model|audio|image\/(?:png|jpeg|webp)|application\/octet-stream)[^;]*;base64,[A-Za-z0-9+/]{80}/i.test(html),'Binary assets must not be inlined');
+assert(html.includes('storage/v1/object/'),'Supabase media URL missing');
+assert(fs.existsSync('blender/gashapon_machine.blend'),'Blender source missing');
+assert(fs.existsSync('assets/source/models/gashapon_machine.glb'),'Uncompressed master missing');
+const report={singleHtml:true,externalScripts:0,externalStylesheets:0,inlinedBinaryAssets:0,htmlBytes:Buffer.byteLength(html),sourcePreserved:true,builtAt:new Date().toISOString()};
+fs.writeFileSync('build-report.json',JSON.stringify(report,null,2));console.log(report);
