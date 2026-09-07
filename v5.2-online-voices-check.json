@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "reports": [
+    {
+      "name": "张鸡毛",
+      "voiceSignalPeak": 0.007226921290737104,
+      "passed": true
+    },
+    {
+      "name": "哭哭葵",
+      "voiceSignalPeak": 0.0028872008748973992,
+      "passed": true
+    },
+    {
+      "name": "抗压鸡毛",
+      "voiceSignalPeak": 0.0005958950503831457,
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "method": "Three production story streams routed through Web Audio and measured; trusted touch taps in Chrome; no cloud writes"
+}

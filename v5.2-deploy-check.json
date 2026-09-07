@@ -1,0 +1,21 @@
+{
+  "version": "5.2.0",
+  "url": "https://didiisliuzhihan.github.io/bad-children-shop/?v=5.2",
+  "deploymentCommit": "11af44c3df1ed08f68ad98f9fa3b5c6d10957d8d",
+  "pagesRun": 34151848062,
+  "pagesConclusion": "success",
+  "htmlBytes": 2042535,
+  "htmlSha256": "a60d8274956b55a856ba09701c7089a629a1d605d351ff618ae95c5d5124a9df",
+  "htmlGitBlob": "0b558605c71e106f073e89ba3ce7ea11931a65d3",
+  "liveHtmlMatchesLocal": true,
+  "unitTestsPassed": 15,
+  "startupScenariosPassed": 7,
+  "allThreeProductionVoicesMeasured": true,
+  "audioGateRemoved": true,
+  "mixerLevelsUnchanged": {"background": 0.08, "effects": 0.55, "voice": 0.75, "backgroundDuringVoice": 0.025},
+  "databaseStorageCollectionsUnchanged": true,
+  "sourceAndBlenderPreserved": true,
+  "singleHtmlWithExternalBinaryAssets": true,
+  "reports": ["v5.2-baseline-startup-check.json", "v5.2-local-startup-check.json", "v5.2-online-startup-check.json", "v5.2-online-voices-check.json"],
+  "limitations": "Strict tap-only and permanently denied browser policies were simulated using trusted touch events in Windows Chrome. No physical iPhone/WeChat test. Zero-gesture autoplay is best-effort, not guaranteed. Under a tap-only policy the first swipe can remain silent, but gameplay continues and a later plain tap retries audio."
+}
