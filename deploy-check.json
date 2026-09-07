@@ -2,7 +2,7 @@
   "url": "https://didiisliuzhihan.github.io/bad-children-shop/",
   "verifiedAt": "2026-09-07T02:32:26.666Z",
   "httpStatus": 200,
-  "htmlSha256": "2f2ee81cab8bb08e641cdd8205f4e166d78c7815034be3e99a83b936a90c32bc",
+  "htmlSha256": "16fbeb766819d7c87762aec8cceb61b27c9c669d560542d0ec19b497eaf35c9d",
   "matchesLocalBuild": true,
   "directMainView": true,
   "cloudCollectionSynced": true,
@@ -15,5 +15,9 @@
   "externalScripts": 0,
   "externalStylesheets": 0,
   "webglErrors": [],
-  "failedRequests": []
+  "failedRequests": [],
+  "flowTestHtmlSha256": "2f2ee81cab8bb08e641cdd8205f4e166d78c7815034be3e99a83b936a90c32bc",
+  "metadataOnlyUpdate": true,
+  "finalTitle": "BAD CHILDREN SHOP",
+  "finalMetadataVerifiedAt": "2026-09-07T02:39:34.267Z"
 }
