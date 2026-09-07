@@ -3,7 +3,8 @@ import {fileURLToPath} from 'node:url';
 import * as THREE from 'three';
 import fs from 'node:fs/promises';import assert from 'node:assert/strict';import crypto from 'node:crypto';
 const online=process.argv.includes('--online'),baseline=process.argv.includes('--baseline'),root=fileURLToPath(new URL('../',import.meta.url));
-const url=baseline?'https://didiisliuzhihan.github.io/bad-children-shop/?v=5.1':online?'https://didiisliuzhihan.github.io/bad-children-shop/?v=5.2':'http://127.0.0.1:4173/';
+const release=process.env.BC_TEST_RELEASE||'5.2';
+const url=baseline?'https://didiisliuzhihan.github.io/bad-children-shop/?v=5.1':online?`https://didiisliuzhihan.github.io/bad-children-shop/?v=${release}`:'http://127.0.0.1:4173/';
 const modes=baseline?['baseline']:['tap-slider','tap-knob','swipe-then-open','native-touchstart','pending-resume','permanent-denial','speaker-one-tap'];
 const browser=await chromium.launch({channel:'chrome',headless:true,args:['--autoplay-policy=user-gesture-required']});const reports=[];
 try{for(const mode of modes){
@@ -50,5 +51,5 @@ try{for(const mode of modes){
  reports.push({mode,htmlHash,completedCycle:true,noAudioGate:true,first,...final,errors});console.log('PASS',mode,{firstNotes:first.notes,finalNotes:final.notes.length,peak:final.rmsPeak});
  await context.close();
  }
- await fs.writeFile(`${root}/v5.2-${baseline?'baseline':online?'online':'local'}-startup-check.json`,JSON.stringify({passed:true,reports,scope:'Windows Chrome trusted touch events with strict tap-only, native-touchstart, pending-resume and permanent-denial policies simulated; no physical iPhone claim'},null,2));
+ await fs.writeFile(`${root}/v${release}-${baseline?'baseline':online?'online':'local'}-startup-check.json`,JSON.stringify({passed:true,reports,scope:'Windows Chrome trusted touch events with strict tap-only, native-touchstart, pending-resume and permanent-denial policies simulated; no physical iPhone claim'},null,2));
 }finally{await browser.close()}

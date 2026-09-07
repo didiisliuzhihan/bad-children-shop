@@ -110,7 +110,8 @@ export default function App(){
           onPointerMove={event=>{if(dragStart.current===null||phaseRef.current!=='IDLE')return;if(Math.abs(event.clientX-dragStart.current)>8)tapAllowed.current=false;const p=dragProgress(dragStart.current,event.clientX,innerWidth);setDrag(p);if(shouldCommitDrag(p,event.pointerType)){dragStart.current=null;spin()}}}
           onPointerUp={event=>{const p=dragStart.current===null?0:dragProgress(dragStart.current,event.clientX,innerWidth);dragStart.current=null;if(phaseRef.current==='IDLE'){if(shouldCommitDrag(p,event.pointerType,true))void spin();else setDrag(0)}try{event.currentTarget.releasePointerCapture(event.pointerId)}catch{}}}
           onPointerCancel={()=>{tapAllowed.current=false;dragStart.current=null;if(phaseRef.current==='IDLE')setDrag(0)}}>
-          <span className="turn-fill" style={{width:drag*100+'%'}}/><span className="dial-mini" style={{transform:'translateX('+drag*170+'px) rotate('+drag*180+'deg)'}}><i/></span>
+          <span className="turn-fill" style={{width:drag*100+'%'}}/>
+          <span className="dial-travel" aria-hidden="true" style={{transform:'translateX('+drag*100+'%)'}}><span className="dial-mini" style={{transform:'rotate('+drag*180+'deg)'}}><i/></span></span>
           <span className="turn-copy">{phase==='IDLE'?(!audioReady&&!muted?'轻点开始 · 开启声音':'抽取扭蛋'):'抽取中'}</span><Icon name="arrow" size={19}/>
         </button>
       </div>
