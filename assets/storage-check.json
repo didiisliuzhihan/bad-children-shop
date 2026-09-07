@@ -1,5 +1,5 @@
 {
-  "verifiedAt": "2026-09-07T03:19:11.462Z",
+  "verifiedAt": "2026-09-07T03:58:02.058Z",
   "base": "https://kbyobdydythovyagrfgv.supabase.co/storage/v1/object/public/bad-children-assets",
   "checks": [
     {
@@ -91,6 +91,12 @@
       "bytes": 807160,
       "status": 200,
       "sha256": "b2b293153db158a584208149f8a27f241ece29277fda88f60b09bb7c82f15427"
+    },
+    {
+      "name": "zcool-kuaile.woff2",
+      "bytes": 871440,
+      "status": 200,
+      "sha256": "bd4c40377cb47b4f8738a2f8d2b565b8a159fb8126259e78500747847121c081"
     }
   ]
 }

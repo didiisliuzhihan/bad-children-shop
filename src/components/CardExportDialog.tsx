@@ -25,7 +25,7 @@ export function CardExportDialog({toy,item,onClose,toast}:{toy:Toy;item:Capsule;
   return <Modal label="保存收藏卡片" onClose={onClose} className="save-modal">
     <h2>保存收藏卡片</h2>
     <div className="export-preview" aria-busy={!ready&&!error}>
-      {ready?<img src={ready.url} alt={toy.name_zh+'收藏卡片预览'} width={1080} height={1440}/>:error?<div className="export-status"><p>玩具图片未能加载，请重试。</p><button className="pill-button dark" onClick={()=>setRetry(n=>n+1)}>重新生成</button></div>:<div className="export-status" role="status"><span className="loading-ring"/><p>正在准备完整图片…</p></div>}
+      {ready?<img src={ready.url} alt={toy.name_zh+'收藏卡片预览'} width={1080} height={1440}/>:error?<div className="export-status"><p>图片或字体未能加载，请重试。</p><button className="pill-button dark" onClick={()=>setRetry(n=>n+1)}>重新生成</button></div>:<div className="export-status" role="status"><span className="loading-ring"/><p>正在准备完整图片…</p></div>}
     </div>
     <p className="export-help">3:4 · 1080 × 1440<br/>也可以长按上方图片保存</p>
     <button className="pill-button dark export-save" disabled={!ready||sharing} onClick={save}><Icon name="download"/>{sharing?'正在打开分享…':ready?'保存图片':'正在准备…'}</button>

@@ -1,4 +1,5 @@
 import type {Capsule,Toy} from '../types';
+import {ensureQuestFont,QUEST_FONT_FAMILY} from './questFont';
 
 export const CARD_SIZE={width:1080,height:1440};
 const imageCache=new Map<string,Promise<HTMLImageElement>>();
@@ -38,7 +39,7 @@ function fitFont(ctx:CanvasRenderingContext2D,text:string,max:number,min:number,
  * Image download and decode must succeed before any PNG can be offered to the user.
  */
 export async function renderCollectibleCard(toy:Toy,item:Capsule):Promise<Blob>{
-  const img=await decodedImage(toy.icon_url);
+  const [img]=await Promise.all([decodedImage(toy.icon_url),ensureQuestFont()]);
   await Promise.race([document.fonts.ready,new Promise(resolve=>setTimeout(resolve,4000))]);
   const canvas=document.createElement('canvas');canvas.width=CARD_SIZE.width;canvas.height=CARD_SIZE.height;
   const ctx=canvas.getContext('2d');if(!ctx)throw Error('Canvas is unavailable');
@@ -56,7 +57,7 @@ export async function renderCollectibleCard(toy:Toy,item:Capsule):Promise<Blob>{
   const statement=parts.shift()?.trim().replace(/[。！!]$/,'')||'',quest=parts.join('——').trim().replace(/[。！!]$/,'');
   ctx.font='500 36px Inter,"Microsoft YaHei","PingFang SC",sans-serif';ctx.fillStyle='#284653';
   let y=1077;for(const line of lines(ctx,statement,910)){ctx.fillText(line,80,y);y+=54}
-  y+=24;ctx.font='650 43px Inter,"Microsoft YaHei","PingFang SC",sans-serif';ctx.fillStyle='#ba1200';
+  y+=24;ctx.font=`400 43px ${QUEST_FONT_FAMILY}`;ctx.fillStyle='#ba1200';
   for(const line of lines(ctx,quest,910)){ctx.fillText(line,80,y);y+=62}
   if(y>1330)throw Error('Card copy is too long for this template');
   ctx.font='400 26px Inter,sans-serif';ctx.fillStyle='#899b9d';ctx.fillText(new Date(item.obtained_at).toLocaleDateString('zh-CN'),80,1365);

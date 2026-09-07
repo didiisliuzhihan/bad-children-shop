@@ -36,12 +36,14 @@ export const fallbackToys:Toy[]=[{
   id:'jimao',number:'01',name_en:'Zhang Jimao – 100% Tamed',name_zh:'张鸡毛 · 驯服100%',
   tagline_en:"So happy, I'm so proud right now — buy me a bubble tea today",tagline_zh:'开心开心，我太有面子了——今天给你买一杯奶茶。',
   story_text:'我是你们的皇后',
+  story_note:'张鸡毛的尾巴翘得很高，心却软得一塌糊涂。它说自己已经被驯服100%，但只愿意听喜欢的人的话。今天的任务：给那个让你开心的人，买一杯奶茶。',
   story_en:'',
   model_url:asset('toy_jimao.glb'),icon_url:asset('toy_jimao.png'),audio_url:sourceLink('toy1 jimao.mp3'),story_image_url:sourceLink('toy1 jimao.jpg'),color:'#e9c28b'
 },{
   id:'kuku_sunflower',number:'02',name_en:'Kuku Sunflower',name_zh:'哭哭葵',
   tagline_en:'You forgot to water me, I got emo — pat my head this week',tagline_zh:'你忘了给葵浇水，葵emo了——这周记得摸摸葵的脑袋。',
   story_text:'不枯不枯',
+  story_note:'下雨的时候，它穿着绿色雨靴等你。天晴了，它还是会掉一点眼泪。不是所有的眼泪都因为难过，也可能是想你。今天的任务：摸摸它的脑袋，告诉它，慢慢长大也没关系。',
   story_en:'',
   model_url:asset('toy_kuku_sunflower.glb'),icon_url:asset('toy_kuku_sunflower.png'),audio_url:sourceLink('toy2 emok.mp3'),story_image_url:sourceLink('toy2 emok.jpg'),color:'#d6deb7'
 }];

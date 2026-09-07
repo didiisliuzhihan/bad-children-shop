@@ -4,6 +4,14 @@
 
 React、Three.js、Blender 和 Supabase 实现的 3D 扭蛋商店。网址直接进入主界面；拖动旋钮或点击抽取，亲手开蛋，收留角色、听故事和保存收藏卡。
 
+## V4 更新：小故事与任务字体
+
+- 恢复张鸡毛、哭哭葵的主题小故事，只显示在“读故事”弹窗，不添加到收藏卡或导出 PNG。原短句、照片和音频继续保留。这里是固定编辑的故事稿，不调用 AI 随机生成。
+- 仅中文任务句采用站酷快乐体 ZCOOL KuaiLe（SIL OFL 1.1），标题、普通标语和故事正文不变。网页任务与导出图片使用相同字体，新玩具沿用共享的 Tagline 组件和导出模板。
+- 完整字体包含 7053 个编码字符，WOFF2 约 851 KiB，未按当前两句裁字；从 Supabase 按需加载，不请求 Google Fonts 服务。导出会等待字体成功加载，网络失败时提供重试。
+- 原 TTF 在 assets/source/fonts/，许可证在 assets/source/licenses/ZCOOL-KuaiLe-OFL.txt；转换脚本为 scripts/prepare-quest-font.py。GitHub 的 v4-font-sources.zip 按 assets/ 路径保存相同内容，解压到项目根目录即可。
+- 小故事字段为 Toy.story_note，可选；已有两款放在 src/assets.ts，与云端目录合并后保留。新增玩具可在内容目录提供该字段。用户收藏、RLS 和数据库结构未更改。
+
 ## V3 更新
 
 - 依照新增正面参考重建墨镜羊女孩：猫眼墨镜、细碎刘海、双辫、银色耳环、奶油羊帽与连帽衣。机器恢复 V1 浅蓝色塑料及柔亮高光。
@@ -71,7 +79,7 @@ V3 的 gashapon_machine_v3.blend 保存完整机器，sheep_girl_v3.blend 保存
 
 ## 云端与安全
 
-Supabase 项目 kbyobdydythovyagrfgv 已启用匿名登录。toys 对访客只读；user_capsules 通过 RLS 限制为本人收藏。bad-children-assets 公共桶含 15 个发布文件，普通访客没有上传、覆盖或删除权限。原来的 private shop 桶未更改。
+Supabase 项目 kbyobdydythovyagrfgv 已启用匿名登录。toys 对访客只读；user_capsules 通过 RLS 限制为本人收藏。bad-children-assets 公共桶含 16 个发布文件，普通访客没有上传、覆盖或删除权限。原来的 private shop 桶未更改。
 
 可先执行 supabase/bootstrap.sql，再执行 supabase/content-v2.sql 以更新已有资料。已有项目不必重复执行。
 
@@ -81,7 +89,8 @@ Supabase 项目 kbyobdydythovyagrfgv 已启用匿名登录。toys 对访客只�
 - v2-check.json：直接进入、抽取、开蛋、中文重点句、收藏、故事与 PNG 保存。
 - v3-check.json：透明模糊层、手机故事图完整展示、两款 3:4 卡片、冷缓存图片失败拦截、重试及分享点击有效性。
 - v3-screen-check.json：320×568、375×667、430×932 竖屏与 844×390 横屏的图片适配、关闭和保存控件可用性。
-- assets/storage-check.json：15 个线上素材均 HTTP 200，SHA-256 与本地一致。
+- assets/storage-check.json：16 个线上素材均 HTTP 200，SHA-256 与本地一致。
+- v4-check.json：任务专属字体、按需加载、故事仅弹窗显示、3:4 PNG 同字体、字体失败拦截与重试恢复。
 - cloud-check.json：本人读写、跨用户隔离和伪造归属拦截。
 - deploy-check.json：正式 HTTPS 站点已验证，HTML 与本地构建 SHA-256 一致；云端收藏、刷新保留、故事和 PNG 下载通过。
 - v3-deploy-check.json：V3 正式网址与最终 HTML 校验一致，新模型、透明层、两张手机故事图及两款 1080×1440 PNG 下载通过。

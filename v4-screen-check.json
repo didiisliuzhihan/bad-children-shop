@@ -1,0 +1,50 @@
+[
+  {
+    "viewport": [
+      320,
+      568
+    ],
+    "story": {
+      "fit": "contain",
+      "width": 246,
+      "height": 205
+    },
+    "saveButtonVisible": true
+  },
+  {
+    "viewport": [
+      375,
+      667
+    ],
+    "story": {
+      "fit": "contain",
+      "width": 301,
+      "height": 245
+    },
+    "saveButtonVisible": true
+  },
+  {
+    "viewport": [
+      430,
+      932
+    ],
+    "story": {
+      "fit": "contain",
+      "width": 356,
+      "height": 402
+    },
+    "saveButtonVisible": true
+  },
+  {
+    "viewport": [
+      844,
+      390
+    ],
+    "story": {
+      "fit": "contain",
+      "width": 313,
+      "height": 273
+    },
+    "saveButtonVisible": true
+  }
+]

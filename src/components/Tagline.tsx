@@ -1,4 +1,5 @@
 import type {Toy} from '../types';
+import '../lib/questFont';
 
 /** Preserve the supplied slogan and highlight its task in the brand accent. */
 export function Tagline({toy}:{toy:Toy}){
