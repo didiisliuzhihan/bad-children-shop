@@ -90,4 +90,9 @@
  .story-modal .modal-panel{display:grid;grid-template-columns:1fr 1fr;width:700px;max-width:95vw}
  .story-image{height:80dvh;min-height:0}
  .story-copy{padding:40px 25px 25px}
+ .save-modal .modal-panel{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto 1fr auto;gap:0 25px;width:650px;max-width:95vw;padding:24px;overflow:auto}
+ .save-modal h2{grid-column:2;grid-row:1;margin:0 25px 0 0;font-size:19px}
+ .save-modal .export-preview{grid-column:1;grid-row:1 / 4;width:min(100%,54dvh);align-self:center}
+ .save-modal .export-help{grid-column:2;grid-row:2;align-self:center;margin:10px 0}
+ .save-modal .export-save{grid-column:2;grid-row:3;justify-self:center;margin:0}
 }

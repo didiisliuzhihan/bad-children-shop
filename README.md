@@ -80,6 +80,7 @@ Supabase 项目 kbyobdydythovyagrfgv 已启用匿名登录。toys 对访客只�
 - build-report.json：单 HTML、没有外部 JS/CSS、没有内联大型二进制。
 - v2-check.json：直接进入、抽取、开蛋、中文重点句、收藏、故事与 PNG 保存。
 - v3-check.json：透明模糊层、手机故事图完整展示、两款 3:4 卡片、冷缓存图片失败拦截、重试及分享点击有效性。
+- v3-screen-check.json：320×568、375×667、430×932 竖屏与 844×390 横屏的图片适配、关闭和保存控件可用性。
 - assets/storage-check.json：15 个线上素材均 HTTP 200，SHA-256 与本地一致。
 - cloud-check.json：本人读写、跨用户隔离和伪造归属拦截。
 - deploy-check.json：正式 HTTPS 站点已验证，HTML 与本地构建 SHA-256 一致；云端收藏、刷新保留、故事和 PNG 下载通过。
