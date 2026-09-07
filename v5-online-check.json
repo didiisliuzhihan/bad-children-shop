@@ -1,0 +1,33 @@
+{
+  "passed": true,
+  "online": true,
+  "liveHash": "5363bb76a37b1e51933c0acc42fd4c27f58f4540059a34c36965f8aebe20cdef",
+  "artwork": {
+    "url": "https://kbyobdydythovyagrfgv.supabase.co/storage/v1/object/public/bad-children-assets/toy_stressed_jimao_card.png",
+    "natural": [
+      1024,
+      1024
+    ],
+    "box": [
+      336,
+      336
+    ],
+    "fit": "contain"
+  },
+  "fullSourceImageDrawn": true,
+  "cardSize": [
+    1080,
+    1440
+  ],
+  "exportBytes": 1750554,
+  "questFont": true,
+  "storiesExcludedFromCard": true,
+  "storyAudioPlayed": true,
+  "glbRevealVerified": true,
+  "largeAssetsLazy": true,
+  "flyingCardUsesOriginalArtwork": true,
+  "localCollectionSurvivesReload": true,
+  "collectionTestIsolation": "Authentication requests blocked; local browser fixture only; no production collection writes",
+  "errors": [],
+  "environment": "Windows Chrome; mobile viewport 390x844, desktop 1440x1000; no physical iPhone Safari test"
+}

@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "effects": 28,
+  "states": [
+    "running"
+  ],
+  "rmsPeak": 0.01177890741099017,
+  "gainLevels": [
+    0.550000011920929
+  ],
+  "bgm": {
+    "url": "https://kbyobdydythovyagrfgv.supabase.co/storage/v1/object/public/bad-children-assets/studio-loop.wav",
+    "volume": 0.08
+  },
+  "contextState": "running",
+  "method": "Fresh Chrome context, first drag, Web Audio analyser records nonzero effect signal; not a physical iPhone listening test"
+}

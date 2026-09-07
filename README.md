@@ -13,7 +13,7 @@ React、Three.js、Blender 和 Supabase 实现的 3D 扭蛋商店。网址直接
 - 首次音效等待 AudioContext 进入 running，再安排播放；解锁失败无未处理错误，后续 pointer-up / keyboard 手势可重试。机械滚动提高中频与效果总线电平。BGM 从 0.16 降至 0.08，语音时降至 0.025；语音本身保持 0.75。
 - `supabase/toy03-stressed-jimao.sql` 只新增玩具记录，不改变表结构、已有玩具、用户收藏或 RLS。`card_image_url` 和 `story_note` 是前端可选字段，按 ID 与云端目录合并。
 - `v5-source-media.zip` 含本次 Blender 工程、未压缩模型、参考原图、照片、语音与五项发布素材，按目录解压到项目根目录即可。所有本地源文件均保留。
-- 验证：`v5-check.json`、`v5-first-audio-check.json`；单元测试包含首次解锁失败、后续重试、静音与中断恢复。音效检测使用真实 Chrome 音频分析器，未声称完成实体 iPhone 听感测试。
+- 验证：`v5-check.json`、`v5-online-check.json`、`v5-online-first-audio-check.json`；单元测试包含首次解锁失败、后续重试、静音、中断恢复、BGM 降低和语音避让。`v5-retry-check.json` 验证原图失败阻止空白导出、重试恢复与手机分享；`v5-legacy-check.json` 验证前两只功能不变。音效检测使用真实 Chrome 音频分析器，未声称完成实体 iPhone 听感测试。
 
 ### 今后新增玩具
 

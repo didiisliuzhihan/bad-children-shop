@@ -1,0 +1,59 @@
+{
+  "passed": true,
+  "verifiedAt": "2026-09-07T05:24:38.835Z",
+  "url": "http://127.0.0.1:4173",
+  "taskFonts": [
+    {
+      "text": "今天给你买一杯奶茶",
+      "family": "\"BC Quest\", \"PingFang SC\", \"Microsoft YaHei\", sans-serif",
+      "weight": "400"
+    },
+    {
+      "text": "这周记得摸摸葵的脑袋",
+      "family": "\"BC Quest\", \"PingFang SC\", \"Microsoft YaHei\", sans-serif",
+      "weight": "400"
+    }
+  ],
+  "titleFonts": [
+    "Inter, \"Segoe UI\", \"PingFang SC\", \"Microsoft YaHei\", sans-serif",
+    "Inter, \"Segoe UI\", \"PingFang SC\", \"Microsoft YaHei\", sans-serif"
+  ],
+  "stories": [
+    "张鸡毛的尾巴翘得很高，心却软得一塌糊涂。它说自己已经被驯服100%，但只愿意听喜欢的人的话。今天的任务：给那个让你开心的人，买一杯奶茶。",
+    "下雨的时候，它穿着绿色雨靴等你。天晴了，它还是会掉一点眼泪。不是所有的眼泪都因为难过，也可能是想你。今天的任务：摸摸它的脑袋，告诉它，慢慢长大也没关系。"
+  ],
+  "cards": [
+    {
+      "size": [
+        1080,
+        1440
+      ],
+      "bytes": 711195
+    },
+    {
+      "size": [
+        1080,
+        1440
+      ],
+      "bytes": 717282
+    }
+  ],
+  "questDraws": [
+    {
+      "text": "今天给你买一杯奶茶",
+      "font": "43px \"BC Quest\", \"PingFang SC\", \"Microsoft YaHei\", sans-serif"
+    },
+    {
+      "text": "这周记得摸摸葵的脑袋",
+      "font": "43px \"BC Quest\", \"PingFang SC\", \"Microsoft YaHei\", sans-serif"
+    }
+  ],
+  "fontRequests": [
+    "http://127.0.0.1:4173/assets/delivery/zcool-kuaile.woff2"
+  ],
+  "fontLazyLoad": true,
+  "storyNotesExcludedFromExports": true,
+  "retryCheck": "Failed font blocks export; retry recovers with correct font",
+  "errors": [],
+  "environment": "Windows Chrome at 390×844; no physical iPhone Safari test"
+}

@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "failedArtworkBlocksExport": true,
+  "retryRecoversOriginalArtwork": true,
+  "share": {
+    "active": true,
+    "bytes": 1750554,
+    "type": "image/png"
+  },
+  "viewport": [
+    320,
+    568
+  ],
+  "noHorizontalOverflow": true
+}

@@ -1,0 +1,33 @@
+{
+  "version": "5.0.0",
+  "url": "https://didiisliuzhihan.github.io/bad-children-shop/?v=5",
+  "deploymentCommit": "63f0f31bde79b093769c3c96231c041937c82ea1",
+  "pagesWorkflowRun": "34086793544",
+  "pagesConclusion": "success",
+  "htmlBytes": 2039722,
+  "htmlSha256": "5363bb76a37b1e51933c0acc42fd4c27f58f4540059a34c36965f8aebe20cdef",
+  "liveHtmlMatchesLocal": true,
+  "singleHtmlEntry": true,
+  "largeBinaryAssetsExternalAndLazy": true,
+  "catalog": ["jimao", "kuku_sunflower", "stressed_jimao"],
+  "newPublicAssets": 5,
+  "assetHashesMatchLocal": true,
+  "existingToysCollectionsAndPoliciesUnchanged": true,
+  "privateShopBucketUnchanged": true,
+  "sourceBackup": {
+    "file": "v5-source-media.zip",
+    "bytes": 10393120,
+    "gitBlobSha": "d231012d895dd1c959bc7c7183aa7af62069e3c3",
+    "remoteBlobMatchesLocal": true,
+    "includesEditableBlenderAndOriginalMedia": true
+  },
+  "unitTestsPassed": 7,
+  "checks": [
+    "v5-online-check.json",
+    "v5-online-first-audio-check.json",
+    "v5-retry-check.json",
+    "v5-legacy-check.json"
+  ],
+  "bluePreviewCause": "Test-only global Math.random override caused Three.js UUID collisions. Test now selects Toy 03 through a catalog fixture and leaves randomness intact; production GLB retains its 13 colored materials.",
+  "limitation": "Windows Chrome, including narrow viewports; physical iPhone Safari and real-device listening not tested."
+}
