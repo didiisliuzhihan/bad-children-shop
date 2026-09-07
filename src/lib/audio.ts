@@ -1,23 +1,65 @@
 type Sound='click'|'roll'|'lock'|'drop'|'open'|'keep'|'reject';
-let ctx:AudioContext|undefined;let gain:GainNode|undefined;let muted=false;let background:HTMLAudioElement|undefined;let activeVoice:HTMLAudioElement|undefined;
+let ctx:AudioContext|undefined;let gain:GainNode|undefined;let master:GainNode|undefined;let musicGain:GainNode|undefined;let voiceGain:GainNode|undefined;
+let muted=false;let background:HTMLAudioElement|undefined;let activeVoice:HTMLAudioElement|undefined;
+let backgroundSource:MediaElementAudioSourceNode|undefined;let voiceSource:MediaElementAudioSourceNode|undefined;
 const EFFECT_LEVEL=.55;
 const BACKGROUND_LEVEL=.08,VOICE_BACKGROUND_LEVEL=.025;
+function setLevel(node:GainNode|undefined,level:number){if(node&&ctx){node.gain.cancelScheduledValues(ctx.currentTime);node.gain.setTargetAtTime(level,ctx.currentTime,.04)}}
 export async function unlockAudio():Promise<boolean>{
   try{
+    // iOS otherwise treats synthesized effects as ambient/ringer audio while
+    // HTML media uses playback audio. Feature-detect; no microphone permission.
+    try{const session=(navigator as Navigator&{audioSession?:{type:string}}).audioSession;
+      if(session&&session.type!=='playback')session.type='playback';
+    }catch{/* Optional API: older browsers still use the shared mixer. */}
     if(!ctx||ctx.state==='closed'){
       const Context=globalThis.AudioContext||(window as unknown as {webkitAudioContext?:typeof AudioContext}).webkitAudioContext;
-      if(!Context)return false;ctx=new Context();gain=ctx.createGain();gain.gain.value=muted?0:EFFECT_LEVEL;gain.connect(ctx.destination);
-      // Prime the output from the actual user gesture, including older iOS WebKit.
-      const prime=ctx.createBufferSource();prime.buffer=ctx.createBuffer(1,1,ctx.sampleRate);prime.connect(ctx.destination);prime.onended=()=>prime.disconnect();prime.start(0);
+      if(!Context)return false;
+      background?.pause();backgroundSource?.disconnect();background=undefined;backgroundSource=undefined;stopVoice();
+      ctx=new Context();master=ctx.createGain();master.gain.value=muted?0:1;master.connect(ctx.destination);
+      gain=ctx.createGain();gain.gain.value=EFFECT_LEVEL;gain.connect(master);
+      musicGain=ctx.createGain();musicGain.gain.value=BACKGROUND_LEVEL;musicGain.connect(master);
+      voiceGain=ctx.createGain();voiceGain.gain.value=.75;voiceGain.connect(master);
     }
-    if(ctx.state!=='running')await ctx.resume();
-    return ctx.state==='running';
+    const context=ctx;
+    if(context.state==='running')return true;
+    // Retry priming on the *release* gesture, not just an earlier touch-down.
+    const prime=ctx.createBufferSource();prime.buffer=ctx.createBuffer(1,1,ctx.sampleRate);prime.connect(ctx.destination);prime.onended=()=>prime.disconnect();prime.start(0);
+    // Some WebKit resume promises stay pending when activation was denied.
+    // Bound each attempt and allow the next trusted gesture to retry independently.
+    return await new Promise<boolean>(resolve=>{
+      const timer=setTimeout(()=>resolve(false),1200);
+      context.resume().then(()=>{clearTimeout(timer);resolve(context.state==='running')},()=>{clearTimeout(timer);resolve(false)});
+    });
   }catch{return false /* A later pointer-up/keyboard gesture can retry. */}
 }
-export function setMuted(m:boolean){muted=m;if(gain)gain.gain.setTargetAtTime(m?0:EFFECT_LEVEL,ctx!.currentTime,.1);if(background)background.muted=m;if(activeVoice)activeVoice.muted=m}
-export async function startBackground(url:string){void unlockAudio();background??=new Audio(url);background.loop=true;background.volume=activeVoice?VOICE_BACKGROUND_LEVEL:BACKGROUND_LEVEL;background.muted=muted;if(!background.paused)return;try{await background.play()}catch{/* Retry on the next trusted user gesture. */}}
-export function stopVoice(){activeVoice?.pause();activeVoice=undefined;if(background)background.volume=BACKGROUND_LEVEL}
-export async function playVoice(url:string,onEnd:()=>void){stopVoice();const a=new Audio(url);activeVoice=a;a.volume=.75;a.muted=muted;if(background)background.volume=VOICE_BACKGROUND_LEVEL;a.onended=()=>{stopVoice();onEnd()};a.onerror=()=>{stopVoice();onEnd()};await a.play();return a}
+function media(url:string){
+  const a=new Audio();a.crossOrigin='anonymous';a.preload='none';a.setAttribute('playsinline','');a.src=url;a.muted=muted;
+  // Leave element.volume at 1: iOS may ignore its setter. GainNodes do all mixing.
+  return a;
+}
+export function setMuted(m:boolean){muted=m;setLevel(master,m?0:1);if(background)background.muted=m;if(activeVoice)activeVoice.muted=m}
+export async function startBackground(url:string){
+  void unlockAudio();
+  if(!ctx||!musicGain||muted)return;
+  try{
+    if(!background){const a=media(url);backgroundSource=ctx.createMediaElementSource(a);backgroundSource.connect(musicGain);background=a;background.loop=true;}
+    setLevel(musicGain,activeVoice?VOICE_BACKGROUND_LEVEL:BACKGROUND_LEVEL);
+    if(background.paused)await background.play(); // Called synchronously in the gesture, before awaiting.
+  }catch{/* Never fall back to an unattenuated HTML player; retry next gesture. */}
+}
+export function stopVoice(){activeVoice?.pause();activeVoice=undefined;voiceSource?.disconnect();voiceSource=undefined;setLevel(musicGain,BACKGROUND_LEVEL)}
+export async function playVoice(url:string,onEnd:()=>void){
+  const ready=unlockAudio();stopVoice();if(!ctx||!voiceGain)throw Error('Audio unavailable');
+  const a=media(url);activeVoice=a;
+  const finish=()=>{if(activeVoice===a){stopVoice();onEnd()}};
+  try{
+    voiceSource=ctx.createMediaElementSource(a);voiceSource.connect(voiceGain);setLevel(musicGain,VOICE_BACKGROUND_LEVEL);
+    a.onended=finish;a.onerror=finish;
+    const play=a.play(); // Preserve trusted gesture for Safari's media policy.
+    const [unlocked]=await Promise.all([ready,play]);if(!unlocked)throw Error('Audio locked');return a;
+  }catch(error){finish();throw error}
+}
 export function sound(kind:Sound){
   if(muted)return;const requestedAt=performance.now();
   void unlockAudio().then(ready=>{if(ready&&!muted&&performance.now()-requestedAt<600)scheduleSound(kind)});

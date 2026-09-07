@@ -1,0 +1,63 @@
+{
+  "passed": true,
+  "reports": [
+    {
+      "baseline": true,
+      "beforeRelease": "SPINNING",
+      "effects": [
+        {
+          "at": 2523.5,
+          "state": "running",
+          "released": true
+        },
+        {
+          "at": 2523.600000023842,
+          "state": "running",
+          "released": true
+        }
+      ],
+      "levels": [
+        0.550000011920929,
+        0.0010000000474974513,
+        0.0010000000474974513
+      ],
+      "peak": [
+        0.07610486291150342,
+        0.14446952579576702,
+        0.11164481072966424,
+        0
+      ],
+      "sources": [],
+      "volumeWrites": 2,
+      "events": [
+        {
+          "type": "pointerdown",
+          "pointer": "touch",
+          "at": 467.69999998807907,
+          "trusted": true
+        },
+        {
+          "type": "touchstart",
+          "at": 501.19999998807907,
+          "trusted": true
+        },
+        {
+          "type": "pointerup",
+          "pointer": "touch",
+          "at": 2155.699999988079,
+          "trusted": true
+        },
+        {
+          "type": "touchend",
+          "at": 2155.900000035763,
+          "trusted": true
+        }
+      ],
+      "session": {
+        "type": "auto"
+      },
+      "contextState": "running"
+    }
+  ],
+  "method": "Chrome with trusted CDP touch events; iOS-like ignored media volume and release-gated resume simulated; physical iPhone not tested"
+}

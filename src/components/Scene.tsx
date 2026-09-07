@@ -5,7 +5,7 @@ import {Environment,Lightformer,ContactShadows} from '@react-three/drei';
 import * as THREE from 'three';
 import type {GLTF} from 'three/addons/loaders/GLTFLoader.js';
 import {asset,loadModel,releaseModel} from '../assets';
-import {dragProgress} from '../flow.mjs';
+import {dragProgress,shouldCommitDrag} from '../flow.mjs';
 import type {Phase,Toy} from '../types';
 
 export function Studio({reveal=false}:{reveal?:boolean}){
@@ -45,12 +45,12 @@ function Machine({model,phase,progress,onProgress,onTurn,reduced}:{model:GLTF;ph
  useFrame((s,dt)=>{const dial=actions.knob_drag;if(dial)dial.time=THREE.MathUtils.damp(dial.time,(active?progress:1)*dial.getClip().duration,18,dt);mixer.update(dt);
   if(root.current){root.current.rotation.y=THREE.MathUtils.damp(root.current.rotation.y,-.025+(reduced?0:s.pointer.x*.05),3,dt);root.current.position.x=0;root.current.position.y=0;}
  });
- const release=(e:ThreeEvent<PointerEvent>)=>{try{(e.target as Element).releasePointerCapture(e.pointerId)}catch{}dragStart.current=null;if(!triggered.current)onProgress(0)};
+ const release=(e:ThreeEvent<PointerEvent>)=>{const p=dragStart.current===null?0:dragProgress(dragStart.current,e.clientX,size.width);if(e.type==='pointerup'&&active&&!triggered.current&&shouldCommitDrag(p,e.pointerType,true)){triggered.current=true;onTurn()}try{(e.target as Element).releasePointerCapture(e.pointerId)}catch{}dragStart.current=null;document.body.style.cursor='';if(!triggered.current)onProgress(0)};
  return <group ref={root} scale={1}>
   <primitive object={scene}/><Capsules phase={phase} reduced={reduced}/>
   <mesh position={[.66,1.15,1.17]} onPointerOver={()=>{if(active)document.body.style.cursor='grab'}} onPointerOut={()=>{document.body.style.cursor=''}}
    onPointerDown={e=>{if(!active)return;e.stopPropagation();dragStart.current=e.clientX;triggered.current=false;(e.target as Element).setPointerCapture(e.pointerId);document.body.style.cursor='grabbing'}}
-   onPointerMove={e=>{if(dragStart.current===null||!active||triggered.current)return;const p=dragProgress(dragStart.current,e.clientX,size.width);onProgress(p);if(p>=1){triggered.current=true;onTurn();document.body.style.cursor=''}}}
+   onPointerMove={e=>{if(dragStart.current===null||!active||triggered.current)return;const p=dragProgress(dragStart.current,e.clientX,size.width);onProgress(p);if(shouldCommitDrag(p,e.pointerType)){triggered.current=true;onTurn();document.body.style.cursor=''}}}
    onPointerUp={release} onPointerCancel={release}>
    <sphereGeometry args={[.47,16,12]}/><meshBasicMaterial transparent opacity={0} depthWrite={false}/>
   </mesh>

@@ -4,6 +4,16 @@
 
 React、Three.js、Blender 和 Supabase 实现的 3D 扭蛋商店。网址直接进入主界面；拖动旋钮或点击抽取，亲手开蛋，收留角色、听故事和保存收藏卡。
 
+## V5.1 手机音频修复
+
+- 修复两条平台差异：旧 BGM 依赖 `HTMLMediaElement.volume`，iOS 可能忽略此设置；旧触屏拖动在 `pointermove` 即启动，而手机音频可能要到 `pointerup` / `touchend` 才解锁。V5 窄屏验证使用鼠标，未覆盖触屏激活限制。
+- BGM、合成音效、故事语音现经同一个 AudioContext 与总音量节点输出；分别使用 GainNode 的 0.08、0.55、0.75，保持电脑已认可的配比。语音期间 BGM 降至 0.025。不再写 HTML 媒体的 volume；音源在设置 URL 前启用匿名跨域，避免跨域音频被 Web Audio 静默。
+- 触屏滑条和真实 3D 旋钮均为拖到位后松手提交，鼠标仍在达到阈值时提交。动画开始前先确认音频 running；失败则不消耗抽取、不播放一轮无声动画，可重试或静音游玩。每次解锁有 1.2 秒上限，后续手势不会被未完成的旧请求卡住。
+- 对支持 Audio Session API 的设备请求 playback 类型，避免 BGM 和效果分别受媒体音量与铃声静音模式影响；不请求麦克风权限。功能检测失败不影响基础播放。
+- `tests/audio.test.mjs` 模拟无法设置媒体音量、首次解锁失败、永久 pending、恢复、静音、语音失败与旧语音回调；`tests/touch-audio.test.mjs` 检查触屏、触笔与鼠标的提交时机。`v5.1-baseline-audio-check.json` 记录旧版在模拟限制下漏掉滚动声；`v5.1-local-audio-check.json` 记录实际浏览器音频信号与受信任触摸事件测试。仍未完成实体 iPhone Safari 听感测试。
+- Apple 平台依据：[iOS 音量限制](https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/Using_HTML5_Audio_Video/Device-SpecificConsiderations/Device-SpecificConsiderations.html#//apple_ref/doc/uid/TP40009523-CH5-SW4)、[WebKit 触摸激活规则](https://webkit.org/blog/13862/the-user-activation-api/)、[Web Audio 与铃声静音](https://bugs.webkit.org/show_bug.cgi?id=237322)。前一个文档为归档说明，当前设备实际表现仍需真机回测。
+- 只修改前端代码和测试，不改变 Supabase 记录、存储文件、收藏或访问权限。原素材与 Blender 工程保留。
+
 ## V5 更新：抗压鸡毛与双素材工作流
 
 - 新增第 03 只「抗压鸡毛」。任务原文：这周帮小鸡毛做一件小事叭；照片附录：你看我还好吗？小故事采用已确认的第二稿，仅在故事弹窗显示。

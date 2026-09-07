@@ -1,0 +1,117 @@
+{
+  "passed": true,
+  "reports": [
+    {
+      "touch": true,
+      "control": "slider",
+      "htmlHash": "42a1e37de99275879f116814208e601b4f8f20303dadef7e93a278ff0847f0ec",
+      "beforeRelease": "IDLE",
+      "firstRollNotes": 28,
+      "allStartedRunning": true,
+      "mixLevels": [
+        1,
+        0.550000011920929,
+        0.07999999821186066,
+        0.75
+      ],
+      "duck": 0.025771955028176308,
+      "restored": 0.07999316602945328,
+      "peak": [
+        0.17547938938351043,
+        0.17545402831794193,
+        0.004390236548848191,
+        0.09981964818411758
+      ],
+      "volumeWrites": 0,
+      "sources": [
+        {
+          "url": "http://127.0.0.1:4173/assets/delivery/studio-loop.wav",
+          "cors": "anonymous",
+          "gainIndex": 2
+        },
+        {
+          "url": "http://127.0.0.1:4173/assets/delivery/toy3_stressed_jimao_voice.mp3",
+          "cors": "anonymous",
+          "gainIndex": 3
+        }
+      ],
+      "cancelDoesNotSpin": true,
+      "errors": []
+    },
+    {
+      "touch": true,
+      "control": "3d-knob",
+      "htmlHash": "42a1e37de99275879f116814208e601b4f8f20303dadef7e93a278ff0847f0ec",
+      "beforeRelease": "IDLE",
+      "firstRollNotes": 28,
+      "allStartedRunning": true,
+      "mixLevels": [
+        1,
+        0.550000011920929,
+        0.07999999821186066,
+        0.75
+      ],
+      "duck": 0.025771955028176308,
+      "restored": 0.07999221235513687,
+      "peak": [
+        0.17547724119288485,
+        0.17545402831794193,
+        0.004424421807285014,
+        0.08385670374764338
+      ],
+      "volumeWrites": 0,
+      "sources": [
+        {
+          "url": "http://127.0.0.1:4173/assets/delivery/studio-loop.wav",
+          "cors": "anonymous",
+          "gainIndex": 2
+        },
+        {
+          "url": "http://127.0.0.1:4173/assets/delivery/toy3_stressed_jimao_voice.mp3",
+          "cors": "anonymous",
+          "gainIndex": 3
+        }
+      ],
+      "cancelDoesNotSpin": true,
+      "errors": []
+    },
+    {
+      "touch": false,
+      "control": "slider",
+      "htmlHash": "42a1e37de99275879f116814208e601b4f8f20303dadef7e93a278ff0847f0ec",
+      "beforeRelease": "SPINNING",
+      "firstRollNotes": 28,
+      "allStartedRunning": true,
+      "mixLevels": [
+        1,
+        0.550000011920929,
+        0.07999999821186066,
+        0.75
+      ],
+      "duck": 0.025771955028176308,
+      "restored": 0.07999316602945328,
+      "peak": [
+        0.17545428692134837,
+        0.17545402831794193,
+        0.004424421807285014,
+        0.08947014194814364
+      ],
+      "volumeWrites": 0,
+      "sources": [
+        {
+          "url": "http://127.0.0.1:4173/assets/delivery/studio-loop.wav",
+          "cors": "anonymous",
+          "gainIndex": 2
+        },
+        {
+          "url": "http://127.0.0.1:4173/assets/delivery/toy3_stressed_jimao_voice.mp3",
+          "cors": "anonymous",
+          "gainIndex": 3
+        }
+      ],
+      "cancelDoesNotSpin": true,
+      "errors": []
+    }
+  ],
+  "method": "Chrome with trusted CDP touch events; iOS-like ignored media volume and release-gated resume simulated; physical iPhone not tested"
+}

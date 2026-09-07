@@ -7,7 +7,7 @@ import {BrandMark,Icon} from './components/Icon';
 import {Collection} from './components/Collection';
 import {Modal} from './components/Modal';
 import {Tagline} from './components/Tagline';
-import {canTransition,chooseToy,dragProgress} from './flow.mjs';
+import {canTransition,chooseToy,dragProgress,shouldCommitDrag} from './flow.mjs';
 import {initializeCloud,readLocal,syncCapsule,writeLocal} from './lib/collection';
 import {setMuted as muteAudio,sound,startBackground,unlockAudio} from './lib/audio';
 import type {Capsule,Phase,Toy} from './types';
@@ -57,12 +57,14 @@ export default function App(){
     };
     document.addEventListener('keydown',trap);return()=>document.removeEventListener('keydown',trap);
   },[overlay,phase]);
-  const startAudio=()=>{void unlockAudio();if(!muted)void startBackground(asset('studio-loop.wav'))};
-  const spin=useCallback(()=>{
+  const startAudio=()=>{if(!muted)void startBackground(asset('studio-loop.wav'))};
+  const spin=useCallback(async()=>{
     if(locked.current||phaseRef.current!=='IDLE'||!machine)return;
-    locked.current=true;setSelected(chooseToy(toys));setToyReady(false);setToyError(false);transition('SPINNING');setDrag(1);sound('roll');
+    locked.current=true;
+    if(!muted&&!await unlockAudio()){locked.current=false;setDrag(0);toast('声音还没准备好，请松手后再试一次；也可以静音游玩。');return}
+    setSelected(chooseToy(toys));setToyReady(false);setToyError(false);transition('SPINNING');setDrag(1);sound('roll');
     later(()=>{transition('LOCKING');sound('lock')},2000);later(()=>transition('DROPPING'),3000);later(()=>sound('drop'),3800);later(()=>transition('PAUSE'),4500);later(()=>transition('SEALED'),5500);
-  },[machine,toys,transition,later]);
+  },[machine,toys,transition,later,muted,toast]);
   const reset=useCallback(()=>{transition('IDLE');setSelected(null);setDrag(0);setToyReady(false);locked.current=false;timeouts.current.forEach(clearTimeout);timeouts.current=[]},[transition]);
   const open=()=>{if(phaseRef.current==='SEALED'){transition('REVEALED');sound('open')}};
   const ready=useCallback(()=>{setToyReady(true);later(()=>transition('DECISION'),1900)},[later,transition]);
@@ -84,7 +86,7 @@ export default function App(){
   };
   const reject=()=>{if(phaseRef.current==='DECISION'){transition('REJECTED');sound('reject');later(reset,1000)}};
   const toggleAudio=()=>{const value=!muted;setMuted(value);muteAudio(value);if(!value)void startBackground(asset('studio-loop.wav'))};
-  return <main className={'shop is-entered '+(bag?'has-bag ':'')+(overlay?'is-revealing':'')} data-phase={phase} onPointerDownCapture={startAudio} onPointerUpCapture={startAudio} onKeyDownCapture={startAudio}>
+  return <main className={'shop is-entered '+(bag?'has-bag ':'')+(overlay?'is-revealing':'')} data-phase={phase} onPointerDownCapture={startAudio} onPointerUpCapture={startAudio} onTouchEndCapture={startAudio} onClickCapture={startAudio} onKeyDownCapture={startAudio}>
     <div className="grain" aria-hidden="true"/>
     <header className="topbar" inert={overlay?true:undefined}>
       <button className="brand" onClick={()=>{if(phase==='IDLE')setBag(false)}} aria-label="Bad Children Shop 首页"><BrandMark/><span>BAD CHILDREN<br/>SHOP</span></button>
@@ -103,8 +105,8 @@ export default function App(){
         <button className={'turn-control '+(phase!=='IDLE'?'busy':'')} disabled={!machine||phase!=='IDLE'} aria-label="向右滑动旋钮，或按回车抽取扭蛋"
           onKeyDown={event=>{if(['Enter',' ','ArrowRight'].includes(event.key)){event.preventDefault();spin()}}}
           onPointerDown={event=>{if(phase!=='IDLE')return;dragStart.current=event.clientX;event.currentTarget.setPointerCapture(event.pointerId)}}
-          onPointerMove={event=>{if(dragStart.current===null||phaseRef.current!=='IDLE')return;const p=dragProgress(dragStart.current,event.clientX,innerWidth);setDrag(p);if(p>=1){dragStart.current=null;spin()}}}
-          onPointerUp={event=>{dragStart.current=null;if(phaseRef.current==='IDLE')setDrag(0);try{event.currentTarget.releasePointerCapture(event.pointerId)}catch{}}}
+          onPointerMove={event=>{if(dragStart.current===null||phaseRef.current!=='IDLE')return;const p=dragProgress(dragStart.current,event.clientX,innerWidth);setDrag(p);if(shouldCommitDrag(p,event.pointerType)){dragStart.current=null;void spin()}}}
+          onPointerUp={event=>{const p=dragStart.current===null?0:dragProgress(dragStart.current,event.clientX,innerWidth);dragStart.current=null;if(phaseRef.current==='IDLE'){if(shouldCommitDrag(p,event.pointerType,true))void spin();else setDrag(0)}try{event.currentTarget.releasePointerCapture(event.pointerId)}catch{}}}
           onPointerCancel={()=>{dragStart.current=null;if(phaseRef.current==='IDLE')setDrag(0)}}>
           <span className="turn-fill" style={{width:drag*100+'%'}}/><span className="dial-mini" style={{transform:'translateX('+drag*170+'px) rotate('+drag*180+'deg)'}}><i/></span>
           <span className="turn-copy">{phase==='IDLE'?'抽取扭蛋':'抽取中'}</span><Icon name="arrow" size={19}/>
