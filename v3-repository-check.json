@@ -1,0 +1,47 @@
+{
+  "verified": true,
+  "files": [
+    {
+      "path": "blender/gashapon_machine_v3.blend",
+      "bytes": 1768789,
+      "gitBlobSha": "fbcc193a74da23584b5999e722481e5f263ae110",
+      "matched": true
+    },
+    {
+      "path": "blender/sheep_girl_v3.blend",
+      "bytes": 1598360,
+      "gitBlobSha": "a85ef887fccf22027033565971957b3e2524d016",
+      "matched": true
+    },
+    {
+      "path": "assets/source/models/gashapon_machine_v3.glb",
+      "bytes": 3632456,
+      "gitBlobSha": "a6ffa72b8d4e407c3fd5f8d975bfd8ddac89fb88",
+      "matched": true
+    },
+    {
+      "path": "assets/source/models/machine-v3-front.png",
+      "bytes": 864012,
+      "gitBlobSha": "eef6d4155533b3f2bda9ef6ac496ffddfbcd1aac",
+      "matched": true
+    },
+    {
+      "path": "assets/source/models/sheep-girl-v3-front.png",
+      "bytes": 1112140,
+      "gitBlobSha": "774b4491adf0bcc67228f77c7abeb303bdd5496d",
+      "matched": true
+    },
+    {
+      "path": "v3-source-media.zip",
+      "bytes": 2661816,
+      "gitBlobSha": "d990a0258b5907b462113a692e14b8e53b2820e9",
+      "matched": true
+    },
+    {
+      "path": "docs/index.html",
+      "bytes": 2034162,
+      "gitBlobSha": "a84ced9d8ef16bf21a764bd2e8813604403f98eb",
+      "matched": true
+    }
+  ]
+}

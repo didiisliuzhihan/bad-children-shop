@@ -84,5 +84,7 @@ Supabase 项目 kbyobdydythovyagrfgv 已启用匿名登录。toys 对访客只�
 - assets/storage-check.json：15 个线上素材均 HTTP 200，SHA-256 与本地一致。
 - cloud-check.json：本人读写、跨用户隔离和伪造归属拦截。
 - deploy-check.json：正式 HTTPS 站点已验证，HTML 与本地构建 SHA-256 一致；云端收藏、刷新保留、故事和 PNG 下载通过。
+- v3-deploy-check.json：V3 正式网址与最终 HTML 校验一致，新模型、透明层、两张手机故事图及两款 1080×1440 PNG 下载通过。
+- v3-repository-check.json：新版 Blender 工程、未压缩模型、检查渲染、参考素材备份及 HTML 与 GitHub 文件哈希一致。
 
 实际验证环境是 Windows Chrome 与 390×844 窄屏模拟；没有声称完成真实 iPhone Safari 测试。匿名收藏不是账号找回系统。字体许可位于 assets/source/licenses/。
