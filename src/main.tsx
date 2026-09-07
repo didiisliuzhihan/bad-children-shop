@@ -5,4 +5,7 @@ import './styles.css';
 import './v3.css';
 import './v4.css';
 import './v5.css';
-createRoot(document.getElementById('root')!).render(<React.StrictMode><App/></React.StrictMode>);
+import './collection-room.css';
+import {questPreview} from './lib/useToyQuest';
+import {CollectionPreview} from './components/CollectionPreview';
+createRoot(document.getElementById('root')!).render(<React.StrictMode>{questPreview?<CollectionPreview/>:<App/>}</React.StrictMode>);

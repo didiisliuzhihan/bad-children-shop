@@ -4,7 +4,7 @@ import type {GLTF} from 'three/addons/loaders/GLTFLoader.js';
 import {asset,fallbackToys,loadModel} from './assets';
 import {MachineScene,RevealScene} from './components/Scene';
 import {BrandMark,Icon} from './components/Icon';
-import {Collection} from './components/Collection';
+import {Collection} from './components/CollectionGallery';
 import {Modal} from './components/Modal';
 import {Tagline} from './components/Tagline';
 import {canTransition,chooseToy,dragProgress,shouldCommitDrag} from './flow.mjs';

@@ -1,0 +1,32 @@
+[
+  {
+    "source": "assets/drafts/toy04/toy_popcorn_maid.glb",
+    "path": "assets/delivery/toy_popcorn_maid.glb",
+    "bytes": 518304,
+    "sha256": "f91aa415f8f2d7b98112e452929da1e82ae599f0071fe8e327a8171d97b68938"
+  },
+  {
+    "source": "previews/toy04/toy04-front.png",
+    "path": "assets/delivery/toy_popcorn_maid.png",
+    "bytes": 2082630,
+    "sha256": "a82c42a6367e86d7130879856d0674fb0eddf7cc6bc2b5d9e08e632fe2cf2390"
+  },
+  {
+    "source": "assets/source/references/toy4-popcorn-maid-card-original.png",
+    "path": "assets/delivery/toy_popcorn_maid_card.png",
+    "bytes": 548058,
+    "sha256": "d95123723a22982a45df01e7a478ababa94ad515840d0a60667ee3247b7f697f"
+  },
+  {
+    "source": "assets/drafts/toy04/toy4-popcorn-story.jpg",
+    "path": "assets/delivery/toy4_popcorn_story.jpg",
+    "bytes": 851366,
+    "sha256": "683426d518cf1c9fef185c67fa14ba531533bf4cc5d9ae1eae5a68fcdacaa2b2"
+  },
+  {
+    "source": "assets/drafts/toy04/toy4-popcorn-voice.mp3",
+    "path": "assets/delivery/toy4_popcorn_voice.mp3",
+    "bytes": 308503,
+    "sha256": "b89bdaad414672f26ad9a3932d9d02b72df095794a13493e0da0339c7352a122"
+  }
+]

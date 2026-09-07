@@ -1,4 +1,4 @@
-type Sound='click'|'roll'|'lock'|'drop'|'open'|'keep'|'reject';
+type Sound='click'|'roll'|'lock'|'drop'|'open'|'keep'|'reject'|'wipe'|'unlock';
 let ctx:AudioContext|undefined;let gain:GainNode|undefined;let master:GainNode|undefined;let musicGain:GainNode|undefined;let voiceGain:GainNode|undefined;
 let muted=false;let background:HTMLAudioElement|undefined;let activeVoice:HTMLAudioElement|undefined;
 let backgroundSource:MediaElementAudioSourceNode|undefined;let voiceSource:MediaElementAudioSourceNode|undefined;
@@ -100,6 +100,15 @@ function scheduleSound(kind:Sound,elapsed=0){
   if(!ctx||!gain||muted||ctx.state!=='running')return;const now=ctx.currentTime+.012;
   const note=(hz:number,t:number,duration:number,level:number,type:OscillatorType='sine')=>{if(t+duration<=elapsed)return;duration-=Math.max(0,elapsed-t);t=Math.max(0,t-elapsed);const o=ctx!.createOscillator(),g=ctx!.createGain();o.type=type;o.frequency.setValueAtTime(hz,now+t);o.frequency.exponentialRampToValueAtTime(Math.max(45,hz*.55),now+t+duration);g.gain.setValueAtTime(.001,now+t);g.gain.exponentialRampToValueAtTime(level,now+t+Math.min(.004,duration/3));g.gain.exponentialRampToValueAtTime(.001,now+t+duration);o.connect(g);g.connect(gain!);o.onended=()=>{o.disconnect();g.disconnect()};o.start(now+t);o.stop(now+t+duration+.02)};
   if(kind==='click')note(750,0,.05,.07,'triangle');
+  if(kind==='wipe'){
+    // A short airy brush, through the existing effects mixer (never a new player).
+    if(typeof ctx.createBiquadFilter==='function'){
+      const duration=.16,buffer=ctx.createBuffer(1,Math.ceil(ctx.sampleRate*duration),ctx.sampleRate),data=buffer.getChannelData(0);
+      for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*Math.sin(Math.PI*i/data.length)*.10;
+      const source=ctx.createBufferSource(),filter=ctx.createBiquadFilter();source.buffer=buffer;filter.type='bandpass';filter.frequency.value=1600;filter.Q.value=.5;source.connect(filter);filter.connect(gain);source.onended=()=>{source.disconnect();filter.disconnect()};source.start(now);
+    }else note(1700,0,.12,.025,'triangle');
+  }
+  if(kind==='unlock'){[660,990,1320].forEach((f,i)=>note(f,i*.12,.65,.17));}
   if(kind==='lock'){note(310,0,.1,.45,'triangle');note(110,.045,.12,.3)}
   if(kind==='drop'){note(90,0,.2,.65);note(150,.23,.12,.25)}
   if(kind==='open'){[520,780,1040].forEach((f,i)=>note(f,i*.09,.38,.18))}

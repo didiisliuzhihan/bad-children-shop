@@ -64,3 +64,7 @@ test('statechange recovers sound even when resume never resolves; mute discards 
 test('permanently blocked audio returns false but has no gameplay decision authority',async()=>{
  const c=contexts.at(-1);c.state='suspended';resumeAllowed=false;denyPending=true;assert.equal(await audio.unlockAudio(),false);resumeAllowed=true;denyPending=false;c.run();
 });
+test('new unlock and wipe effects use the existing mixer and respect mute',async()=>{
+ const before=started.length;audio.sound('unlock');audio.sound('wipe');assert.equal(started.length,before+4);assert.equal(contexts.at(-1).gains[1].gain.value,.55);assert.equal(contexts.at(-1).gains[2].gain.value,.08);
+ audio.setMuted(true);audio.sound('unlock');audio.sound('wipe');assert.equal(started.length,before+4);audio.setMuted(false);
+});

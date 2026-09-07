@@ -56,4 +56,13 @@ export const fallbackToys:Toy[]=[{
   model_url:asset('toy_stressed_jimao.glb'),icon_url:asset('toy_stressed_jimao.png'),
   card_image_url:asset('toy_stressed_jimao_card.png'),
   audio_url:sourceLink('toy3_stressed_jimao_voice.mp3'),story_image_url:sourceLink('toy3_stressed_jimao_story.jpg')
+},{
+  id:'miss_popcorn',number:'04',name_en:'Miss Popcorn',name_zh:'爆米花· 幽怨女仆',
+  tagline_zh:'今天又惹爆米花小姐不得劲了——惹怒她记得说“别急，你好漂亮”',
+  tagline_en:"Miss Popcorn is displeased again. If you upset her, say, “Don't fret. You look so pretty.”",
+  story_text:'今天的家务额度已经用完了。',
+  story_note:'爆米花把钥匙挂得叮当响，像在宣布今天正式罢工。可每次说着“下次不管你了”，它又悄悄把你喜欢的杯子摆好。它的幽怨不是不喜欢你，只是今天也想轮到自己被照顾。',
+  story_en:'',color:'#f4dc8e',
+  model_url:asset('toy_popcorn_maid.glb'),icon_url:asset('toy_popcorn_maid.png'),card_image_url:asset('toy_popcorn_maid_card.png'),
+  audio_url:sourceLink('toy4_popcorn_voice.mp3'),story_image_url:sourceLink('toy4_popcorn_story.jpg')
 }];

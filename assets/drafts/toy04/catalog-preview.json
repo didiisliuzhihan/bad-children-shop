@@ -1,0 +1,17 @@
+{
+  "status": "model-and-copy-approved-collection-interaction-in-local-preview",
+  "id": "miss_popcorn",
+  "number": "04",
+  "name_zh": "爆米花· 幽怨女仆",
+  "name_en": "Miss Popcorn",
+  "tagline_zh": "今天又惹爆米花小姐不得劲了——惹怒她记得说“别急，你好漂亮”",
+  "tagline_en": "Miss Popcorn is displeased again. If you upset her, say, “Don't fret. You look so pretty.”",
+  "story_text": "今天的家务额度已经用完了。",
+  "story_note": "爆米花把钥匙挂得叮当响，像在宣布今天正式罢工。可每次说着“下次不管你了”，它又悄悄把你喜欢的杯子摆好。它的幽怨不是不喜欢你，只是今天也想轮到自己被照顾。",
+  "model_path": "assets/drafts/toy04/toy_popcorn_maid.glb",
+  "card_image_path": "assets/source/references/toy4-popcorn-maid-card-original.png",
+  "story_image_path": "assets/drafts/toy04/toy4-popcorn-story.jpg",
+  "audio_path": "assets/drafts/toy04/toy4-popcorn-voice.mp3",
+  "color": "#f4dc8e",
+  "approved_fields": ["name_zh", "name_en", "tagline_zh", "card_image_path", "story_image_path", "audio_path", "model_path", "story_text", "story_note"]
+}

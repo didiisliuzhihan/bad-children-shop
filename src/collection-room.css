@@ -1,0 +1,84 @@
+/* Approved sage / warm ivory studio. A single dialog, not nested popups. */
+.collection-entry .card-image{width:100%;padding:0;border:0;text-align:initial;cursor:pointer}
+.collection-entry .card-actions{justify-content:space-between;flex-wrap:wrap}
+.collection-entry .card-actions .save-card{gap:6px;font-size:11px;margin-left:0}
+.toy-room-modal{background:#657c7433;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);padding:24px}
+.toy-room-modal .modal-panel{width:min(1180px,100%);max-height:calc(100dvh - 48px);background:#e5eae5;border:1px solid #f6f8f0d9;border-radius:28px;box-shadow:0 35px 120px #264e4930;overflow:auto;overscroll-behavior:contain}
+.toy-room-modal .modal-close{display:none}
+.toy-room-header{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:20px 28px;border-bottom:1px solid #34584517}
+.room-back{display:inline-flex;align-items:center;gap:10px;min-height:44px;color:#35564e;font-size:13px}
+.toy-room-header>span{font-size:10px;letter-spacing:.1em;color:#6f867b}
+.toy-room-layout{display:grid;grid-template-columns:minmax(0,1.18fr) minmax(0,.82fr);gap:30px;padding:28px;align-items:start}
+.room-model-panel{min-width:0;height:640px;padding:28px 26px 18px;display:flex;flex-direction:column;overflow:hidden;border-radius:26px;background:radial-gradient(ellipse at 50% 43%,#f4f3e7 0,#d9e1dd 68%,#cddad8 100%)}
+.room-model-heading{flex:none;position:relative;z-index:1;pointer-events:none}
+.room-model-heading>span{font-size:9px;letter-spacing:.12em;color:#71877b}
+.room-model-heading h2{font:500 clamp(25px,2.6vw,35px)/1.15 var(--round);color:#294b52;margin:14px 0 7px;letter-spacing:-.015em}
+.room-model-heading>p{font-size:12px;color:#4d695e;line-height:1.7}
+.room-companion{min-width:0}
+.room-tabs{display:flex;gap:20px;align-items:center;border-bottom:1px solid #46655326;margin:0 0 20px}
+.room-tabs>button{display:inline-flex;justify-content:center;align-items:center;gap:5px;min-height:44px;padding:4px 0 14px;font-size:13px;position:relative;color:#789085}
+.room-tabs>button[aria-selected=true]{color:#315748}
+.room-tabs>button[aria-selected=true]:after{content:'';position:absolute;bottom:-1px;height:2px;left:0;right:0;background:#476d54}
+.room-pill{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:44px;border-radius:26px;padding:10px 18px;background:#f5f5ebd9;color:#365649;border:1px solid #71877818;font-size:12px;line-height:1.6;transition:background .18s}
+.room-pill:hover{background:#fffaf0}.room-pill.primary{background:#36594c;color:#fff7e5;border-color:#36594c}
+.room-pill:disabled{opacity:.45;cursor:wait}
+.collectible-card-panel{min-width:0}
+.room-companion .export-preview{width:100%;max-width:430px;aspect-ratio:3/4;height:auto;border-radius:21px;background:#f0f2ea;margin:0 auto;overflow:hidden;box-shadow:0 15px 45px #41624e12}
+.room-companion .export-preview>img{width:100%;height:100%;display:block;object-fit:contain;border-radius:21px;-webkit-touch-callout:default;user-select:auto;-webkit-user-select:auto}
+.card-save-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:16px 0;color:#6c8278}
+.card-save-actions>span{font-size:10px;line-height:1.7}
+.quest-confirm{position:relative;border-top:1px solid #4d6b5422;padding:18px 0 0;display:flex;flex-direction:column;align-items:flex-start;gap:10px;color:#4e6e5a}
+.quest-confirm p{font-size:12px;line-height:1.8;margin:0}.quest-confirm small{font-size:10px;line-height:1.7;color:#6d8377}
+.quest-status-dot{width:6px;height:6px;border-radius:50%;background:#79906d}
+.card-save-hint{font-size:11px;color:#698475;line-height:1.8;margin-top:14px}
+.room-story{background:#f3f1e7;border-radius:22px;overflow:hidden;box-shadow:0 15px 45px #41624e12}
+.room-story-photo{display:block;width:100%;height:auto;max-height:330px;object-fit:contain;background:#dce2d9}
+.room-story-copy{padding:26px}
+.room-story-copy h2{font-size:22px;line-height:1.5;color:#294b52}
+.room-name-en{font:400 17px/1.5 var(--round);color:#7c9387;margin-top:4px}
+.room-story-caption{font-size:16px;line-height:1.8;margin:24px 0 18px;color:#35584e}
+.room-story-note{font-size:12px;line-height:2;color:#6b8576;margin-bottom:25px}
+.room-voice{width:100%;justify-content:flex-start;background:#e7ecdf}
+.room-voice[aria-pressed=true]{background:#d8e3d3}
+.toy-viewer{flex:1;min-height:0;position:relative;display:flex;flex-direction:column;animation:room-arrive .8s both}
+.toy-viewer-canvas{position:relative;flex:1;min-height:0;touch-action:none}
+.toy-viewer-canvas canvas{position:absolute;inset:0;display:block;width:100%;height:100%;touch-action:none}
+.viewer-angles{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;flex:none;margin-top:8px}
+.viewer-angles button{padding:8px 13px;border-radius:24px;background:#f4f7f080;color:#416050;min-height:40px;font-size:11px;border:1px solid #687d6210}
+.viewer-angles button[aria-pressed=true]{background:#345446;color:#f9f8e7}
+.viewer-angles button:disabled{opacity:.4;cursor:wait}
+.viewer-hint{text-align:center;font-size:10px;color:#708677;margin-top:13px}
+.viewer-status{position:absolute;left:15px;right:15px;top:42%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:15px;font-size:12px;color:#5e7b6b;text-align:center;line-height:1.8}
+.fog-stage{flex:1;min-height:0;position:relative;margin:18px -12px 0;border-radius:24px;overflow:hidden;isolation:isolate;touch-action:pan-y}
+.fog-stage.is-armed{touch-action:none;cursor:crosshair}
+.fog-silhouette{position:absolute;left:4%;top:1%;width:92%;height:96%;object-fit:contain;transform:scale(1.22);pointer-events:none;user-select:none;transition:filter .25s,opacity .25s}
+.fog-glass{position:absolute;inset:0;width:100%;height:100%;border-radius:24px;box-shadow:inset 1px 1px 2px #fefdf097,inset -1px -1px 2px #bed0c655}
+.fog-water{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.fog-water i{position:absolute;width:5px;height:13px;border-radius:65% 65% 55% 55%;background:linear-gradient(125deg,#fff8,#d0dfd64d);box-shadow:1px 1px 2px #9eaea130;left:15%;top:12%;animation:fog-drop 13s ease-in-out infinite}
+.fog-water i:nth-child(2){left:78%;top:28%;animation-delay:-5s;animation-duration:17s}.fog-water i:nth-child(3){left:64%;top:8%;animation-delay:-9s;width:3px;height:8px}.fog-water i:nth-child(4){left:29%;top:65%;animation-delay:-2s;animation-duration:19s}
+.fog-message{position:absolute;z-index:1;left:8%;right:8%;top:50%;transform:translateY(-50%);text-align:center;pointer-events:none;color:#3c6050;text-shadow:0 1px 10px #fffef0;display:flex;align-items:center;flex-direction:column}
+.fog-seal{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#f5f7ed77;border:1px solid #ffffff70;margin-bottom:15px}
+.fog-message h3{font-size:17px;line-height:1.75;font-weight:500;letter-spacing:.02em}
+.fog-message p{font-size:12px;line-height:1.95;color:#567762;margin-top:9px}
+.fog-message button{pointer-events:auto;margin-top:22px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.fog-message .fog-task-reminder{font-size:10px;line-height:1.8;display:block;color:#6f8979;margin-top:25px}
+.fog-message .wipe-alternative{font-size:10px;padding:10px;color:#547762;text-decoration:underline;text-underline-offset:4px;background:#f2f5e85c;border-radius:15px}
+.wipe-progress{display:block;width:90px;height:3px;background:#6c877629;border-radius:3px;margin-top:22px;overflow:hidden}
+.wipe-progress i{display:block;height:100%;background:#5b8466;transition:width .12s}
+.room-error{color:#a04d37!important}.room-back:focus-visible,.room-tabs button:focus-visible,.viewer-angles button:focus-visible,.room-pill:focus-visible,.wipe-alternative:focus-visible{outline:2px solid #be825d;outline-offset:4px}
+.room-mobile-tabs{display:none}
+.preview-label{font-size:11px;color:#6c8278}.preview-shop{background:#e5eae5}.preview-skip{font-size:10px;min-height:36px;padding:8px 13px;border-radius:20px;background:#d6e1cf;color:#44654b}
+@keyframes fog-drop{0%,20%{transform:translateY(0);opacity:0}30%{opacity:.6}90%{opacity:.5}100%{transform:translateY(140px);opacity:0}}
+@keyframes room-arrive{from{opacity:0;filter:blur(5px)}to{opacity:1;filter:blur(0)}}
+@media(max-width:1000px) and (min-width:761px){.toy-room-layout{gap:20px;padding:20px;grid-template-columns:minmax(0,1fr) minmax(0,.9fr)}.room-model-panel{height:600px;padding:25px 16px 16px}.viewer-angles button{padding:8px 10px}}
+@media(max-width:760px){
+ .toy-room-modal{padding:0;background:#e5eae5}.toy-room-modal .modal-panel{width:100%;height:100dvh;max-height:100dvh;border:0;border-radius:0;padding-bottom:env(safe-area-inset-bottom)}
+ .toy-room-header{padding:calc(9px + env(safe-area-inset-top)) 20px 9px;gap:10px;position:sticky;top:0;background:#e5eae5f5;z-index:4;backdrop-filter:blur(12px)}
+ .toy-room-header>span{font-size:9px}.room-mobile-tabs{display:flex;position:sticky;top:calc(62px + env(safe-area-inset-top));background:#e5eae5f5;z-index:3;margin:0 18px;padding-top:5px;gap:0}.room-mobile-tabs button{flex:1;min-height:46px;padding:8px 0 12px}
+ .toy-room-layout{display:block;padding:18px}.room-model-panel{height:calc(100svh - 167px - env(safe-area-inset-top) - env(safe-area-inset-bottom));min-height:460px;max-height:680px;padding:24px 20px 16px;border-radius:25px}
+ .room-model-heading h2{font-size:29px}.room-model-heading>span{font-size:9px}.room-model-heading>p{font-size:11px}
+ .room-companion .export-preview{max-width:430px;border-radius:20px}.card-save-actions{margin:15px 0}.quest-confirm{padding-top:17px;padding-bottom:14px}.quest-confirm .room-pill{min-height:46px}
+ .room-story-copy{padding:25px}.room-story-photo{max-height:430px}.room-story-caption{font-size:16px}.room-story-note{font-size:13px}.room-story-copy h2{font-size:22px}
+ .viewer-angles{gap:5px}.viewer-angles button{padding:8px 11px;min-height:44px;font-size:11px}.viewer-hint{margin-top:10px}.fog-message{left:5%;right:5%}.fog-message h3{font-size:17px}.fog-message p{font-size:12px}.fog-stage{margin-top:15px}.fog-message .room-pill{padding:10px 14px;font-size:11px}
+}
+@media(prefers-reduced-motion:reduce){.fog-water i{animation:none;opacity:.3}.toy-viewer{animation:none}.fog-silhouette,.wipe-progress i{transition:none}}
