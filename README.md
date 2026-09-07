@@ -91,6 +91,8 @@ Supabase 项目 kbyobdydythovyagrfgv 已启用匿名登录。toys 对访客只�
 - v3-screen-check.json：320×568、375×667、430×932 竖屏与 844×390 横屏的图片适配、关闭和保存控件可用性。
 - assets/storage-check.json：16 个线上素材均 HTTP 200，SHA-256 与本地一致。
 - v4-check.json：任务专属字体、按需加载、故事仅弹窗显示、3:4 PNG 同字体、字体失败拦截与重试恢复。
+- v4-online-check.json：正式网址与最终 HTML 校验一致，两段小故事、专属任务字体和两款 PNG 下载均验证通过。
+- v4-future-quest-check.json：用仅存在于测试浏览器的新增玩具验证任务自动继承字体和导出模板，未写入线上数据库。
 - cloud-check.json：本人读写、跨用户隔离和伪造归属拦截。
 - deploy-check.json：正式 HTTPS 站点已验证，HTML 与本地构建 SHA-256 一致；云端收藏、刷新保留、故事和 PNG 下载通过。
 - v3-deploy-check.json：V3 正式网址与最终 HTML 校验一致，新模型、透明层、两张手机故事图及两款 1080×1440 PNG 下载通过。

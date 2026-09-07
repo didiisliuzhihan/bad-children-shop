@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "fixtureOnly": true,
+  "databaseWrites": 0,
+  "task": {
+    "text": "一起去看星星",
+    "font": "\"BC Quest\", \"PingFang SC\", \"Microsoft YaHei\", sans-serif"
+  },
+  "exportReady": true
+}
