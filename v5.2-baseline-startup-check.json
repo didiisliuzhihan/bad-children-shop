@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "reports": [
+    {
+      "mode": "baseline",
+      "reproducedRepeatedGate": true,
+      "attempts": 2
+    }
+  ],
+  "scope": "Windows Chrome trusted touch events with strict tap-only, native-touchstart, pending-resume and permanent-denial policies simulated; no physical iPhone claim"
+}

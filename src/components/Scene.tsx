@@ -49,6 +49,7 @@ function Machine({model,phase,progress,onProgress,onTurn,reduced}:{model:GLTF;ph
  return <group ref={root} scale={1}>
   <primitive object={scene}/><Capsules phase={phase} reduced={reduced}/>
   <mesh position={[.66,1.15,1.17]} onPointerOver={()=>{if(active)document.body.style.cursor='grab'}} onPointerOut={()=>{document.body.style.cursor=''}}
+   onClick={e=>{if(active&&e.delta<=8){e.stopPropagation();onTurn()}}}
    onPointerDown={e=>{if(!active)return;e.stopPropagation();dragStart.current=e.clientX;triggered.current=false;(e.target as Element).setPointerCapture(e.pointerId);document.body.style.cursor='grabbing'}}
    onPointerMove={e=>{if(dragStart.current===null||!active||triggered.current)return;const p=dragProgress(dragStart.current,e.clientX,size.width);onProgress(p);if(shouldCommitDrag(p,e.pointerType)){triggered.current=true;onTurn();document.body.style.cursor=''}}}
    onPointerUp={release} onPointerCancel={release}>

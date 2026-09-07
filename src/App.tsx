@@ -9,7 +9,7 @@ import {Modal} from './components/Modal';
 import {Tagline} from './components/Tagline';
 import {canTransition,chooseToy,dragProgress,shouldCommitDrag} from './flow.mjs';
 import {initializeCloud,readLocal,syncCapsule,writeLocal} from './lib/collection';
-import {setMuted as muteAudio,sound,startBackground,unlockAudio} from './lib/audio';
+import {setMuted as muteAudio,sound,startBackground,installAudioStart,observeAudioReady,isAudioReady} from './lib/audio';
 import type {Capsule,Phase,Toy} from './types';
 
 const phaseCopy:Partial<Record<Phase,string>>={IDLE:'向右滑动，遇见你的坏小孩',SPINNING:'抽取中…',LOCKING:'抽取中…',DROPPING:'扭蛋正在落下…',PAUSE:'准备开蛋…'};
@@ -17,11 +17,13 @@ const phaseCopy:Partial<Record<Phase,string>>={IDLE:'向右滑动，遇见你的
 export default function App(){
   const[machine,setMachine]=useState<GLTF|null>(null),[loadPercent,setLoadPercent]=useState(0),[loadError,setLoadError]=useState(false),[retry,setRetry]=useState(0);
   const[phase,setPhase]=useState<Phase>('IDLE'),[drag,setDrag]=useState(0),[muted,setMuted]=useState(false);
+  const[audioReady,setAudioReady]=useState(isAudioReady);
   const[toys,setToys]=useState<Toy[]>(fallbackToys),[items,setItems]=useState<Capsule[]>(readLocal),[mode,setMode]=useState<'local'|'cloud'>('local');
   const[bag,setBag]=useState(false),[guide,setGuide]=useState(false),[selected,setSelected]=useState<Toy|null>(null);
   const[toyReady,setToyReady]=useState(false),[toyError,setToyError]=useState(false),[toastText,setToastText]=useState('');
   const reduced=useRef(matchMedia('(prefers-reduced-motion: reduce)').matches).current;
   const phaseRef=useRef<Phase>('IDLE'),locked=useRef(false),dragStart=useRef<number|null>(null);
+  const tapAllowed=useRef(true);
   const timeouts=useRef<ReturnType<typeof setTimeout>[]>([]),toastTimer=useRef<ReturnType<typeof setTimeout>|null>(null);
   const bagButton=useRef<HTMLButtonElement>(null),flyingCard=useRef<HTMLDivElement>(null),revealRef=useRef<HTMLElement>(null);
   const overlay=['SEALED','REVEALED','DECISION','COLLECTED','REJECTED'].includes(phase);
@@ -30,6 +32,7 @@ export default function App(){
   const toast=useCallback((message:string)=>{setToastText(message);if(toastTimer.current)clearTimeout(toastTimer.current);toastTimer.current=setTimeout(()=>setToastText(''),3500)},[]);
   const closeGuide=useCallback(()=>setGuide(false),[]);
   useEffect(()=>()=>{timeouts.current.forEach(clearTimeout);if(toastTimer.current)clearTimeout(toastTimer.current)},[]);
+  useEffect(()=>{const unobserve=observeAudioReady(setAudioReady),uninstall=installAudioStart(asset('studio-loop.wav'));return()=>{unobserve();uninstall()}},[]);
   // Load directly in the main view. There is no entrance or login screen.
   useEffect(()=>{
     let alive=true;setLoadError(false);setLoadPercent(0);
@@ -57,14 +60,12 @@ export default function App(){
     };
     document.addEventListener('keydown',trap);return()=>document.removeEventListener('keydown',trap);
   },[overlay,phase]);
-  const startAudio=()=>{if(!muted)void startBackground(asset('studio-loop.wav'))};
-  const spin=useCallback(async()=>{
+  const spin=useCallback(()=>{
     if(locked.current||phaseRef.current!=='IDLE'||!machine)return;
     locked.current=true;
-    if(!muted&&!await unlockAudio()){locked.current=false;setDrag(0);toast('声音还没准备好，请松手后再试一次；也可以静音游玩。');return}
     setSelected(chooseToy(toys));setToyReady(false);setToyError(false);transition('SPINNING');setDrag(1);sound('roll');
     later(()=>{transition('LOCKING');sound('lock')},2000);later(()=>transition('DROPPING'),3000);later(()=>sound('drop'),3800);later(()=>transition('PAUSE'),4500);later(()=>transition('SEALED'),5500);
-  },[machine,toys,transition,later,muted,toast]);
+  },[machine,toys,transition,later]);
   const reset=useCallback(()=>{transition('IDLE');setSelected(null);setDrag(0);setToyReady(false);locked.current=false;timeouts.current.forEach(clearTimeout);timeouts.current=[]},[transition]);
   const open=()=>{if(phaseRef.current==='SEALED'){transition('REVEALED');sound('open')}};
   const ready=useCallback(()=>{setToyReady(true);later(()=>transition('DECISION'),1900)},[later,transition]);
@@ -85,14 +86,14 @@ export default function App(){
     });
   };
   const reject=()=>{if(phaseRef.current==='DECISION'){transition('REJECTED');sound('reject');later(reset,1000)}};
-  const toggleAudio=()=>{const value=!muted;setMuted(value);muteAudio(value);if(!value)void startBackground(asset('studio-loop.wav'))};
-  return <main className={'shop is-entered '+(bag?'has-bag ':'')+(overlay?'is-revealing':'')} data-phase={phase} onPointerDownCapture={startAudio} onPointerUpCapture={startAudio} onTouchEndCapture={startAudio} onClickCapture={startAudio} onKeyDownCapture={startAudio}>
+  const toggleAudio=()=>{const value=audioReady?!muted:false;setMuted(value);muteAudio(value);if(!value)void startBackground(asset('studio-loop.wav'))};
+  return <main className={'shop is-entered '+(bag?'has-bag ':'')+(overlay?'is-revealing':'')} data-phase={phase} data-audio-ready={audioReady}>
     <div className="grain" aria-hidden="true"/>
     <header className="topbar" inert={overlay?true:undefined}>
       <button className="brand" onClick={()=>{if(phase==='IDLE')setBag(false)}} aria-label="Bad Children Shop 首页"><BrandMark/><span>BAD CHILDREN<br/>SHOP</span></button>
       <div className="top-actions">
         <button className="icon-button" onClick={()=>setGuide(true)} aria-label="使用说明"><Icon name="info"/></button>
-        <button className="icon-button" onClick={toggleAudio} aria-label={muted?'打开音乐':'静音音乐'} aria-pressed={!muted}><Icon name={muted?'mute':'sound'} size={20}/></button>
+        <button className="icon-button" data-audio-toggle onClick={toggleAudio} aria-label={muted?'打开音乐':audioReady?'静音音乐':'开启声音'} aria-pressed={!muted&&audioReady}><Icon name={muted?'mute':'sound'} size={20}/></button>
         <button ref={bagButton} className="bag-button" onClick={()=>setBag(true)} disabled={phase!=='IDLE'} aria-label={'我的扭蛋包，'+items.length+'个收藏'}><Icon name="bag" size={20}/><span>扭蛋包</span><b>{items.length}</b></button>
       </div>
     </header>
@@ -102,14 +103,15 @@ export default function App(){
       {!machine&&<div className="machine-loading" role="status">{loadError?<><p>模型暂时未能加载</p><button className="pill-button dark" onClick={()=>setRetry(value=>value+1)}>重新加载<Icon name="arrow"/></button></>:<><span className="loading-ring"/><p>加载模型 <span>{loadPercent}%</span></p></>}</div>}
       <div className="interaction-dock">
         <p className="gesture-label" aria-live="polite">{phaseCopy[phase]||phaseCopy.IDLE}</p>
-        <button className={'turn-control '+(phase!=='IDLE'?'busy':'')} disabled={!machine||phase!=='IDLE'} aria-label="向右滑动旋钮，或按回车抽取扭蛋"
+        <button className={'turn-control '+(phase!=='IDLE'?'busy':'')} disabled={!machine||phase!=='IDLE'} aria-label="轻点或向右滑动旋钮，或按回车抽取扭蛋"
+          onClick={event=>{if(event.detail===0||tapAllowed.current)spin()}}
           onKeyDown={event=>{if(['Enter',' ','ArrowRight'].includes(event.key)){event.preventDefault();spin()}}}
-          onPointerDown={event=>{if(phase!=='IDLE')return;dragStart.current=event.clientX;event.currentTarget.setPointerCapture(event.pointerId)}}
-          onPointerMove={event=>{if(dragStart.current===null||phaseRef.current!=='IDLE')return;const p=dragProgress(dragStart.current,event.clientX,innerWidth);setDrag(p);if(shouldCommitDrag(p,event.pointerType)){dragStart.current=null;void spin()}}}
+          onPointerDown={event=>{if(phase!=='IDLE')return;tapAllowed.current=true;dragStart.current=event.clientX;event.currentTarget.setPointerCapture(event.pointerId)}}
+          onPointerMove={event=>{if(dragStart.current===null||phaseRef.current!=='IDLE')return;if(Math.abs(event.clientX-dragStart.current)>8)tapAllowed.current=false;const p=dragProgress(dragStart.current,event.clientX,innerWidth);setDrag(p);if(shouldCommitDrag(p,event.pointerType)){dragStart.current=null;spin()}}}
           onPointerUp={event=>{const p=dragStart.current===null?0:dragProgress(dragStart.current,event.clientX,innerWidth);dragStart.current=null;if(phaseRef.current==='IDLE'){if(shouldCommitDrag(p,event.pointerType,true))void spin();else setDrag(0)}try{event.currentTarget.releasePointerCapture(event.pointerId)}catch{}}}
-          onPointerCancel={()=>{dragStart.current=null;if(phaseRef.current==='IDLE')setDrag(0)}}>
+          onPointerCancel={()=>{tapAllowed.current=false;dragStart.current=null;if(phaseRef.current==='IDLE')setDrag(0)}}>
           <span className="turn-fill" style={{width:drag*100+'%'}}/><span className="dial-mini" style={{transform:'translateX('+drag*170+'px) rotate('+drag*180+'deg)'}}><i/></span>
-          <span className="turn-copy">{phase==='IDLE'?'抽取扭蛋':'抽取中'}</span><Icon name="arrow" size={19}/>
+          <span className="turn-copy">{phase==='IDLE'?(!audioReady&&!muted?'轻点开始 · 开启声音':'抽取扭蛋'):'抽取中'}</span><Icon name="arrow" size={19}/>
         </button>
       </div>
     </section>
@@ -127,7 +129,7 @@ export default function App(){
       {phase==='COLLECTED'&&<div className={'flying-card'+(selected.card_image_url?' has-artwork':'')} ref={flyingCard}><div><img src={selected.card_image_url||selected.icon_url} alt=""/></div><span className="card-series">THE LITTLE MISFITS</span><h3>{selected.name_zh}</h3><Tagline toy={selected}/></div>}
     </section>}
     {bag&&<Collection items={items} toys={toys} mode={mode} onClose={()=>setBag(false)} toast={toast}/>}
-    {guide&&<Modal label="使用说明" onClose={closeGuide} className="guide-modal"><h2>使用说明</h2><ol><li>向右拖动红色旋钮，或聚焦滑动条按回车抽取。</li><li>落蛋后点击“打开扭蛋”，查看玩偶。</li><li>收留后可在扭蛋包里听故事、读故事和保存卡片。</li></ol><p>收藏跟随当前浏览器的匿名身份。清除浏览器数据可能失去收藏访问权限。</p></Modal>}
+    {guide&&<Modal label="使用说明" onClose={closeGuide} className="guide-modal"><h2>使用说明</h2><ol><li>轻点抽取按钮或红色旋钮即可开启声音并抽取，也可以向右拖动或按回车。</li><li>落蛋后点击“打开扭蛋”，查看玩偶。</li><li>收留后可在扭蛋包里听故事、读故事和保存卡片。</li></ol><p>部分手机需一次轻点才能允许出声。收藏跟随当前浏览器的匿名身份，清除浏览器数据可能失去收藏访问权限。</p></Modal>}
     <div className={'toast '+(toastText?'show':'')} role="status"><Icon name="check" size={17}/>{toastText}</div>
   </main>;
 }

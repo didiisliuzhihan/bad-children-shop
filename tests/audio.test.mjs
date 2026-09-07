@@ -1,14 +1,15 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 const started=[],contexts=[],media=[];let resumeAllowed=false,denyPending=false;
 const parameter=()=>({value:0,cancelScheduledValues(){},setValueAtTime(v){this.value=v},exponentialRampToValueAtTime(v){this.value=v},setTargetAtTime(v){this.value=v}});
-class FakeContext{
- constructor(){this.state='suspended';this.currentTime=0;this.destination={};this.sampleRate=44100;this.gains=[];this.sources=[];contexts.push(this)}
+class FakeContext extends EventTarget{
+ constructor(){super();this.state='suspended';this.currentTime=0;this.destination={};this.sampleRate=44100;this.gains=[];this.sources=[];contexts.push(this)}
  createGain(){const g={gain:parameter(),connect(to){this.to=to},disconnect(){}};this.gains.push(g);return g}
  createMediaElementSource(a){assert.equal(a.crossOriginAtSrc,'anonymous');assert(!this.sources.some(s=>s.media===a),'Never reconnect the same element twice');const s={media:a,connect(to){this.to=to},disconnect(){this.disconnected=true}};this.sources.push(s);return s}
  createOscillator(){const c=this;return {frequency:parameter(),connect(){},disconnect(){},start(){started.push(c.state)},stop(){},onended:null}}
  createBuffer(){return {}}
  createBufferSource(){return {connect(){},disconnect(){},start(){},buffer:null,onended:null}}
- async resume(){if(!resumeAllowed){if(denyPending)return new Promise(()=>{});throw Error('Gesture rejected')}await new Promise(r=>setTimeout(r,5));this.state='running'}
+ async resume(){if(!resumeAllowed){if(denyPending)return new Promise(()=>{});throw Error('Gesture rejected')}await new Promise(r=>setTimeout(r,5));this.run()}
+ run(){this.state='running';this.dispatchEvent(new Event('statechange'));this.onstatechange?.()}
 }
 globalThis.AudioContext=FakeContext;globalThis.window={AudioContext:FakeContext};
 Object.defineProperty(navigator,'audioSession',{configurable:true,value:{type:'auto'}});
@@ -23,8 +24,8 @@ const audio=await import('../src/lib/audio.ts');
 const tick=()=>new Promise(r=>setTimeout(r,25));
 test('first sound waits for unlock; a later release gesture can recover',async()=>{
  await audio.unlockAudio();audio.sound('roll');await tick();assert.equal(started.length,0);
- resumeAllowed=true;await audio.unlockAudio();audio.sound('roll');await tick();
- assert.equal(started.length,28);assert(started.every(s=>s==='running'));assert.equal(navigator.audioSession.type,'playback');
+ resumeAllowed=true;await audio.unlockAudio();await tick();
+ assert(started.length>=20&&started.length<=28,'Only remaining rolling notes are recovered once');assert(started.every(s=>s==='running'));assert.equal(navigator.audioSession.type,'playback');
  const before=started.length;audio.setMuted(true);audio.sound('open');await tick();assert.equal(started.length,before);
  audio.setMuted(false);audio.sound('lock');await tick();assert(started.length>before);
  contexts.at(-1).state='suspended';audio.sound('drop');await tick();assert(started.every(s=>s==='running'));
@@ -45,7 +46,7 @@ test('failed story restores music and stale voice events do not stop a newer sto
 });
 test('a pending WebKit resume does not block the next gesture or hang forever',async()=>{
  contexts.at(-1).state='suspended';resumeAllowed=false;denyPending=true;const pending=audio.unlockAudio();
- resumeAllowed=true;assert.equal(await audio.unlockAudio(),true);assert.equal(await pending,false);denyPending=false;
+ resumeAllowed=true;assert.equal(await audio.unlockAudio(),true);assert.equal(await pending,true,'A running state beats an older pending promise');denyPending=false;
 });
 test('closed audio context rebuilds media routing without duplicate or full-volume playback',async()=>{
  contexts.at(-1).state='closed';const old=media.find(a=>a.src==='test-bgm.wav');await audio.startBackground('test-bgm.wav');await tick();
@@ -54,4 +55,12 @@ test('closed audio context rebuilds media routing without duplicate or full-volu
 test('unsupported playback session override cannot break audio',async()=>{
  Object.defineProperty(navigator,'audioSession',{configurable:true,get(){throw Error('Not supported')}});
  assert.equal(await audio.unlockAudio(),true);
+});
+test('statechange recovers sound even when resume never resolves; mute discards queued effects',async()=>{
+ const c=contexts.at(-1);c.state='suspended';resumeAllowed=false;denyPending=true;const before=started.length;
+ audio.sound('roll');audio.setMuted(true);c.run();await tick();assert.equal(started.length,before);
+ audio.setMuted(false);c.state='suspended';audio.sound('roll');await tick();c.run();await tick();assert(started.length>before);const after=started.length;c.run();await tick();assert.equal(started.length,after,'No duplicate replay');resumeAllowed=true;denyPending=false;
+});
+test('permanently blocked audio returns false but has no gameplay decision authority',async()=>{
+ const c=contexts.at(-1);c.state='suspended';resumeAllowed=false;denyPending=true;assert.equal(await audio.unlockAudio(),false);resumeAllowed=true;denyPending=false;c.run();
 });

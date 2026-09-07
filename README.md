@@ -4,7 +4,19 @@
 
 React、Three.js、Blender 和 Supabase 实现的 3D 扭蛋商店。网址直接进入主界面；拖动旋钮或点击抽取，亲手开蛋，收留角色、听故事和保存收藏卡。
 
-## V5.1 手机音频修复
+## V5.2 首次进入不再被音频卡住
+
+- V5.1 的音量混合已被用户确认正常，本版保持 BGM 0.08、音效 0.55、语音 0.75、语音期间 BGM 0.025 不变。
+- 修复 V5.1 回归：`spin()` 不再等待音频就绪，也不会反复提示“声音还没准备好”并阻止抽取。音频被永久拒绝时仍可完成开蛋、查看、收留或放弃。
+- 页面加载会尝试启动声音；通过原生 document `touchstart` / `touchend` / `pointerup` / `click` / `keydown` 在真实操作中重试。普通轻点抽取按钮或 3D 旋钮即可开启声音并抽取，不用先开关喇叭。首次受限时按钮提示“轻点开始 · 开启声音”，不是登录/入口遮罩。
+- iOS 的滑动松手不一定授予音频激活；[WebKit 212117](https://bugs.webkit.org/show_bug.cgi?id=212117) 和 [248265](https://bugs.webkit.org/show_bug.cgi?id=248265) 描述了该限制。若环境只允许普通轻点，则第一次纯滑动可能仍没有声音，但不会卡住；之后轻点“打开扭蛋”会继续尝试开启声音。网页无法保证绕过系统的零操作自动播放限制。
+- 同时监听 AudioContext `statechange` 和 resume promise，避免 context 已经 running、旧 promise 却未完成时被误报失败。短暂恢复后只播放尚未过期的剩余音效，不把旧滚动声堆在下一次开蛋时一起播放。
+- 音量按钮由自身 click 处理启动意图，排除全局捕获监听，修复捕获阶段先解锁、随后同一点击却被当作“静音”的竞争问题。未开启时点一次就尝试开启，不再要求开关两次。
+- 回归测试脚本：`scripts/verify-startup-audio.mjs`（Playwright Chromium/Chrome；可用 `BC_PLAYWRIGHT_MODULE` 指定已安装模块）。默认验证本地 4173 预览，`--online` 验证正式 V5.2。`--baseline` 只用于发布前复现当时的 V5.1，并不把查询参数视为历史版本固定地址。
+- 检查报告为 `v5.2-baseline-startup-check.json`、`v5.2-local-startup-check.json`、发布后的 `v5.2-online-startup-check.json`。覆盖严格仅点击解锁、原生 touchstart、resume 永久 pending、永久拒绝、首次喇叭单击和两种抽取入口。测试通过不等于实体 iPhone/微信已实测。
+- 本次仅修改前端启动逻辑与测试，数据库、收藏、素材和 Blender 工程不变。
+
+## V5.1 手机音频修复（历史记录；就绪阻塞由 V5.2 移除）
 
 - 修复两条平台差异：旧 BGM 依赖 `HTMLMediaElement.volume`，iOS 可能忽略此设置；旧触屏拖动在 `pointermove` 即启动，而手机音频可能要到 `pointerup` / `touchend` 才解锁。V5 窄屏验证使用鼠标，未覆盖触屏激活限制。
 - BGM、合成音效、故事语音现经同一个 AudioContext 与总音量节点输出；分别使用 GainNode 的 0.08、0.55、0.75，保持电脑已认可的配比。语音期间 BGM 降至 0.025。不再写 HTML 媒体的 volume；音源在设置 URL 前启用匿名跨域，避免跨域音频被 Web Audio 静默。

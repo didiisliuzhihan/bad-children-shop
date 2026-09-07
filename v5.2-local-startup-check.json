@@ -1,0 +1,1659 @@
+{
+  "passed": true,
+  "reports": [
+    {
+      "mode": "tap-slider",
+      "htmlHash": "a48eb895d7448bdf89a1d8e2dbafc6619ba6e5f8b01234f60cdc14405fa964d1",
+      "completedCycle": true,
+      "noAudioGate": true,
+      "first": {
+        "notes": 28,
+        "allowed": true,
+        "levels": [
+          1,
+          0.550000011920929,
+          0.07999999821186066,
+          0.75
+        ]
+      },
+      "notes": [
+        {
+          "at": 507.0999999642372,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 507.0999999642372,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 507.0999999642372,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 507.0999999642372,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 507.0999999642372,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 507.19999998807907,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 507.30000001192093,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 507.30000001192093,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 507.39999997615814,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 507.39999997615814,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 507.39999997615814,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 507.39999997615814,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 507.39999997615814,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 507.5,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 507.5,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 507.5,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 507.5,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 507.5999999642372,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 507.5999999642372,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 507.5999999642372,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 507.5999999642372,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 507.5999999642372,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 507.69999998807907,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 507.69999998807907,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 507.69999998807907,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 507.69999998807907,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 507.80000001192093,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 507.80000001192093,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 2520.599999964237,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 2520.699999988079,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 4320.899999976158,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 4320.899999976158,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 6637.800000011921,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 6637.899999976158,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 6637.899999976158,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 9046,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 9046.099999964237,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 9046.099999964237,
+          "state": "running",
+          "allowed": true
+        }
+      ],
+      "levels": [
+        1,
+        0.550000011920929,
+        0.07999999821186066,
+        0.75
+      ],
+      "rmsPeak": [
+        0.17549327132471168,
+        0.17545402831794193,
+        0.004377422445988561,
+        0
+      ],
+      "volumeWrites": 0,
+      "events": [
+        {
+          "type": "touchstart",
+          "at": 502.69999998807907,
+          "target": "轻点或向右滑动旋钮，或按回车抽取扭蛋"
+        },
+        {
+          "type": "pointerup",
+          "at": 503,
+          "target": "轻点或向右滑动旋钮，或按回车抽取扭蛋"
+        },
+        {
+          "type": "touchend",
+          "at": 503.39999997615814,
+          "target": "轻点或向右滑动旋钮，或按回车抽取扭蛋"
+        },
+        {
+          "type": "click",
+          "at": 504.5,
+          "target": "轻点或向右滑动旋钮，或按回车抽取扭蛋"
+        },
+        {
+          "type": "touchstart",
+          "at": 6636.699999988079,
+          "target": null
+        },
+        {
+          "type": "pointerup",
+          "at": 6636.800000011921,
+          "target": null
+        },
+        {
+          "type": "touchend",
+          "at": 6636.899999976158,
+          "target": null
+        },
+        {
+          "type": "click",
+          "at": 6637.699999988079,
+          "target": null
+        },
+        {
+          "type": "touchstart",
+          "at": 9044.699999988079,
+          "target": null
+        },
+        {
+          "type": "pointerup",
+          "at": 9044.899999976158,
+          "target": null
+        },
+        {
+          "type": "touchend",
+          "at": 9044.899999976158,
+          "target": null
+        },
+        {
+          "type": "click",
+          "at": 9045.800000011921,
+          "target": null
+        }
+      ],
+      "errors": []
+    },
+    {
+      "mode": "tap-knob",
+      "htmlHash": "a48eb895d7448bdf89a1d8e2dbafc6619ba6e5f8b01234f60cdc14405fa964d1",
+      "completedCycle": true,
+      "noAudioGate": true,
+      "first": {
+        "notes": 28,
+        "allowed": true,
+        "levels": [
+          1,
+          0.550000011920929,
+          0.07999999821186066,
+          0.75
+        ]
+      },
+      "notes": [
+        {
+          "at": 975.1999999880791,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 975.1999999880791,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 975.3000000119209,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 975.3000000119209,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 975.3999999761581,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 975.3999999761581,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 975.3999999761581,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 975.3999999761581,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 975.3999999761581,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 975.5,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 975.5,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 975.5,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 975.6000000238419,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 975.6000000238419,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 975.6000000238419,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 975.6000000238419,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 975.6999999880791,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 975.6999999880791,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 975.6999999880791,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 975.6999999880791,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 975.8000000119209,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 975.8000000119209,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 975.8999999761581,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 975.8999999761581,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 975.8999999761581,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 975.8999999761581,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 976,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 976,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 2980.899999976158,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 2980.899999976158,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 4776.800000011921,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 4776.800000011921,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 6978.899999976158,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 6979,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 6979,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 9383.600000023842,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 9383.600000023842,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 9383.600000023842,
+          "state": "running",
+          "allowed": true
+        }
+      ],
+      "levels": [
+        1,
+        0.550000011920929,
+        0.07999999821186066,
+        0.75
+      ],
+      "rmsPeak": [
+        0.17548918748677092,
+        0.17545402831794193,
+        0.004390236548848191,
+        0
+      ],
+      "volumeWrites": 0,
+      "events": [
+        {
+          "type": "touchstart",
+          "at": 969.1999999880791
+        },
+        {
+          "type": "pointerup",
+          "at": 969.6999999880791
+        },
+        {
+          "type": "touchend",
+          "at": 970.1000000238419
+        },
+        {
+          "type": "click",
+          "at": 970.6999999880791
+        },
+        {
+          "type": "touchstart",
+          "at": 6973.800000011921,
+          "target": null
+        },
+        {
+          "type": "pointerup",
+          "at": 6973.899999976158,
+          "target": null
+        },
+        {
+          "type": "touchend",
+          "at": 6974,
+          "target": null
+        },
+        {
+          "type": "click",
+          "at": 6978.600000023842,
+          "target": null
+        },
+        {
+          "type": "touchstart",
+          "at": 9382.100000023842,
+          "target": null
+        },
+        {
+          "type": "pointerup",
+          "at": 9382.399999976158,
+          "target": null
+        },
+        {
+          "type": "touchend",
+          "at": 9382.5,
+          "target": null
+        },
+        {
+          "type": "click",
+          "at": 9383.399999976158,
+          "target": null
+        }
+      ],
+      "errors": []
+    },
+    {
+      "mode": "swipe-then-open",
+      "htmlHash": "a48eb895d7448bdf89a1d8e2dbafc6619ba6e5f8b01234f60cdc14405fa964d1",
+      "completedCycle": true,
+      "noAudioGate": true,
+      "first": {
+        "notes": 0,
+        "allowed": false,
+        "levels": [
+          1,
+          0.550000011920929,
+          0.07999999821186066,
+          0.75
+        ]
+      },
+      "notes": [
+        {
+          "at": 6820.400000035763,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 6820.400000035763,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 6820.5,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 9246.600000023842,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 9246.600000023842,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 9246.600000023842,
+          "state": "running",
+          "allowed": true
+        }
+      ],
+      "levels": [
+        1,
+        0.550000011920929,
+        0.07999999821186066,
+        0.75
+      ],
+      "rmsPeak": [
+        0.06317933549615332,
+        0.06307014170774068,
+        0.004427471239404381,
+        0
+      ],
+      "volumeWrites": 0,
+      "events": [
+        {
+          "type": "touchstart",
+          "at": 387.10000002384186,
+          "target": "轻点或向右滑动旋钮，或按回车抽取扭蛋"
+        },
+        {
+          "type": "touchmove",
+          "at": 397.9000000357628,
+          "target": "轻点或向右滑动旋钮，或按回车抽取扭蛋"
+        },
+        {
+          "type": "pointerup",
+          "at": 806.1000000238419,
+          "target": "轻点或向右滑动旋钮，或按回车抽取扭蛋"
+        },
+        {
+          "type": "touchend",
+          "at": 808,
+          "target": "轻点或向右滑动旋钮，或按回车抽取扭蛋"
+        },
+        {
+          "type": "touchstart",
+          "at": 6811.900000035763,
+          "target": null
+        },
+        {
+          "type": "pointerup",
+          "at": 6812.100000023842,
+          "target": null
+        },
+        {
+          "type": "touchend",
+          "at": 6812.199999988079,
+          "target": null
+        },
+        {
+          "type": "click",
+          "at": 6817.300000011921,
+          "target": null
+        },
+        {
+          "type": "touchstart",
+          "at": 9244.900000035763,
+          "target": null
+        },
+        {
+          "type": "pointerup",
+          "at": 9245.100000023842,
+          "target": null
+        },
+        {
+          "type": "touchend",
+          "at": 9245.100000023842,
+          "target": null
+        },
+        {
+          "type": "click",
+          "at": 9246,
+          "target": null
+        }
+      ],
+      "errors": []
+    },
+    {
+      "mode": "native-touchstart",
+      "htmlHash": "a48eb895d7448bdf89a1d8e2dbafc6619ba6e5f8b01234f60cdc14405fa964d1",
+      "completedCycle": true,
+      "noAudioGate": true,
+      "first": {
+        "notes": 28,
+        "allowed": true,
+        "levels": [
+          1,
+          0.550000011920929,
+          0.07999999821186066,
+          0.75
+        ]
+      },
+      "notes": [
+        {
+          "at": 791.5,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 791.6000000238419,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 791.6000000238419,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 791.6000000238419,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 791.6000000238419,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 791.6999999880791,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 791.6999999880791,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 791.6999999880791,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 791.8000000119209,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 791.8000000119209,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 791.9000000357628,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 791.9000000357628,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 791.9000000357628,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 791.9000000357628,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 791.9000000357628,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 791.9000000357628,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 792,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 792,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 792,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 792,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 792,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 792,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 792.1000000238419,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 792.1999999880791,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 792.1999999880791,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 792.1999999880791,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 792.1999999880791,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 792.1999999880791,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 2793.600000023842,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 2793.600000023842,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 4593.100000023842,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 4593.199999988079,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 6807.199999988079,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 6807.199999988079,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 6807.199999988079,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 9211.699999988079,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 9211.699999988079,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 9211.699999988079,
+          "state": "running",
+          "allowed": true
+        }
+      ],
+      "levels": [
+        1,
+        0.550000011920929,
+        0.07999999821186066,
+        0.75
+      ],
+      "rmsPeak": [
+        0.175457743538319,
+        0.17545402831794193,
+        0.004424421807285014,
+        0
+      ],
+      "volumeWrites": 0,
+      "events": [
+        {
+          "type": "touchstart",
+          "at": 382.69999998807907,
+          "target": "轻点或向右滑动旋钮，或按回车抽取扭蛋"
+        },
+        {
+          "type": "touchmove",
+          "at": 393.9000000357628,
+          "target": "轻点或向右滑动旋钮，或按回车抽取扭蛋"
+        },
+        {
+          "type": "pointerup",
+          "at": 790.1000000238419,
+          "target": "轻点或向右滑动旋钮，或按回车抽取扭蛋"
+        },
+        {
+          "type": "touchend",
+          "at": 793.9000000357628,
+          "target": "轻点或向右滑动旋钮，或按回车抽取扭蛋"
+        },
+        {
+          "type": "touchstart",
+          "at": 6801.900000035763,
+          "target": null
+        },
+        {
+          "type": "pointerup",
+          "at": 6802,
+          "target": null
+        },
+        {
+          "type": "touchend",
+          "at": 6802.100000023842,
+          "target": null
+        },
+        {
+          "type": "click",
+          "at": 6807,
+          "target": null
+        },
+        {
+          "type": "touchstart",
+          "at": 9210.400000035763,
+          "target": null
+        },
+        {
+          "type": "pointerup",
+          "at": 9210.600000023842,
+          "target": null
+        },
+        {
+          "type": "touchend",
+          "at": 9210.699999988079,
+          "target": null
+        },
+        {
+          "type": "click",
+          "at": 9211.600000023842,
+          "target": null
+        }
+      ],
+      "errors": []
+    },
+    {
+      "mode": "pending-resume",
+      "htmlHash": "a48eb895d7448bdf89a1d8e2dbafc6619ba6e5f8b01234f60cdc14405fa964d1",
+      "completedCycle": true,
+      "noAudioGate": true,
+      "first": {
+        "notes": 28,
+        "allowed": true,
+        "levels": [
+          1,
+          0.550000011920929,
+          0.07999999821186066,
+          0.75
+        ]
+      },
+      "notes": [
+        {
+          "at": 397,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 397,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 397.10000002384186,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 397.10000002384186,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 397.19999998807907,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 397.30000001192093,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 397.30000001192093,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 397.4000000357628,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 397.5,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 397.5,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 397.5,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 397.60000002384186,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 397.60000002384186,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 397.60000002384186,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 397.60000002384186,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 397.60000002384186,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 397.69999998807907,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 397.69999998807907,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 397.80000001192093,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 397.80000001192093,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 397.80000001192093,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 397.80000001192093,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 397.9000000357628,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 397.9000000357628,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 397.9000000357628,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 398,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 398.10000002384186,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 398.10000002384186,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 2412.600000023842,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 2412.600000023842,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 4211.600000023842,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 4211.600000023842,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 6246.900000035763,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 6247,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 6247,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 8639.300000011921,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 8639.300000011921,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 8639.400000035763,
+          "state": "running",
+          "allowed": true
+        }
+      ],
+      "levels": [
+        1,
+        0.550000011920929,
+        0.07999999821186066,
+        0.75
+      ],
+      "rmsPeak": [
+        0.17544979751731163,
+        0.17545402831794193,
+        0.004362344013476441,
+        0
+      ],
+      "volumeWrites": 0,
+      "events": [
+        {
+          "type": "touchstart",
+          "at": 393.10000002384186,
+          "target": "轻点或向右滑动旋钮，或按回车抽取扭蛋"
+        },
+        {
+          "type": "pointerup",
+          "at": 393.4000000357628,
+          "target": "轻点或向右滑动旋钮，或按回车抽取扭蛋"
+        },
+        {
+          "type": "touchend",
+          "at": 393.69999998807907,
+          "target": "轻点或向右滑动旋钮，或按回车抽取扭蛋"
+        },
+        {
+          "type": "click",
+          "at": 394.60000002384186,
+          "target": "轻点或向右滑动旋钮，或按回车抽取扭蛋"
+        },
+        {
+          "type": "touchstart",
+          "at": 6241.5,
+          "target": null
+        },
+        {
+          "type": "pointerup",
+          "at": 6241.600000023842,
+          "target": null
+        },
+        {
+          "type": "touchend",
+          "at": 6241.699999988079,
+          "target": null
+        },
+        {
+          "type": "click",
+          "at": 6246.699999988079,
+          "target": null
+        },
+        {
+          "type": "touchstart",
+          "at": 8638.100000023842,
+          "target": null
+        },
+        {
+          "type": "pointerup",
+          "at": 8638.300000011921,
+          "target": null
+        },
+        {
+          "type": "touchend",
+          "at": 8638.300000011921,
+          "target": null
+        },
+        {
+          "type": "click",
+          "at": 8639.199999988079,
+          "target": null
+        }
+      ],
+      "errors": []
+    },
+    {
+      "mode": "permanent-denial",
+      "htmlHash": "a48eb895d7448bdf89a1d8e2dbafc6619ba6e5f8b01234f60cdc14405fa964d1",
+      "completedCycle": true,
+      "noAudioGate": true,
+      "first": {
+        "notes": 0,
+        "allowed": false,
+        "levels": [
+          1,
+          0.550000011920929,
+          0.07999999821186066,
+          0.75
+        ]
+      },
+      "notes": [],
+      "levels": [
+        1,
+        0.550000011920929,
+        0.07999999821186066,
+        0.75
+      ],
+      "rmsPeak": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "volumeWrites": 0,
+      "events": [
+        {
+          "type": "touchstart",
+          "at": 398.69999998807907,
+          "target": "轻点或向右滑动旋钮，或按回车抽取扭蛋"
+        },
+        {
+          "type": "pointerup",
+          "at": 398.89999997615814,
+          "target": "轻点或向右滑动旋钮，或按回车抽取扭蛋"
+        },
+        {
+          "type": "touchend",
+          "at": 399.2999999523163,
+          "target": "轻点或向右滑动旋钮，或按回车抽取扭蛋"
+        },
+        {
+          "type": "click",
+          "at": 400.19999998807907,
+          "target": "轻点或向右滑动旋钮，或按回车抽取扭蛋"
+        },
+        {
+          "type": "touchstart",
+          "at": 6223,
+          "target": null
+        },
+        {
+          "type": "pointerup",
+          "at": 6223.199999988079,
+          "target": null
+        },
+        {
+          "type": "touchend",
+          "at": 6223.299999952316,
+          "target": null
+        },
+        {
+          "type": "click",
+          "at": 6228,
+          "target": null
+        },
+        {
+          "type": "touchstart",
+          "at": 8643.899999976158,
+          "target": null
+        },
+        {
+          "type": "pointerup",
+          "at": 8644.099999964237,
+          "target": null
+        },
+        {
+          "type": "touchend",
+          "at": 8644.199999988079,
+          "target": null
+        },
+        {
+          "type": "click",
+          "at": 8645.099999964237,
+          "target": null
+        }
+      ],
+      "errors": []
+    },
+    {
+      "mode": "speaker-one-tap",
+      "htmlHash": "a48eb895d7448bdf89a1d8e2dbafc6619ba6e5f8b01234f60cdc14405fa964d1",
+      "completedCycle": true,
+      "noAudioGate": true,
+      "first": {
+        "notes": 28,
+        "allowed": true,
+        "levels": [
+          1,
+          0.550000011920929,
+          0.07999999821186066,
+          0.75
+        ]
+      },
+      "notes": [
+        {
+          "at": 895.1000000238419,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 895.1999999880791,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 895.3000000119209,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 895.3000000119209,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 895.3000000119209,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 895.3000000119209,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 895.3000000119209,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 895.3000000119209,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 895.4000000357628,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 895.4000000357628,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 895.5,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 895.5,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 895.5,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 895.6000000238419,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 895.6000000238419,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 895.6000000238419,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 895.6000000238419,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 895.6000000238419,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 895.6000000238419,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 895.6999999880791,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 895.6999999880791,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 895.8000000119209,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 895.8000000119209,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 895.8000000119209,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 895.8000000119209,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 895.8000000119209,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 895.9000000357628,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 895.9000000357628,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 2897.100000023842,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 2897.100000023842,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 4697.800000011921,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 4697.900000035763,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 6911.900000035763,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 6911.900000035763,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 6911.900000035763,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 9310.600000023842,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 9310.600000023842,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 9310.600000023842,
+          "state": "running",
+          "allowed": true
+        }
+      ],
+      "levels": [
+        1,
+        0.550000011920929,
+        0.07999999821186066,
+        0.75
+      ],
+      "rmsPeak": [
+        0.17547407265935777,
+        0.17545402831794193,
+        0.004361801998520672,
+        0
+      ],
+      "volumeWrites": 0,
+      "events": [
+        {
+          "type": "touchstart",
+          "at": 403,
+          "target": "开启声音"
+        },
+        {
+          "type": "pointerup",
+          "at": 403.10000002384186,
+          "target": "开启声音"
+        },
+        {
+          "type": "touchend",
+          "at": 403.19999998807907,
+          "target": "开启声音"
+        },
+        {
+          "type": "click",
+          "at": 404.19999998807907,
+          "target": "开启声音"
+        },
+        {
+          "type": "touchstart",
+          "at": 888.8000000119209,
+          "target": "轻点或向右滑动旋钮，或按回车抽取扭蛋"
+        },
+        {
+          "type": "pointerup",
+          "at": 888.9000000357628,
+          "target": "轻点或向右滑动旋钮，或按回车抽取扭蛋"
+        },
+        {
+          "type": "touchend",
+          "at": 889,
+          "target": "轻点或向右滑动旋钮，或按回车抽取扭蛋"
+        },
+        {
+          "type": "click",
+          "at": 893.6000000238419,
+          "target": "轻点或向右滑动旋钮，或按回车抽取扭蛋"
+        },
+        {
+          "type": "touchstart",
+          "at": 6906.900000035763,
+          "target": null
+        },
+        {
+          "type": "pointerup",
+          "at": 6907,
+          "target": null
+        },
+        {
+          "type": "touchend",
+          "at": 6907.100000023842,
+          "target": null
+        },
+        {
+          "type": "click",
+          "at": 6911.600000023842,
+          "target": null
+        },
+        {
+          "type": "touchstart",
+          "at": 9309.300000011921,
+          "target": null
+        },
+        {
+          "type": "pointerup",
+          "at": 9309.5,
+          "target": null
+        },
+        {
+          "type": "touchend",
+          "at": 9309.600000023842,
+          "target": null
+        },
+        {
+          "type": "click",
+          "at": 9310.400000035763,
+          "target": null
+        }
+      ],
+      "errors": []
+    }
+  ],
+  "scope": "Windows Chrome trusted touch events with strict tap-only, native-touchstart, pending-resume and permanent-denial policies simulated; no physical iPhone claim"
+}
