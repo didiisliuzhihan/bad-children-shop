@@ -1,0 +1,290 @@
+{
+  "passed": true,
+  "reports": [
+    {
+      "mode": "tap-slider",
+      "htmlHash": "4c544ac370a6a7c4aaa9476c59ec0db457b7cdda3f4d4d2b1feda8651f40f27f",
+      "completedCycle": true,
+      "noAudioGate": true,
+      "first": {
+        "notes": 28,
+        "allowed": true,
+        "levels": [
+          1,
+          0.550000011920929,
+          0.07999999821186066,
+          0.75
+        ]
+      },
+      "notes": [
+        {
+          "at": 860.6000000238419,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 860.7000000476837,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 860.7000000476837,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 860.7000000476837,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 860.8000000119209,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 860.8000000119209,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 860.8000000119209,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 860.8000000119209,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 860.9000000357628,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 860.9000000357628,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 860.9000000357628,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 860.9000000357628,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 860.9000000357628,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 861,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 861,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 861,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 861,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 861.1000000238419,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 861.1000000238419,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 861.2000000476837,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 861.2000000476837,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 861.2000000476837,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 861.2000000476837,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 861.3000000119209,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 861.3000000119209,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 861.4000000357628,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 861.5,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 861.5,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 2873,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 2873,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 4673,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 4673,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 6661.800000011921,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 6661.900000035763,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 6661.900000035763,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 9326.300000011921,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 9326.300000011921,
+          "state": "running",
+          "allowed": true
+        },
+        {
+          "at": 9326.300000011921,
+          "state": "running",
+          "allowed": true
+        }
+      ],
+      "levels": [
+        1,
+        0.550000011920929,
+        0.07999999821186066,
+        0.75
+      ],
+      "rmsPeak": [
+        0.17552036983295966,
+        0.17545402831794193,
+        0.004359189454028014,
+        0
+      ],
+      "volumeWrites": 0,
+      "events": [
+        {
+          "type": "touchstart",
+          "at": 856.5,
+          "target": "轻点或向右滑动旋钮，或按回车抽取扭蛋"
+        },
+        {
+          "type": "pointerup",
+          "at": 856.7000000476837,
+          "target": "轻点或向右滑动旋钮，或按回车抽取扭蛋"
+        },
+        {
+          "type": "touchend",
+          "at": 857.1000000238419,
+          "target": "轻点或向右滑动旋钮，或按回车抽取扭蛋"
+        },
+        {
+          "type": "click",
+          "at": 857.9000000357628,
+          "target": "轻点或向右滑动旋钮，或按回车抽取扭蛋"
+        },
+        {
+          "type": "touchstart",
+          "at": 6648.800000011921,
+          "target": null
+        },
+        {
+          "type": "pointerup",
+          "at": 6648.900000035763,
+          "target": null
+        },
+        {
+          "type": "touchend",
+          "at": 6648.900000035763,
+          "target": null
+        },
+        {
+          "type": "click",
+          "at": 6661.600000023842,
+          "target": null
+        },
+        {
+          "type": "touchstart",
+          "at": 9325.100000023842,
+          "target": null
+        },
+        {
+          "type": "pointerup",
+          "at": 9325.200000047684,
+          "target": null
+        },
+        {
+          "type": "touchend",
+          "at": 9325.300000011921,
+          "target": null
+        },
+        {
+          "type": "click",
+          "at": 9326.100000023842,
+          "target": null
+        }
+      ],
+      "errors": []
+    }
+  ],
+  "scope": "Windows Chrome trusted touch events with strict tap-only, native-touchstart, pending-resume and permanent-denial policies simulated; no physical iPhone claim"
+}

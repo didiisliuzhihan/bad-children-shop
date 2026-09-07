@@ -14,12 +14,15 @@ try {
  ]) {
   const context=await browser.newContext({viewport:{width:config.width,height:config.height},isMobile:!!config.touch,hasTouch:!!config.touch,reducedMotion:config.reduced?'reduce':'no-preference'});
   const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.emulateMedia({reducedMotion:config.reduced?'reduce':'no-preference'});
   if(url.startsWith('http://127.0.0.1'))await page.route('https://**/*',r=>r.abort());
   await page.route('**/auth/v1/**',r=>r.abort());
   await page.goto(url);await page.waitForFunction(()=>!document.querySelector('.turn-control')?.disabled,{timeout:45000});
   const initial=await page.locator('.dial-mini').boundingBox();
   if(config.touch)await page.locator('.turn-control').tap();else await page.locator('.turn-control').click();
   await page.waitForSelector('[data-phase="SPINNING"]');
+  await page.waitForFunction(reduced=>matchMedia('(prefers-reduced-motion: reduce)').matches===reduced,!!config.reduced);
+  await page.waitForFunction(reduced=>getComputedStyle(document.querySelector('.dial-travel')).animationName===(reduced?'none':'draw-travel'),!!config.reduced);
   const result=await page.evaluate(()=>{
    const track=document.querySelector('.turn-control'),traveler=document.querySelector('.dial-travel'),dial=document.querySelector('.dial-mini');
    const animations=[...traveler.getAnimations(),...dial.getAnimations()];
@@ -49,5 +52,5 @@ try {
   results.push({name:config.name,passed:true,...result,errors});console.log('PASS',config.name);
   await context.close();
  }
- await fs.writeFile('draw-motion-check.json',JSON.stringify({url,passed:true,results},null,2));
+ await fs.writeFile(process.env.BC_MOTION_REPORT||'draw-motion-check.json',JSON.stringify({url,passed:true,results},null,2));
 }finally{await browser.close()}

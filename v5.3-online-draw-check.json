@@ -1,0 +1,610 @@
+{
+  "url": "https://didiisliuzhihan.github.io/bad-children-shop/?v=5.3",
+  "passed": true,
+  "results": [
+    {
+      "name": "desktop",
+      "passed": true,
+      "animations": [
+        {
+          "name": "draw-travel",
+          "direction": "alternate",
+          "duration": 1150
+        },
+        {
+          "name": "draw-roll",
+          "direction": "alternate",
+          "duration": 1150
+        }
+      ],
+      "track": {
+        "left": 571,
+        "right": 869,
+        "width": 298
+      },
+      "samples": [
+        {
+          "t": 0,
+          "x": 815,
+          "w": 44,
+          "travelerTransform": "matrix(1, 0, 0, 1, 236, 0)",
+          "rotation": "matrix(-1, 0, 0, -1, 0, 0)"
+        },
+        {
+          "t": 287.5,
+          "x": 777.6201782226562,
+          "w": 57.79522705078125,
+          "travelerTransform": "matrix(1, 0, 0, 1, 205.518, 0)",
+          "rotation": "matrix(-0.918797, 0.39473, -0.39473, -0.918797, 0, 0)"
+        },
+        {
+          "t": 575,
+          "x": 697,
+          "w": 44,
+          "travelerTransform": "matrix(1, 0, 0, 1, 118, 0)",
+          "rotation": "matrix(0, 1, -1, 0, 0, 0)"
+        },
+        {
+          "t": 862.5,
+          "x": 602.5845947265625,
+          "w": 57.79522705078125,
+          "travelerTransform": "matrix(1, 0, 0, 1, 30.4822, 0)",
+          "rotation": "matrix(0.918797, 0.39473, -0.39473, 0.918797, 0, 0)"
+        },
+        {
+          "t": 1120,
+          "x": 579.21728515625,
+          "w": 44.17950439453125,
+          "travelerTransform": "matrix(1, 0, 0, 1, 0.307054, 0)",
+          "rotation": "matrix(0.999992, 0.00408744, -0.00408744, 0.999992, 0, 0)"
+        },
+        {
+          "t": 1150,
+          "x": 579,
+          "w": 44,
+          "travelerTransform": "matrix(1, 0, 0, 1, 0, 0)",
+          "rotation": "matrix(1, 0, 0, 1, 0, 0)"
+        },
+        {
+          "t": 1180,
+          "x": 579.21728515625,
+          "w": 44.17950439453125,
+          "travelerTransform": "matrix(1, 0, 0, 1, 0.307054, 0)",
+          "rotation": "matrix(0.999992, 0.00408744, -0.00408744, 0.999992, 0, 0)"
+        },
+        {
+          "t": 1437.5,
+          "x": 602.5845947265625,
+          "w": 57.79522705078125,
+          "travelerTransform": "matrix(1, 0, 0, 1, 30.4822, 0)",
+          "rotation": "matrix(0.918797, 0.39473, -0.39473, 0.918797, 0, 0)"
+        },
+        {
+          "t": 1725,
+          "x": 697,
+          "w": 44,
+          "travelerTransform": "matrix(1, 0, 0, 1, 118, 0)",
+          "rotation": "matrix(-9.92105e-16, 1, -1, -9.92105e-16, 0, 0)"
+        },
+        {
+          "t": 2012.5,
+          "x": 777.6201782226562,
+          "w": 57.79522705078125,
+          "travelerTransform": "matrix(1, 0, 0, 1, 205.518, 0)",
+          "rotation": "matrix(-0.918797, 0.39473, -0.39473, -0.918797, 0, 0)"
+        },
+        {
+          "t": 2270,
+          "x": 814.6032104492188,
+          "w": 44.17950439453125,
+          "travelerTransform": "matrix(1, 0, 0, 1, 235.693, 0)",
+          "rotation": "matrix(-0.999992, 0.00408744, -0.00408744, -0.999992, 0, 0)"
+        },
+        {
+          "t": 2300,
+          "x": 815,
+          "w": 44,
+          "travelerTransform": "matrix(1, 0, 0, 1, 236, 0)",
+          "rotation": "matrix(-1, 0, 0, -1, 0, 0)"
+        },
+        {
+          "t": 2330,
+          "x": 814.6032104492188,
+          "w": 44.17950439453125,
+          "travelerTransform": "matrix(1, 0, 0, 1, 235.693, 0)",
+          "rotation": "matrix(-0.999992, 0.00408744, -0.00408744, -0.999992, 0, 0)"
+        },
+        {
+          "t": 4600,
+          "x": 815,
+          "w": 44,
+          "travelerTransform": "matrix(1, 0, 0, 1, 236, 0)",
+          "rotation": "matrix(-1, 0, 0, -1, 0, 0)"
+        }
+      ],
+      "copy": "0",
+      "errors": []
+    },
+    {
+      "name": "phone",
+      "passed": true,
+      "animations": [
+        {
+          "name": "draw-travel",
+          "direction": "alternate",
+          "duration": 1150
+        },
+        {
+          "name": "draw-roll",
+          "direction": "alternate",
+          "duration": 1150
+        }
+      ],
+      "track": {
+        "left": 52,
+        "right": 338,
+        "width": 286
+      },
+      "samples": [
+        {
+          "t": 0,
+          "x": 286,
+          "w": 42,
+          "travelerTransform": "matrix(1, 0, 0, 1, 226, 0)",
+          "rotation": "matrix(-1, 0, 0, -1, 0, 0)"
+        },
+        {
+          "t": 287.5,
+          "x": 250.225341796875,
+          "w": 55.16815185546875,
+          "travelerTransform": "matrix(1, 0, 0, 1, 196.809, 0)",
+          "rotation": "matrix(-0.918797, 0.39473, -0.39473, -0.918797, 0, 0)"
+        },
+        {
+          "t": 575,
+          "x": 173,
+          "w": 42,
+          "travelerTransform": "matrix(1, 0, 0, 1, 113, 0)",
+          "rotation": "matrix(0, 1, -1, 0, 0, 0)"
+        },
+        {
+          "t": 862.5,
+          "x": 82.60652160644531,
+          "w": 55.16815185546875,
+          "travelerTransform": "matrix(1, 0, 0, 1, 29.1906, 0)",
+          "rotation": "matrix(0.918797, 0.39473, -0.39473, 0.918797, 0, 0)"
+        },
+        {
+          "t": 1120,
+          "x": 60.20838165283203,
+          "w": 42.17131805419922,
+          "travelerTransform": "matrix(1, 0, 0, 1, 0.294043, 0)",
+          "rotation": "matrix(0.999992, 0.00408744, -0.00408744, 0.999992, 0, 0)"
+        },
+        {
+          "t": 1150,
+          "x": 60,
+          "w": 42,
+          "travelerTransform": "matrix(1, 0, 0, 1, 0, 0)",
+          "rotation": "matrix(1, 0, 0, 1, 0, 0)"
+        },
+        {
+          "t": 1180,
+          "x": 60.20838165283203,
+          "w": 42.17131805419922,
+          "travelerTransform": "matrix(1, 0, 0, 1, 0.294043, 0)",
+          "rotation": "matrix(0.999992, 0.00408744, -0.00408744, 0.999992, 0, 0)"
+        },
+        {
+          "t": 1437.5,
+          "x": 82.60652160644531,
+          "w": 55.16815185546875,
+          "travelerTransform": "matrix(1, 0, 0, 1, 29.1906, 0)",
+          "rotation": "matrix(0.918797, 0.39473, -0.39473, 0.918797, 0, 0)"
+        },
+        {
+          "t": 1725,
+          "x": 173,
+          "w": 42,
+          "travelerTransform": "matrix(1, 0, 0, 1, 113, 0)",
+          "rotation": "matrix(-9.92105e-16, 1, -1, -9.92105e-16, 0, 0)"
+        },
+        {
+          "t": 2012.5,
+          "x": 250.225341796875,
+          "w": 55.16815185546875,
+          "travelerTransform": "matrix(1, 0, 0, 1, 196.809, 0)",
+          "rotation": "matrix(-0.918797, 0.39473, -0.39473, -0.918797, 0, 0)"
+        },
+        {
+          "t": 2270,
+          "x": 285.62030029296875,
+          "w": 42.17132568359375,
+          "travelerTransform": "matrix(1, 0, 0, 1, 225.706, 0)",
+          "rotation": "matrix(-0.999992, 0.00408744, -0.00408744, -0.999992, 0, 0)"
+        },
+        {
+          "t": 2300,
+          "x": 286,
+          "w": 42,
+          "travelerTransform": "matrix(1, 0, 0, 1, 226, 0)",
+          "rotation": "matrix(-1, 0, 0, -1, 0, 0)"
+        },
+        {
+          "t": 2330,
+          "x": 285.62030029296875,
+          "w": 42.17132568359375,
+          "travelerTransform": "matrix(1, 0, 0, 1, 225.706, 0)",
+          "rotation": "matrix(-0.999992, 0.00408744, -0.00408744, -0.999992, 0, 0)"
+        },
+        {
+          "t": 4600,
+          "x": 286,
+          "w": 42,
+          "travelerTransform": "matrix(1, 0, 0, 1, 226, 0)",
+          "rotation": "matrix(-1, 0, 0, -1, 0, 0)"
+        }
+      ],
+      "copy": "0",
+      "errors": []
+    },
+    {
+      "name": "narrow-phone",
+      "passed": true,
+      "animations": [
+        {
+          "name": "draw-travel",
+          "direction": "alternate",
+          "duration": 1150
+        },
+        {
+          "name": "draw-roll",
+          "direction": "alternate",
+          "duration": 1150
+        }
+      ],
+      "track": {
+        "left": 17,
+        "right": 303,
+        "width": 286
+      },
+      "samples": [
+        {
+          "t": 0,
+          "x": 251,
+          "w": 42,
+          "travelerTransform": "matrix(1, 0, 0, 1, 226, 0)",
+          "rotation": "matrix(-1, 0, 0, -1, 0, 0)"
+        },
+        {
+          "t": 287.5,
+          "x": 215.225341796875,
+          "w": 55.16815185546875,
+          "travelerTransform": "matrix(1, 0, 0, 1, 196.809, 0)",
+          "rotation": "matrix(-0.918797, 0.39473, -0.39473, -0.918797, 0, 0)"
+        },
+        {
+          "t": 575,
+          "x": 138,
+          "w": 42,
+          "travelerTransform": "matrix(1, 0, 0, 1, 113, 0)",
+          "rotation": "matrix(0, 1, -1, 0, 0, 0)"
+        },
+        {
+          "t": 862.5,
+          "x": 47.60652542114258,
+          "w": 55.168148040771484,
+          "travelerTransform": "matrix(1, 0, 0, 1, 29.1906, 0)",
+          "rotation": "matrix(0.918797, 0.39473, -0.39473, 0.918797, 0, 0)"
+        },
+        {
+          "t": 1120,
+          "x": 25.20838165283203,
+          "w": 42.17131805419922,
+          "travelerTransform": "matrix(1, 0, 0, 1, 0.294043, 0)",
+          "rotation": "matrix(0.999992, 0.00408744, -0.00408744, 0.999992, 0, 0)"
+        },
+        {
+          "t": 1150,
+          "x": 25,
+          "w": 42,
+          "travelerTransform": "matrix(1, 0, 0, 1, 0, 0)",
+          "rotation": "matrix(1, 0, 0, 1, 0, 0)"
+        },
+        {
+          "t": 1180,
+          "x": 25.20838165283203,
+          "w": 42.17131805419922,
+          "travelerTransform": "matrix(1, 0, 0, 1, 0.294043, 0)",
+          "rotation": "matrix(0.999992, 0.00408744, -0.00408744, 0.999992, 0, 0)"
+        },
+        {
+          "t": 1437.5,
+          "x": 47.60652542114258,
+          "w": 55.168148040771484,
+          "travelerTransform": "matrix(1, 0, 0, 1, 29.1906, 0)",
+          "rotation": "matrix(0.918797, 0.39473, -0.39473, 0.918797, 0, 0)"
+        },
+        {
+          "t": 1725,
+          "x": 138,
+          "w": 42,
+          "travelerTransform": "matrix(1, 0, 0, 1, 113, 0)",
+          "rotation": "matrix(-9.92105e-16, 1, -1, -9.92105e-16, 0, 0)"
+        },
+        {
+          "t": 2012.5,
+          "x": 215.225341796875,
+          "w": 55.16815185546875,
+          "travelerTransform": "matrix(1, 0, 0, 1, 196.809, 0)",
+          "rotation": "matrix(-0.918797, 0.39473, -0.39473, -0.918797, 0, 0)"
+        },
+        {
+          "t": 2270,
+          "x": 250.62030029296875,
+          "w": 42.17132568359375,
+          "travelerTransform": "matrix(1, 0, 0, 1, 225.706, 0)",
+          "rotation": "matrix(-0.999992, 0.00408744, -0.00408744, -0.999992, 0, 0)"
+        },
+        {
+          "t": 2300,
+          "x": 251,
+          "w": 42,
+          "travelerTransform": "matrix(1, 0, 0, 1, 226, 0)",
+          "rotation": "matrix(-1, 0, 0, -1, 0, 0)"
+        },
+        {
+          "t": 2330,
+          "x": 250.62030029296875,
+          "w": 42.17132568359375,
+          "travelerTransform": "matrix(1, 0, 0, 1, 225.706, 0)",
+          "rotation": "matrix(-0.999992, 0.00408744, -0.00408744, -0.999992, 0, 0)"
+        },
+        {
+          "t": 4600,
+          "x": 251,
+          "w": 42,
+          "travelerTransform": "matrix(1, 0, 0, 1, 226, 0)",
+          "rotation": "matrix(-1, 0, 0, -1, 0, 0)"
+        }
+      ],
+      "copy": "0",
+      "errors": []
+    },
+    {
+      "name": "landscape",
+      "passed": true,
+      "animations": [
+        {
+          "name": "draw-travel",
+          "direction": "alternate",
+          "duration": 1150
+        },
+        {
+          "name": "draw-roll",
+          "direction": "alternate",
+          "duration": 1150
+        }
+      ],
+      "track": {
+        "left": 486.109375,
+        "right": 746.109375,
+        "width": 260
+      },
+      "samples": [
+        {
+          "t": 0,
+          "x": 692.109375,
+          "w": 44,
+          "travelerTransform": "matrix(1, 0, 0, 1, 198, 0)",
+          "rotation": "matrix(-1, 0, 0, -1, 0, 0)"
+        },
+        {
+          "t": 287.5,
+          "x": 659.6376953125,
+          "w": 57.79522705078125,
+          "travelerTransform": "matrix(1, 0, 0, 1, 172.426, 0)",
+          "rotation": "matrix(-0.918797, 0.39473, -0.39473, -0.918797, 0, 0)"
+        },
+        {
+          "t": 575,
+          "x": 593.109375,
+          "w": 44,
+          "travelerTransform": "matrix(1, 0, 0, 1, 99, 0)",
+          "rotation": "matrix(0, 1, -1, 0, 0, 0)"
+        },
+        {
+          "t": 862.5,
+          "x": 512.7858276367188,
+          "w": 57.79522705078125,
+          "travelerTransform": "matrix(1, 0, 0, 1, 25.5741, 0)",
+          "rotation": "matrix(0.918797, 0.39473, -0.39473, 0.918797, 0, 0)"
+        },
+        {
+          "t": 1120,
+          "x": 494.2772521972656,
+          "w": 44.179473876953125,
+          "travelerTransform": "matrix(1, 0, 0, 1, 0.257613, 0)",
+          "rotation": "matrix(0.999992, 0.00408744, -0.00408744, 0.999992, 0, 0)"
+        },
+        {
+          "t": 1150,
+          "x": 494.109375,
+          "w": 44,
+          "travelerTransform": "matrix(1, 0, 0, 1, 0, 0)",
+          "rotation": "matrix(1, 0, 0, 1, 0, 0)"
+        },
+        {
+          "t": 1180,
+          "x": 494.2772521972656,
+          "w": 44.179473876953125,
+          "travelerTransform": "matrix(1, 0, 0, 1, 0.257613, 0)",
+          "rotation": "matrix(0.999992, 0.00408744, -0.00408744, 0.999992, 0, 0)"
+        },
+        {
+          "t": 1437.5,
+          "x": 512.7858276367188,
+          "w": 57.79522705078125,
+          "travelerTransform": "matrix(1, 0, 0, 1, 25.5741, 0)",
+          "rotation": "matrix(0.918797, 0.39473, -0.39473, 0.918797, 0, 0)"
+        },
+        {
+          "t": 1725,
+          "x": 593.109375,
+          "w": 44,
+          "travelerTransform": "matrix(1, 0, 0, 1, 99, 0)",
+          "rotation": "matrix(-9.92105e-16, 1, -1, -9.92105e-16, 0, 0)"
+        },
+        {
+          "t": 2012.5,
+          "x": 659.6376953125,
+          "w": 57.79522705078125,
+          "travelerTransform": "matrix(1, 0, 0, 1, 172.426, 0)",
+          "rotation": "matrix(-0.918797, 0.39473, -0.39473, -0.918797, 0, 0)"
+        },
+        {
+          "t": 2270,
+          "x": 691.7620239257812,
+          "w": 44.17950439453125,
+          "travelerTransform": "matrix(1, 0, 0, 1, 197.742, 0)",
+          "rotation": "matrix(-0.999992, 0.00408744, -0.00408744, -0.999992, 0, 0)"
+        },
+        {
+          "t": 2300,
+          "x": 692.109375,
+          "w": 44,
+          "travelerTransform": "matrix(1, 0, 0, 1, 198, 0)",
+          "rotation": "matrix(-1, 0, 0, -1, 0, 0)"
+        },
+        {
+          "t": 2330,
+          "x": 691.7620239257812,
+          "w": 44.17950439453125,
+          "travelerTransform": "matrix(1, 0, 0, 1, 197.742, 0)",
+          "rotation": "matrix(-0.999992, 0.00408744, -0.00408744, -0.999992, 0, 0)"
+        },
+        {
+          "t": 4600,
+          "x": 692.109375,
+          "w": 44,
+          "travelerTransform": "matrix(1, 0, 0, 1, 198, 0)",
+          "rotation": "matrix(-1, 0, 0, -1, 0, 0)"
+        }
+      ],
+      "copy": "0",
+      "errors": []
+    },
+    {
+      "name": "reduced-motion",
+      "passed": true,
+      "animations": [],
+      "track": {
+        "left": 52,
+        "right": 338,
+        "width": 286
+      },
+      "samples": [
+        {
+          "t": 0,
+          "x": 173,
+          "w": 42,
+          "travelerTransform": "matrix(1, 0, 0, 1, 113, 0)",
+          "rotation": "matrix(0, 1, -1, 0, 0, 0)"
+        },
+        {
+          "t": 287.5,
+          "x": 173,
+          "w": 42,
+          "travelerTransform": "matrix(1, 0, 0, 1, 113, 0)",
+          "rotation": "matrix(0, 1, -1, 0, 0, 0)"
+        },
+        {
+          "t": 575,
+          "x": 173,
+          "w": 42,
+          "travelerTransform": "matrix(1, 0, 0, 1, 113, 0)",
+          "rotation": "matrix(0, 1, -1, 0, 0, 0)"
+        },
+        {
+          "t": 862.5,
+          "x": 173,
+          "w": 42,
+          "travelerTransform": "matrix(1, 0, 0, 1, 113, 0)",
+          "rotation": "matrix(0, 1, -1, 0, 0, 0)"
+        },
+        {
+          "t": 1120,
+          "x": 173,
+          "w": 42,
+          "travelerTransform": "matrix(1, 0, 0, 1, 113, 0)",
+          "rotation": "matrix(0, 1, -1, 0, 0, 0)"
+        },
+        {
+          "t": 1150,
+          "x": 173,
+          "w": 42,
+          "travelerTransform": "matrix(1, 0, 0, 1, 113, 0)",
+          "rotation": "matrix(0, 1, -1, 0, 0, 0)"
+        },
+        {
+          "t": 1180,
+          "x": 173,
+          "w": 42,
+          "travelerTransform": "matrix(1, 0, 0, 1, 113, 0)",
+          "rotation": "matrix(0, 1, -1, 0, 0, 0)"
+        },
+        {
+          "t": 1437.5,
+          "x": 173,
+          "w": 42,
+          "travelerTransform": "matrix(1, 0, 0, 1, 113, 0)",
+          "rotation": "matrix(0, 1, -1, 0, 0, 0)"
+        },
+        {
+          "t": 1725,
+          "x": 173,
+          "w": 42,
+          "travelerTransform": "matrix(1, 0, 0, 1, 113, 0)",
+          "rotation": "matrix(0, 1, -1, 0, 0, 0)"
+        },
+        {
+          "t": 2012.5,
+          "x": 173,
+          "w": 42,
+          "travelerTransform": "matrix(1, 0, 0, 1, 113, 0)",
+          "rotation": "matrix(0, 1, -1, 0, 0, 0)"
+        },
+        {
+          "t": 2270,
+          "x": 173,
+          "w": 42,
+          "travelerTransform": "matrix(1, 0, 0, 1, 113, 0)",
+          "rotation": "matrix(0, 1, -1, 0, 0, 0)"
+        },
+        {
+          "t": 2300,
+          "x": 173,
+          "w": 42,
+          "travelerTransform": "matrix(1, 0, 0, 1, 113, 0)",
+          "rotation": "matrix(0, 1, -1, 0, 0, 0)"
+        },
+        {
+          "t": 2330,
+          "x": 173,
+          "w": 42,
+          "travelerTransform": "matrix(1, 0, 0, 1, 113, 0)",
+          "rotation": "matrix(0, 1, -1, 0, 0, 0)"
+        },
+        {
+          "t": 4600,
+          "x": 173,
+          "w": 42,
+          "travelerTransform": "matrix(1, 0, 0, 1, 113, 0)",
+          "rotation": "matrix(0, 1, -1, 0, 0, 0)"
+        }
+      ],
+      "copy": "0",
+      "errors": []
+    }
+  ]
+}
