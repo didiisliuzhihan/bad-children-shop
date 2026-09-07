@@ -6,7 +6,8 @@ node_modules/
 .DS_Store
 src/signed-assets.json
 .preview/
-*.blend1
 archive/
 !assets/source/**
 !blender/**
+*.blend1
+

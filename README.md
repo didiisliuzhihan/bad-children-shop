@@ -36,6 +36,8 @@ GitHub Pages 从 main 分支的 /docs 发布。docs/index.html 与 dist/index.ht
 
 所有源文件均保留在本地项目，没有进行构建后清理。GitHub 不上传本地环境私有文件、旧签名 URL、原始需求 PDF、运行日志和自动备份文件；生产用素材在 Supabase Storage。
 
+GitHub 同时保存 6 个 Blender 工程、5 个未压缩 GLB 和 V2 检查渲染。较大的原始图片、音频、字体许可及发布副本集中保存在 source-media-backup.zip。需要从仓库重新建模或离线预览时，解压该 ZIP：把 references、audio、licenses 三个目录放入 assets/source，把 delivery 放入 assets。完整的本地项目已经有这些文件，不需要重复解压。
+
 ## 开发
 
 ```sh
@@ -67,6 +69,7 @@ Supabase 项目 kbyobdydythovyagrfgv 已启用匿名登录。toys 对访客只�
 - v2-check.json：直接进入、抽取、开蛋、中文重点句、收藏、故事与 PNG 保存。
 - assets/storage-check.json：14 个线上素材均 HTTP 200，SHA-256 与本地一致。
 - cloud-check.json：本人读写、跨用户隔离和伪造归属拦截。
-- deploy-check.json：线上版本验证结果（发布后生成）。
+- deploy-check.json：正式 HTTPS 站点已验证，HTML 与本地构建 SHA-256 一致；云端收藏、刷新保留、故事和 PNG 下载通过。
 
 实际验证环境是 Windows Chrome 与 390×844 窄屏模拟；没有声称完成真实 iPhone Safari 测试。匿名收藏不是账号找回系统。字体许可位于 assets/source/licenses/。
+
