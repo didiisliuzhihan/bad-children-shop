@@ -21,7 +21,7 @@ export default function App(){
   const[bag,setBag]=useState(false),[guide,setGuide]=useState(false),[selected,setSelected]=useState<Toy|null>(null);
   const[toyReady,setToyReady]=useState(false),[toyError,setToyError]=useState(false),[toastText,setToastText]=useState('');
   const reduced=useRef(matchMedia('(prefers-reduced-motion: reduce)').matches).current;
-  const phaseRef=useRef<Phase>('IDLE'),locked=useRef(false),dragStart=useRef<number|null>(null),audioStarted=useRef(false);
+  const phaseRef=useRef<Phase>('IDLE'),locked=useRef(false),dragStart=useRef<number|null>(null);
   const timeouts=useRef<ReturnType<typeof setTimeout>[]>([]),toastTimer=useRef<ReturnType<typeof setTimeout>|null>(null);
   const bagButton=useRef<HTMLButtonElement>(null),flyingCard=useRef<HTMLDivElement>(null),revealRef=useRef<HTMLElement>(null);
   const overlay=['SEALED','REVEALED','DECISION','COLLECTED','REJECTED'].includes(phase);
@@ -57,7 +57,7 @@ export default function App(){
     };
     document.addEventListener('keydown',trap);return()=>document.removeEventListener('keydown',trap);
   },[overlay,phase]);
-  const startAudio=()=>{if(audioStarted.current)return;audioStarted.current=true;unlockAudio();if(!muted)void startBackground(asset('studio-loop.wav'))};
+  const startAudio=()=>{void unlockAudio();if(!muted)void startBackground(asset('studio-loop.wav'))};
   const spin=useCallback(()=>{
     if(locked.current||phaseRef.current!=='IDLE'||!machine)return;
     locked.current=true;setSelected(chooseToy(toys));setToyReady(false);setToyError(false);transition('SPINNING');setDrag(1);sound('roll');
@@ -84,7 +84,7 @@ export default function App(){
   };
   const reject=()=>{if(phaseRef.current==='DECISION'){transition('REJECTED');sound('reject');later(reset,1000)}};
   const toggleAudio=()=>{const value=!muted;setMuted(value);muteAudio(value);if(!value)void startBackground(asset('studio-loop.wav'))};
-  return <main className={'shop is-entered '+(bag?'has-bag ':'')+(overlay?'is-revealing':'')} data-phase={phase} onPointerDownCapture={startAudio} onKeyDownCapture={startAudio}>
+  return <main className={'shop is-entered '+(bag?'has-bag ':'')+(overlay?'is-revealing':'')} data-phase={phase} onPointerDownCapture={startAudio} onPointerUpCapture={startAudio} onKeyDownCapture={startAudio}>
     <div className="grain" aria-hidden="true"/>
     <header className="topbar" inert={overlay?true:undefined}>
       <button className="brand" onClick={()=>{if(phase==='IDLE')setBag(false)}} aria-label="Bad Children Shop 首页"><BrandMark/><span>BAD CHILDREN<br/>SHOP</span></button>
@@ -122,7 +122,7 @@ export default function App(){
           <button className="pill-button cream" onClick={adopt}><Icon name="heart" size={19}/>收留并疼爱它</button><button className="pill-button cast-button" onClick={reject}>赶出去<Icon name="arrow" size={18}/></button>
         </div>
       </div>}
-      {phase==='COLLECTED'&&<div className="flying-card" ref={flyingCard}><div><img src={selected.icon_url} alt=""/></div><span className="card-series">THE LITTLE MISFITS</span><h3>{selected.name_zh}</h3><Tagline toy={selected}/></div>}
+      {phase==='COLLECTED'&&<div className={'flying-card'+(selected.card_image_url?' has-artwork':'')} ref={flyingCard}><div><img src={selected.card_image_url||selected.icon_url} alt=""/></div><span className="card-series">THE LITTLE MISFITS</span><h3>{selected.name_zh}</h3><Tagline toy={selected}/></div>}
     </section>}
     {bag&&<Collection items={items} toys={toys} mode={mode} onClose={()=>setBag(false)} toast={toast}/>}
     {guide&&<Modal label="使用说明" onClose={closeGuide} className="guide-modal"><h2>使用说明</h2><ol><li>向右拖动红色旋钮，或聚焦滑动条按回车抽取。</li><li>落蛋后点击“打开扭蛋”，查看玩偶。</li><li>收留后可在扭蛋包里听故事、读故事和保存卡片。</li></ol><p>收藏跟随当前浏览器的匿名身份。清除浏览器数据可能失去收藏访问权限。</p></Modal>}

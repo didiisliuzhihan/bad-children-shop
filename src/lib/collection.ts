@@ -17,7 +17,7 @@ async function hydrateCloud():Promise<CloudState>{
   let toys=fallbackToys;const local=readLocal();if(!supabase)return {toys,items:local,mode:'local'};
   try{
     const catalog=await supabase.from('toys').select('*');
-    if(catalog.data?.length)toys=catalog.data.map((t,i)=>{const fallback=fallbackToys.find(f=>f.id===t.id);return {...fallback,...t,...(localPreview&&fallback?{model_url:fallback.model_url,icon_url:fallback.icon_url,audio_url:fallback.audio_url,story_image_url:fallback.story_image_url}:{}),color:t.color||'#c8e0f4',number:String(i+1).padStart(2,'0')}}).filter(t=>t.id&&t.model_url);
+    if(catalog.data?.length)toys=catalog.data.map((t,i)=>{const fallback=fallbackToys.find(f=>f.id===t.id);return {...fallback,...t,card_image_url:t.card_image_url||fallback?.card_image_url,...(localPreview&&fallback?{model_url:fallback.model_url,icon_url:fallback.icon_url,card_image_url:fallback.card_image_url,audio_url:fallback.audio_url,story_image_url:fallback.story_image_url}:{}),color:t.color||'#c8e0f4',number:fallback?.number||String(i+1).padStart(2,'0')}}).filter(t=>t.id&&t.model_url).sort((a,b)=>a.number.localeCompare(b.number));
     if(!toys.length)toys=fallbackToys;
     const session=await supabase.auth.getSession();
     const auth=session.data.session?{data:{user:session.data.session.user},error:null}:await supabase.auth.signInAnonymously();

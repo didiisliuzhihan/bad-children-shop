@@ -1,0 +1,70 @@
+{
+  "files": [
+    {
+      "path": "blender/toy_stressed_jimao.blend",
+      "bytes": 1283026,
+      "sha256": "f07bf27b091a66e20e6858a5f03f3b51fe704c382b85ea9e1610f37a12185c3c"
+    },
+    {
+      "path": "blender/build_stressed_jimao.py",
+      "bytes": 9757,
+      "sha256": "8f5049a3564a58dbbe87e476610a84b1ed40bab8426e68e38c67b6c65f6a2482"
+    },
+    {
+      "path": "assets/source/models/toy_stressed_jimao.glb",
+      "bytes": 1353316,
+      "sha256": "9c3832ef404c6efbb0fd206f163c480688d79ff1481a7932989bd33b7255ad94"
+    },
+    {
+      "path": "assets/source/models/toy-stressed-jimao-studio.png",
+      "bytes": 1170472,
+      "sha256": "1ab72a3306c126bc25f07d01dd63f541b1f7d24d0913351c789c128604d4f661"
+    },
+    {
+      "path": "assets/source/references/toy3-model-reference.png",
+      "bytes": 1904984,
+      "sha256": "49d8bc77fbcd61f41085d35c51271399759a3bc74eda645c3d1453a1ab66f776"
+    },
+    {
+      "path": "assets/source/references/toy3-stressed-jimao-story.jpg",
+      "bytes": 1065088,
+      "sha256": "4ce1e8c9098c3ce883adf182d70cdf0a51b262942b79ad9d642dd8f5749d4375"
+    },
+    {
+      "path": "assets/source/references/toy3-stressed-jimao-voice.mp3",
+      "bytes": 116033,
+      "sha256": "030b554157a7188b4c365b2891866b823f7f433fe40f99d798dd3e37a84c4461"
+    },
+    {
+      "path": "assets/delivery/toy_stressed_jimao.glb",
+      "bytes": 209304,
+      "sha256": "ef9fadaaab210bbcfd5c628d926d5987752836162520731f639bbd009d42e8f8"
+    },
+    {
+      "path": "assets/delivery/toy_stressed_jimao.png",
+      "bytes": 697359,
+      "sha256": "ab9b639a3571d299aa6a11d851131b47d67a9d71cf26cd3aee8e167283280377"
+    },
+    {
+      "path": "assets/delivery/toy_stressed_jimao_card.png",
+      "bytes": 1904984,
+      "sha256": "49d8bc77fbcd61f41085d35c51271399759a3bc74eda645c3d1453a1ab66f776"
+    },
+    {
+      "path": "assets/delivery/toy3_stressed_jimao_story.jpg",
+      "bytes": 1065088,
+      "sha256": "4ce1e8c9098c3ce883adf182d70cdf0a51b262942b79ad9d642dd8f5749d4375"
+    },
+    {
+      "path": "assets/delivery/toy3_stressed_jimao_voice.mp3",
+      "bytes": 116033,
+      "sha256": "030b554157a7188b4c365b2891866b823f7f433fe40f99d798dd3e37a84c4461"
+    },
+    {
+      "path": "previews/toy3/draft.json",
+      "bytes": 1228,
+      "sha256": "de709316b8c8e8c75d64a115e64bfec2f09ffa1bafcda2fbaa5f830d799dfa68"
+    }
+  ],
+  "archiveBytes": 10393120
+}

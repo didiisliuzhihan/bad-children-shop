@@ -1,0 +1,16 @@
+{
+  "status": "approved-by-user",
+  "productionChanges": false,
+  "number": "03",
+  "name_zh": "抗压鸡毛",
+  "name_en": "Stressed Jimao",
+  "tagline_zh": "嘴上说着没事，头顶已经打雷——这周帮小鸡毛做一件小事叭",
+  "story_text": "你看我还好吗？",
+  "story_note": "抗压鸡毛头顶的天气预报，十次有九次是局部雷阵雨。闪电都连到脑袋上了，它还咧着嘴说：“问题不大。”可那对快合上的眼皮，早就替它举了白旗。这周帮小鸡毛做一件小事叭。让它也歇一歇，等脑袋里的小雷雨下完。",
+  "story_note_placement": "story-popup-only; excluded from downloadable card",
+  "provided_by_user": ["name_zh", "story_text", "quest_text", "reference image", "story photo", "story audio"],
+  "quest_text": "这周帮小鸡毛做一件小事叭",
+  "drafted_for_approval": ["name_en", "tagline_zh before separator", "story_note"],
+  "revision": 2,
+  "model_note": "Approved text and original rendered artwork. The original reference is used on the card; separate Blender geometry powers the reveal. Cloud and lightning must form a continuous connection to the dog head. Hidden sides are inferred from the single provided view."
+}

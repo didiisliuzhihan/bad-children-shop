@@ -8,8 +8,8 @@ import {CardExportDialog} from './CardExportDialog';
 
 function ToyImage({toy,story=false}:{toy:Toy;story?:boolean}){
   const[failed,setFailed]=useState(false);
-  useEffect(()=>setFailed(false),[toy.icon_url,toy.story_image_url]);
-  return failed?<span className="toy-image-fallback"><Icon name="heart" size={40}/><small>{toy.name_zh}</small></span>:<img src={story?toy.story_image_url:toy.icon_url} loading={story?'eager':'lazy'} decoding="async" alt={toy.name_zh} onError={()=>setFailed(true)}/>;
+  useEffect(()=>setFailed(false),[toy.icon_url,toy.card_image_url,toy.story_image_url]);
+  return failed?<span className="toy-image-fallback"><Icon name="heart" size={40}/><small>{toy.name_zh}</small></span>:<img src={story?toy.story_image_url:(toy.card_image_url||toy.icon_url)} loading={story?'eager':'lazy'} decoding="async" alt={toy.name_zh} onError={()=>setFailed(true)}/>;
 }
 export function ToyCard({item,toy,onRead,onListen,onSave,playing}:{item:Capsule;toy:Toy;onRead:()=>void;onListen:()=>void;onSave:()=>void;playing:boolean}){
   const card=useRef<HTMLElement>(null),longPress=useRef<ReturnType<typeof setTimeout>|null>(null);
@@ -19,7 +19,7 @@ export function ToyCard({item,toy,onRead,onListen,onSave,playing}:{item:Capsule;
     onContextMenu={event=>{event.preventDefault();onSave()}}
     onPointerDown={event=>{if(event.pointerType==='touch'&&!(event.target as HTMLElement).closest('button'))longPress.current=setTimeout(onSave,650)}}
     onPointerUp={cancel} onPointerMove={cancel} onPointerCancel={cancel}>
-    <div className="card-image"><div className="card-series">THE LITTLE MISFITS<span>{toy.number}</span></div><ToyImage toy={toy}/></div>
+    <div className={'card-image'+(toy.card_image_url?' has-artwork':'')}><div className="card-series">THE LITTLE MISFITS<span>{toy.number}</span></div><ToyImage toy={toy}/></div>
     <div className="card-content"><div className="card-name"><h3>{toy.name_zh}</h3><span>{toy.name_en}</span></div><Tagline toy={toy}/>
       <div className="card-actions"><button onClick={onListen} aria-label={'听故事 '+toy.name_zh}><Icon name={playing?'pause':'headphones'} size={16}/>{playing?'暂停':'听故事'}</button><button onClick={onRead}><Icon name="book" size={16}/>读故事</button><button className="save-card" onClick={onSave} aria-label="保存卡片图片"><Icon name="download" size={17}/></button></div>
       <time className="card-date" dateTime={item.obtained_at}>{new Date(item.obtained_at).toLocaleDateString('zh-CN')}</time>

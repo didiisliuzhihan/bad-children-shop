@@ -1,5 +1,5 @@
 {
-  "verifiedAt": "2026-09-07T03:58:02.058Z",
+  "verifiedAt": "2026-09-07T05:12:16.372Z",
   "base": "https://kbyobdydythovyagrfgv.supabase.co/storage/v1/object/public/bad-children-assets",
   "checks": [
     {
@@ -69,6 +69,18 @@
       "sha256": "4a631e24ff9a5f5bd297e3bc7cc60a49e788e423578cfceae7a10595286d3406"
     },
     {
+      "name": "toy3_stressed_jimao_story.jpg",
+      "bytes": 1065088,
+      "status": 200,
+      "sha256": "4ce1e8c9098c3ce883adf182d70cdf0a51b262942b79ad9d642dd8f5749d4375"
+    },
+    {
+      "name": "toy3_stressed_jimao_voice.mp3",
+      "bytes": 116033,
+      "status": 200,
+      "sha256": "030b554157a7188b4c365b2891866b823f7f433fe40f99d798dd3e37a84c4461"
+    },
+    {
       "name": "toy_jimao.glb",
       "bytes": 54744,
       "status": 200,
@@ -91,6 +103,24 @@
       "bytes": 807160,
       "status": 200,
       "sha256": "b2b293153db158a584208149f8a27f241ece29277fda88f60b09bb7c82f15427"
+    },
+    {
+      "name": "toy_stressed_jimao.glb",
+      "bytes": 209304,
+      "status": 200,
+      "sha256": "ef9fadaaab210bbcfd5c628d926d5987752836162520731f639bbd009d42e8f8"
+    },
+    {
+      "name": "toy_stressed_jimao.png",
+      "bytes": 697359,
+      "status": 200,
+      "sha256": "ab9b639a3571d299aa6a11d851131b47d67a9d71cf26cd3aee8e167283280377"
+    },
+    {
+      "name": "toy_stressed_jimao_card.png",
+      "bytes": 1904984,
+      "status": 200,
+      "sha256": "49d8bc77fbcd61f41085d35c51271399759a3bc74eda645c3d1453a1ab66f776"
     },
     {
       "name": "zcool-kuaile.woff2",

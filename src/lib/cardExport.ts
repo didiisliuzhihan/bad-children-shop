@@ -39,12 +39,30 @@ function fitFont(ctx:CanvasRenderingContext2D,text:string,max:number,min:number,
  * Image download and decode must succeed before any PNG can be offered to the user.
  */
 export async function renderCollectibleCard(toy:Toy,item:Capsule):Promise<Blob>{
-  const [img]=await Promise.all([decodedImage(toy.icon_url),ensureQuestFont()]);
+  const [img]=await Promise.all([decodedImage(toy.card_image_url||toy.icon_url),ensureQuestFont()]);
   await Promise.race([document.fonts.ready,new Promise(resolve=>setTimeout(resolve,4000))]);
   const canvas=document.createElement('canvas');canvas.width=CARD_SIZE.width;canvas.height=CARD_SIZE.height;
   const ctx=canvas.getContext('2d');if(!ctx)throw Error('Canvas is unavailable');
   ctx.fillStyle='#f0f2ea';ctx.fillRect(0,0,1080,1440);
   const color=/^#[0-9a-f]{6}$/i.test(toy.color)?toy.color:'#d6e3e5';
+  if(toy.card_image_url){
+    // Full scene artwork: preserve every edge of the supplied render; never crop.
+    rounded(ctx,36,36,1008,1008,42);ctx.fillStyle=color;ctx.fill();ctx.save();ctx.clip();
+    const scale=Math.min(1008/img.naturalWidth,1008/img.naturalHeight),w=img.naturalWidth*scale,h=img.naturalHeight*scale;
+    ctx.drawImage(img,540-w/2,540-h/2,w,h);ctx.restore();
+    rounded(ctx,64,62,305,53,25);ctx.fillStyle='rgba(242,247,240,.85)';ctx.fill();
+    ctx.fillStyle='#284550';ctx.font='500 22px Inter,sans-serif';ctx.fillText('THE LITTLE MISFITS',82,96);
+    rounded(ctx,945,62,70,53,25);ctx.fillStyle='rgba(242,247,240,.85)';ctx.fill();
+    ctx.fillStyle='#284550';ctx.textAlign='center';ctx.fillText(toy.number,980,96);ctx.textAlign='left';
+    ctx.fillStyle='#173846';fitFont(ctx,toy.name_zh,52,35,920);ctx.fillText(toy.name_zh,80,1116);
+    ctx.fillStyle='#70838a';fitFont(ctx,toy.name_en,30,22,920,450,'Fredoka,Inter,sans-serif');ctx.fillText(toy.name_en,80,1162);
+    ctx.strokeStyle='#24495424';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(80,1195);ctx.lineTo(1000,1195);ctx.stroke();
+    const [statement,...task]=toy.tagline_zh.replace(/（任务）|\(任务\)/g,'').split(/——|--/);
+    ctx.fillStyle='#284653';fitFont(ctx,statement,34,24,920,500);ctx.fillText(statement,80,1246);
+    const quest=task.join('——').trim();ctx.fillStyle='#b84635';fitFont(ctx,quest,43,27,920,400,QUEST_FONT_FAMILY);ctx.fillText(quest,80,1312);
+    ctx.font='400 25px Inter,sans-serif';ctx.fillStyle='#899b9d';ctx.fillText(new Date(item.obtained_at).toLocaleDateString('zh-CN'),80,1380);
+    return new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?.size?resolve(blob):reject(Error('PNG encoding failed')),'image/png'));
+  }
   rounded(ctx,36,36,1008,790,42);ctx.fillStyle=color;ctx.fill();ctx.save();ctx.clip();
   const light=ctx.createRadialGradient(505,310,20,510,390,760);light.addColorStop(0,'rgba(255,255,255,.62)');light.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=light;ctx.fillRect(36,36,1008,790);
   ctx.fillStyle='#284550';ctx.font='500 23px Inter,sans-serif';ctx.fillText('THE LITTLE MISFITS',80,91);ctx.textAlign='right';ctx.fillText(toy.number,998,91);ctx.textAlign='left';

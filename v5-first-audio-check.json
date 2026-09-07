@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "effects": 28,
+  "states": [
+    "running"
+  ],
+  "rmsPeak": 0.025195546045375793,
+  "bgm": {
+    "url": "http://127.0.0.1:4173/assets/delivery/studio-loop.wav",
+    "volume": 0.08
+  },
+  "contextState": "running",
+  "method": "Fresh Chrome context, first drag, Web Audio analyser records nonzero effect signal; not a physical iPhone listening test"
+}

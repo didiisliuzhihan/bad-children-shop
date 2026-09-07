@@ -4,6 +4,25 @@
 
 React、Three.js、Blender 和 Supabase 实现的 3D 扭蛋商店。网址直接进入主界面；拖动旋钮或点击抽取，亲手开蛋，收留角色、听故事和保存收藏卡。
 
+## V5 更新：抗压鸡毛与双素材工作流
+
+- 新增第 03 只「抗压鸡毛」。任务原文：这周帮小鸡毛做一件小事叭；照片附录：你看我还好吗？小故事采用已确认的第二稿，仅在故事弹窗显示。
+- 从这只起，`card_image_url` 指向用户提供的完整背景渲染图，`model_url` 指向动画 GLB，`icon_url` 仅为透明模型预览/加载失败备用。收藏卡、收留飞卡与 PNG 都用卡面原图，前两只维持原样。
+- 方形原图完整嵌入 1080×1440 PNG，不截取 DOM、不裁掉云朵或脚部。图片成功解码与任务字体就绪后才能保存。
+- Blender 工程为 `blender/toy_stressed_jimao.blend`，脚本为 `blender/build_stressed_jimao.py`；45,110 个三角形、209,304 字节的压缩 GLB。模型为单张参考的三维近似，背面补全；原始卡面图直接保留，不用模型重新渲染替换。
+- 首次音效等待 AudioContext 进入 running，再安排播放；解锁失败无未处理错误，后续 pointer-up / keyboard 手势可重试。机械滚动提高中频与效果总线电平。BGM 从 0.16 降至 0.08，语音时降至 0.025；语音本身保持 0.75。
+- `supabase/toy03-stressed-jimao.sql` 只新增玩具记录，不改变表结构、已有玩具、用户收藏或 RLS。`card_image_url` 和 `story_note` 是前端可选字段，按 ID 与云端目录合并。
+- `v5-source-media.zip` 含本次 Blender 工程、未压缩模型、参考原图、照片、语音与五项发布素材，按目录解压到项目根目录即可。所有本地源文件均保留。
+- 验证：`v5-check.json`、`v5-first-audio-check.json`；单元测试包含首次解锁失败、后续重试、静音与中断恢复。音效检测使用真实 Chrome 音频分析器，未声称完成实体 iPhone 听感测试。
+
+### 今后新增玩具
+
+1. 确认名字、标语、任务句、故事短文与完整卡面原图。
+2. 保留原图为独立 `card_image_url`；Blender 模型只负责互动，透明预览单独保留。
+3. 上传新的公开素材路径，保留原始素材，不覆盖已有玩具文件。任务句自动继承 BC Quest 字体。
+4. 在 `src/assets.ts` 和云端 toys 目录新增同一个 ID。PNG 不含小故事。
+5. 验证冷缓存、手机完整构图、PNG、语音及开蛋；构建单 HTML，更新 GitHub Pages。
+
 ## V4 更新：小故事与任务字体
 
 - 恢复张鸡毛、哭哭葵的主题小故事，只显示在“读故事”弹窗，不添加到收藏卡或导出 PNG。原短句、照片和音频继续保留。这里是固定编辑的故事稿，不调用 AI 随机生成。
@@ -79,7 +98,7 @@ V3 的 gashapon_machine_v3.blend 保存完整机器，sheep_girl_v3.blend 保存
 
 ## 云端与安全
 
-Supabase 项目 kbyobdydythovyagrfgv 已启用匿名登录。toys 对访客只读；user_capsules 通过 RLS 限制为本人收藏。bad-children-assets 公共桶含 16 个发布文件，普通访客没有上传、覆盖或删除权限。原来的 private shop 桶未更改。
+Supabase 项目 kbyobdydythovyagrfgv 已启用匿名登录。toys 对访客只读；user_capsules 通过 RLS 限制为本人收藏。bad-children-assets 公共桶含 21 个发布文件，普通访客没有上传、覆盖或删除权限。原来的 private shop 桶未更改。
 
 可先执行 supabase/bootstrap.sql，再执行 supabase/content-v2.sql 以更新已有资料。已有项目不必重复执行。
 
@@ -89,7 +108,7 @@ Supabase 项目 kbyobdydythovyagrfgv 已启用匿名登录。toys 对访客只�
 - v2-check.json：直接进入、抽取、开蛋、中文重点句、收藏、故事与 PNG 保存。
 - v3-check.json：透明模糊层、手机故事图完整展示、两款 3:4 卡片、冷缓存图片失败拦截、重试及分享点击有效性。
 - v3-screen-check.json：320×568、375×667、430×932 竖屏与 844×390 横屏的图片适配、关闭和保存控件可用性。
-- assets/storage-check.json：16 个线上素材均 HTTP 200，SHA-256 与本地一致。
+- assets/storage-check.json：21 个线上素材均 HTTP 200，SHA-256 与本地一致。
 - v4-check.json：任务专属字体、按需加载、故事仅弹窗显示、3:4 PNG 同字体、字体失败拦截与重试恢复。
 - v4-online-check.json：正式网址与最终 HTML 校验一致，两段小故事、专属任务字体和两款 PNG 下载均验证通过。
 - v4-future-quest-check.json：用仅存在于测试浏览器的新增玩具验证任务自动继承字体和导出模板，未写入线上数据库。

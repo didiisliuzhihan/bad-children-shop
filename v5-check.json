@@ -1,0 +1,29 @@
+{
+  "passed": true,
+  "online": false,
+  "artwork": {
+    "url": "http://127.0.0.1:4173/assets/delivery/toy_stressed_jimao_card.png",
+    "natural": [
+      1024,
+      1024
+    ],
+    "box": [
+      336,
+      336
+    ],
+    "fit": "contain"
+  },
+  "fullSourceImageDrawn": true,
+  "cardSize": [
+    1080,
+    1440
+  ],
+  "exportBytes": 1750712,
+  "questFont": true,
+  "storiesExcludedFromCard": true,
+  "storyAudioPlayed": true,
+  "glbRevealVerified": true,
+  "largeAssetsLazy": true,
+  "errors": [],
+  "environment": "Windows Chrome; mobile viewport 390x844, desktop 1440x1000; no physical iPhone Safari test"
+}

@@ -46,4 +46,14 @@ export const fallbackToys:Toy[]=[{
   story_note:'下雨的时候，它穿着绿色雨靴等你。天晴了，它还是会掉一点眼泪。不是所有的眼泪都因为难过，也可能是想你。今天的任务：摸摸它的脑袋，告诉它，慢慢长大也没关系。',
   story_en:'',
   model_url:asset('toy_kuku_sunflower.glb'),icon_url:asset('toy_kuku_sunflower.png'),audio_url:sourceLink('toy2 emok.mp3'),story_image_url:sourceLink('toy2 emok.jpg'),color:'#d6deb7'
+},{
+  id:'stressed_jimao',number:'03',name_en:'Stressed Jimao',name_zh:'抗压鸡毛',
+  tagline_en:"Says it's fine. Forecast: thunderstorms — do one little thing for Jimao this week.",
+  tagline_zh:'嘴上说着没事，头顶已经打雷——这周帮小鸡毛做一件小事叭',
+  story_text:'你看我还好吗？',
+  story_note:'抗压鸡毛头顶的天气预报，十次有九次是局部雷阵雨。闪电都连到脑袋上了，它还咧着嘴说：“问题不大。”可那对快合上的眼皮，早就替它举了白旗。这周帮小鸡毛做一件小事叭。让它也歇一歇，等脑袋里的小雷雨下完。',
+  story_en:'',color:'#d5deea',
+  model_url:asset('toy_stressed_jimao.glb'),icon_url:asset('toy_stressed_jimao.png'),
+  card_image_url:asset('toy_stressed_jimao_card.png'),
+  audio_url:sourceLink('toy3_stressed_jimao_voice.mp3'),story_image_url:sourceLink('toy3_stressed_jimao_story.jpg')
 }];
