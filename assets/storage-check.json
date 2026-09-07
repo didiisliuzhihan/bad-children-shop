@@ -1,5 +1,5 @@
 {
-  "verifiedAt": "2026-09-07T02:21:17.609Z",
+  "verifiedAt": "2026-09-07T03:19:11.462Z",
   "base": "https://kbyobdydythovyagrfgv.supabase.co/storage/v1/object/public/bad-children-assets",
   "checks": [
     {
@@ -25,6 +25,12 @@
       "bytes": 675392,
       "status": 200,
       "sha256": "af4c142377cd0d137ed9f256578fcfbab034555ec362535f4512889b802a1d73"
+    },
+    {
+      "name": "gashapon_machine_v3.glb",
+      "bytes": 528580,
+      "status": 200,
+      "sha256": "05f8f421473ea61b7f33519430ccb9cff81453c1c757d7d36aaaaea20d4b65a1"
     },
     {
       "name": "inter.woff2",

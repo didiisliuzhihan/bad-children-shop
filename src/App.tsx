@@ -33,7 +33,7 @@ export default function App(){
   // Load directly in the main view. There is no entrance or login screen.
   useEffect(()=>{
     let alive=true;setLoadError(false);setLoadPercent(0);
-    loadModel(asset('gashapon_machine_v2.glb'),p=>{if(alive)setLoadPercent(Math.round(Math.min(p,96)))})
+    loadModel(asset('gashapon_machine_v3.glb'),p=>{if(alive)setLoadPercent(Math.round(Math.min(p,96)))})
       .then(model=>{if(alive){setMachine(model);setLoadPercent(100)}})
       .catch(error=>{console.warn('Machine model could not load',error);if(alive)setLoadError(true)});
     return()=>{alive=false};

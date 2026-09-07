@@ -1,0 +1,93 @@
+/* V3: translucent studio layers and content-sized, photo-friendly cards. */
+.is-revealing .machine-page{filter:blur(20px);transform:scale(1.035);transition:filter .65s,transform .9s}
+.is-revealing .interaction-dock{opacity:0}
+.is-revealing .topbar{z-index:60;color:#e6eeec;pointer-events:none}
+.is-revealing .bag-button{background:#e6efed16;border-color:#e6efed2e}
+.is-revealing .bag-button b{border-color:#e6efed38}
+.reveal-overlay{background:linear-gradient(115deg,#1d394bbf,#183642b3);backdrop-filter:blur(24px) saturate(.72);-webkit-backdrop-filter:blur(24px) saturate(.72);padding:100px 9vw 55px;gap:3vw}
+.reveal-portrait{height:min(69vh,700px)}
+.portrait-glow{width:100%;background:radial-gradient(ellipse,#a8c8c328,transparent 65%);filter:blur(25px)}
+.reveal-copy h1{font-size:clamp(28px,3vw,46px);line-height:1.35}
+.reveal-copy .toy-name-en{color:#c9d8dc;opacity:.8}
+.reveal-copy .tagline-en{opacity:.72}
+.decision-actions{margin-top:34px}
+.cast-button{border-color:transparent;border-radius:0;padding:14px 9px}
+.cast-button:hover{background:transparent;text-decoration:underline;text-underline-offset:7px}
+.behind-bag{opacity:.2;filter:blur(24px)}
+.collection-view{background:linear-gradient(125deg,#c9dfe9e8,#e0e9e7ec);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px)}
+.toy-card{background:linear-gradient(140deg,#f7f8f1e8,#ecf2eee0);border:1px solid #ffffffad;box-shadow:0 12px 38px #3d667214}
+.card-name h3,.card-name>span,.card-content .tagline-zh{min-height:0}
+.card-content{padding:20px 12px 9px}
+.card-content .tagline-zh{margin-top:18px}
+.card-actions{gap:5px}
+.card-actions button{padding:8px 10px}
+.modal-backdrop{background:#244c605e;backdrop-filter:blur(22px) saturate(.8);-webkit-backdrop-filter:blur(22px) saturate(.8)}
+.modal-panel{background:linear-gradient(135deg,#f3f8f5f7,#e3eef0f5);border:1px solid #ffffffb3;box-shadow:0 35px 100px #173b4e33}
+.modal-close{background:#ecf3f0e3;box-shadow:0 4px 15px #14313e0d;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.story-image{min-height:400px;background:linear-gradient(145deg,#d5e4e4,#c7d9df);padding:18px}
+.story-image img{display:block;width:100%;height:100%;max-height:70dvh;object-fit:contain;object-position:center;flex:none;border-radius:10px}
+.story-copy{padding:60px 34px 38px}
+.story-copy h2{font-size:27px}
+.story-zh{margin:28px 0}
+.save-modal .modal-panel{padding:28px 30px 26px;width:420px;text-align:center}
+.save-modal h2{font-size:21px;margin:0 28px 20px}
+.export-preview{width:min(100%,40.5dvh);aspect-ratio:3/4;position:relative;border-radius:15px;overflow:hidden;margin:auto;background:#e3ebe8;box-shadow:0 8px 22px #2b455917}
+.export-preview>img{display:block;width:100%;height:100%;object-fit:contain;user-select:auto;-webkit-user-select:auto;-webkit-touch-callout:default}
+.export-status{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:20px}
+.export-status p{margin:0!important;font-size:13px!important}
+.export-status .pill-button{font-size:13px;min-height:44px;padding:10px 20px}
+.save-modal .export-help{font-size:11px;line-height:1.8;margin:13px 0 16px;color:#69828b}
+.export-save{min-height:48px;padding:12px 26px;font-size:14px}
+@media(max-width:767px){
+ .reveal-overlay{padding:86px 22px 30px;gap:0;justify-content:center}
+ .reveal-portrait{height:35dvh;min-height:170px}
+ .reveal-copy h1{font-size:27px}
+ .reveal-copy .tagline-zh{margin-top:20px;font-size:18px}
+ .reveal-copy .tagline-en{margin-top:12px}
+ .decision-actions{margin-top:23px}
+ .phase-sealed .reveal-portrait{height:49dvh}
+ .collection-grid{grid-template-columns:minmax(0,1fr);max-width:358px;margin:0 auto;gap:25px}
+ .toy-card{padding:10px;border-radius:22px}
+ .card-image{aspect-ratio:1.35;border-radius:14px}
+ .card-image>img{height:88%;width:88%;margin-top:6%}
+ .card-image .card-series{font-size:9px;left:14px;right:14px;top:14px;letter-spacing:.09em}
+ .card-content{padding:18px 12px 9px}
+ .card-name h3{font-size:23px;line-height:1.35}
+ .card-name>span{font-size:13px;line-height:1.5;margin-top:5px}
+ .card-content .tagline-zh{font-size:15px;line-height:1.8;margin-top:18px}
+ .card-content .quest-text{font-size:16px;line-height:1.8;margin-top:5px}
+ .card-actions{margin-top:17px;padding-top:13px;flex-wrap:nowrap;gap:8px}
+ .card-actions button{font-size:12px;min-height:42px;padding:9px 13px;gap:6px}
+ .card-date{font-size:10px;margin-top:13px}
+ .modal-backdrop{padding:16px}
+ .story-modal .modal-panel{display:flex;flex-direction:column;width:100%;max-width:440px;max-height:90dvh}
+ .story-image{height:clamp(210px,47dvh,430px);min-height:0;max-height:none;flex:none;padding:14px 20px}
+ .story-image img{height:100%;width:100%;max-height:none;object-fit:contain}
+ .story-copy{padding:22px 25px 25px;align-self:stretch}
+ .story-copy h2{font-size:23px}
+ .story-copy .toy-name-en{font-size:13px;margin-top:5px}
+ .story-zh{font-size:20px;line-height:1.7;margin:18px 0}
+ .story-copy .pill-button{font-size:13px;min-height:45px;padding:10px 18px}
+ .save-modal .modal-panel{padding:25px 22px 23px;width:min(100%,390px)}
+ .save-modal h2{font-size:20px;margin-bottom:16px}
+ .export-preview{width:min(100%,39dvh)}
+}
+@media(max-height:730px) and (max-width:767px){
+ .reveal-overlay{padding-top:65px;padding-bottom:20px}
+ .reveal-portrait{height:31dvh;min-height:135px}
+ .reveal-copy h1{font-size:23px}
+ .reveal-copy .tagline-zh{font-size:16px;margin-top:14px}
+ .decision-actions{margin-top:18px}
+ .story-image{height:41dvh;min-height:180px}
+ .story-copy{padding:16px 23px 21px}
+ .story-zh{margin:12px 0}
+}
+@media(orientation:landscape) and (max-height:520px){
+ .reveal-overlay{display:grid;padding:60px 38px 20px;grid-template-columns:1fr 1fr}
+ .reveal-portrait{height:72dvh;min-height:180px}
+ .reveal-copy h1{font-size:25px}
+ .reveal-copy .tagline-zh{margin-top:15px;font-size:16px}
+ .story-modal .modal-panel{display:grid;grid-template-columns:1fr 1fr;width:700px;max-width:95vw}
+ .story-image{height:80dvh;min-height:0}
+ .story-copy{padding:40px 25px 25px}
+}
