@@ -13,6 +13,7 @@ React、Three.js、Blender 和 Supabase 实现的 3D 扭蛋商店。网址直接
 - `tests/audio.test.mjs` 模拟无法设置媒体音量、首次解锁失败、永久 pending、恢复、静音、语音失败与旧语音回调；`tests/touch-audio.test.mjs` 检查触屏、触笔与鼠标的提交时机。`v5.1-baseline-audio-check.json` 记录旧版在模拟限制下漏掉滚动声；`v5.1-local-audio-check.json` 记录实际浏览器音频信号与受信任触摸事件测试。仍未完成实体 iPhone Safari 听感测试。
 - Apple 平台依据：[iOS 音量限制](https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/Using_HTML5_Audio_Video/Device-SpecificConsiderations/Device-SpecificConsiderations.html#//apple_ref/doc/uid/TP40009523-CH5-SW4)、[WebKit 触摸激活规则](https://webkit.org/blog/13862/the-user-activation-api/)、[Web Audio 与铃声静音](https://bugs.webkit.org/show_bug.cgi?id=237322)。前一个文档为归档说明，当前设备实际表现仍需真机回测。
 - 只修改前端代码和测试，不改变 Supabase 记录、存储文件、收藏或访问权限。原素材与 Blender 工程保留。
+- 线上验证记录：`v5.1-online-audio-check.json`、`v5.1-online-voices-check.json`、`v5.1-deploy-check.json`。发布 HTML 与本地 SHA-256 相同；手机滑条、3D 旋钮、桌面与三只故事语音均测到实际音频信号。用 `?v=5.1` 刷新即可，不需要清除匿名收藏数据。
 
 ## V5 更新：抗压鸡毛与双素材工作流
 

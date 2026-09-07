@@ -1,0 +1,19 @@
+{
+  "version": "5.1.0",
+  "url": "https://didiisliuzhihan.github.io/bad-children-shop/?v=5.1",
+  "deploymentCommit": "e3791cce591effff4ec8e956a284bd0dfec22846",
+  "pagesRun": 34150474713,
+  "pagesConclusion": "success",
+  "htmlBytes": 2041104,
+  "htmlSha256": "9acd57bf0d577b87a897c391d76c9acc981dae648c59ed80eff09a196bf05706",
+  "htmlGitBlob": "701dce144eceeee7ff86df8bc59ece5411e6e3e5",
+  "liveHtmlMatchesLocal": true,
+  "unitTestsPassed": 13,
+  "onlineScenarios": ["touch slider", "touch 3D knob", "desktop mouse", "all three story voices"],
+  "checks": ["v5.1-baseline-audio-check.json", "v5.1-local-audio-check.json", "v5.1-online-audio-check.json", "v5.1-online-voices-check.json"],
+  "databaseAndStorageUnchanged": true,
+  "sourcesAndBlenderPreserved": true,
+  "noExternalJavaScriptOrCss": true,
+  "noBinaryInlining": true,
+  "testScope": "Trusted CDP touch events in Windows Chrome, with iOS-like ignored HTML media volume and release-gated resume simulated. Real audio node signals measured, including production cross-origin media. No physical iPhone or iOS WebKit validation; no production collection writes."
+}
