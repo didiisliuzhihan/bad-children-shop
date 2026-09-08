@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-const started=[],contexts=[],media=[],recordings=[];let resumeAllowed=false,denyPending=false;
+const started=[],contexts=[],media=[],recordings=[],fetched=[];let resumeAllowed=false,denyPending=false;
 const parameter=()=>({value:0,cancelScheduledValues(){},setValueAtTime(v){this.value=v},exponentialRampToValueAtTime(v){this.value=v},setTargetAtTime(v){this.value=v}});
 class FakeContext extends EventTarget{
  constructor(){super();this.state='suspended';this.currentTime=0;this.destination={};this.sampleRate=44100;this.gains=[];this.sources=[];contexts.push(this)}
@@ -13,7 +13,7 @@ class FakeContext extends EventTarget{
  run(){this.state='running';this.dispatchEvent(new Event('statechange'));this.onstatechange?.()}
 }
 globalThis.AudioContext=FakeContext;globalThis.window={AudioContext:FakeContext};
-globalThis.fetch=async()=>({ok:true,arrayBuffer:async()=>new ArrayBuffer(8)});
+globalThis.fetch=async url=>{fetched.push(url);return {ok:true,arrayBuffer:async()=>new ArrayBuffer(8)}};
 Object.defineProperty(navigator,'audioSession',{configurable:true,value:{type:'auto'}});
 globalThis.Audio=class{
  paused=true;muted=false;fail=false;
@@ -84,4 +84,18 @@ test('home cooking uses effects volume, pauses BGM, and ducks only under toy spe
  context.state='suspended';context.onstatechange();assert.equal(bus.gain.value,0);const suspendedCount=recordings.length;
  context.run();assert(recordings.length>suspendedCount,'Audio resume restores the recording');
  audio.setNestAmbience(false,'room');assert.equal(bus.gain.value,0);assert.equal(context.gains[2].gain.value,.24);assert(!bgm.paused);
+});
+test('production recording uses its explicit Pages URL, not the separate BGM host, across gestures and mute',async()=>{
+ const bgm='https://audio.example/storage/studio-loop.wav',recording='https://site.example/shop/assets/delivery/nest-fireplace-asmr.mp3',states=[];
+ const unsubscribe=audio.observeNestAudioStatus(s=>states.push(s));
+ try{
+  await audio.startBackground(bgm,recording);audio.setNestAmbience(true,'room');await tick();
+  assert.equal(fetched.at(-1),recording);assert.equal(states.at(-1),'playing');const count=recordings.length;
+  await audio.startBackground(bgm);audio.setMuted(true);assert.equal(states.at(-1),'muted');audio.setMuted(false);await tick();
+  assert.equal(states.at(-1),'playing');assert.equal(recordings.length,count);assert.equal(fetched.at(-1),recording);assert(!fetched.includes('https://audio.example/storage/nest-fireplace-asmr.mp3'));
+ }finally{audio.setNestAmbience(false,'room');unsubscribe()}
+});
+test('production entry explicitly resolves both audio URLs through the asset resolver',async()=>{
+ const fs=await import('node:fs');const app=fs.readFileSync(new URL('../src/App.tsx',import.meta.url),'utf8');
+ assert(app.includes("installAudioStart(asset('studio-loop.wav'),asset('nest-fireplace-asmr.mp3'))"));
 });

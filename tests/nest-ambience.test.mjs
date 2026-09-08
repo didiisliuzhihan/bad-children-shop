@@ -11,10 +11,10 @@ function cooking(loader=async()=>({duration:11.34})){
  };
  const context={setTimeout(fn,ms){timers.set(++id,{fn,at:now+ms});return id},clearTimeout(key){timers.delete(key)}};
  vm.runInNewContext(stripTypeScriptTypes(read('src/lib/nestAmbience.ts')).replace('export function','function')+'\nglobalThis.create=createNestAmbience;',context);
- const engine=context.create(audio,{},loader);
+ const states=[];const engine=context.create(audio,{},loader,state=>states.push(state));
  const advance=ms=>{now+=ms;for(const [key,t] of timers)if(t.at<=now){timers.delete(key);t.fn()}};
  const flush=async()=>{for(let i=0;i<12;i++)await Promise.resolve()};
- return {engine,audio,timers,sources,gains,advance,flush};
+ return {engine,audio,timers,sources,gains,advance,flush,states};
 }
 test('real recording starts on decode and loops continuously without random gaps or restarts',async()=>{
  const h=cooking();try{
@@ -34,7 +34,7 @@ test('recording honours blocked/muted audio and never starts after close or from
 });
 test('failed field recording can retry but never falls back to synthesized noises',async()=>{
  let attempts=0;const h=cooking(async()=>{if(!attempts++)throw Error('temporary');return {duration:12}});try{
-  h.engine.set(true,.55);await h.flush();assert.equal(h.sources.length,0);h.engine.set(true,.55);await h.flush();assert.equal(h.sources.length,1);
+  h.engine.set(true,.55);await h.flush();assert.equal(h.sources.length,0);assert.equal(h.states.at(-1),'error');h.engine.set(true,.55);await h.flush();assert.equal(h.sources.length,1);assert.equal(h.states.at(-1),'playing');
   assert(!read('src/lib/nestAmbience.ts').includes('createOscillator'));assert(!read('src/lib/nestAmbience.ts').includes('Math.random'));
  }finally{h.engine.dispose()}
 });
@@ -48,7 +48,7 @@ test('active fireplace asset is the user recording, byte-for-byte, not the earli
 test('actual room opens ambience with zero unlocked toys and no saved room revision',async()=>{
  const calls=[],slots=[],listeners=new Map();let cursor=0,pending=[];
  const context={NEST_ROOM_ID:'test-room',useAccount:()=>({profile:{user_id:'owner'},documents:{}}),homeResidents:()=>[],readLayout:()=>({placements:[]}),localStorage:{getItem:()=>null},
-  setNestAmbience:(...args)=>calls.push(args),document:{hidden:false,addEventListener:(k,fn)=>listeners.set(k,fn),removeEventListener:k=>listeners.delete(k)},
+  setNestAmbience:(...args)=>calls.push(args),observeNestAudioStatus:()=>()=>{},document:{hidden:false,addEventListener:(k,fn)=>listeners.set(k,fn),removeEventListener:k=>listeners.delete(k)},
   Icon:()=>null,NestScene:'NestScene',NestPhotoDialog:()=>null,_jsx:(_type,props)=>props,_jsxs:(_type,props)=>props,_Fragment:'Fragment',
   useMemo:fn=>fn(),useCallback:fn=>fn,
   useState(initial){const i=cursor++;slots[i]??={value:typeof initial==='function'?initial():initial};return [slots[i].value,value=>{slots[i].value=typeof value==='function'?value(slots[i].value):value}]},

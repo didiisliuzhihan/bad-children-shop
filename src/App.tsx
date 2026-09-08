@@ -41,7 +41,7 @@ export default function App({preview}:{preview?:ShopPreview}={}){
   useEffect(()=>{mounted.current=true;return()=>{mounted.current=false}},[]);
   useEffect(()=>{if(preview){setItems(preview.items);setMode(preview.mode)}},[preview?.items,preview?.mode]);
   useEffect(()=>{if(preview){phaseRef.current='IDLE';setPhase('IDLE');setSelected(null);setDrawResult(null);setBag(preview.initialBag??true);setDrag(0);setRequesting(false);locked.current=false;savingDraw.current=false;timeouts.current.forEach(clearTimeout);timeouts.current=[];}},[preview?.owner]);
-  useEffect(()=>{const unobserve=observeAudioReady(setAudioReady),uninstall=installAudioStart(asset('studio-loop.wav'));return()=>{unobserve();uninstall()}},[]);
+  useEffect(()=>{const unobserve=observeAudioReady(setAudioReady),uninstall=installAudioStart(asset('studio-loop.wav'),asset('nest-fireplace-asmr.mp3'));return()=>{unobserve();uninstall()}},[]);
   // Load directly in the main view. There is no entrance or login screen.
   useEffect(()=>{
     let alive=true;setLoadError(false);setLoadPercent(0);

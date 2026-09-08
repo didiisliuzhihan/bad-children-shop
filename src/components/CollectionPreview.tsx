@@ -15,7 +15,7 @@ const items:Capsule[]=toys.map(toy=>({id:'preview-'+toy.id,toy_id:toy.id,obtaine
 export function CollectionPreview(){
  const [initial,setInitial]=useState(true),[muted,setMute]=useState(false),[audioReady,setReady]=useState(isAudioReady),[message,setMessage]=useState('');
  const timer=useRef<ReturnType<typeof setTimeout>|null>(null);
- useEffect(()=>{const stop=installAudioStart(asset('studio-loop.wav')),unobserve=observeAudioReady(setReady);return()=>{stop();unobserve();if(timer.current)clearTimeout(timer.current)}},[]);
+ useEffect(()=>{const stop=installAudioStart(asset('studio-loop.wav'),asset('nest-fireplace-asmr.mp3')),unobserve=observeAudioReady(setReady);return()=>{stop();unobserve();if(timer.current)clearTimeout(timer.current)}},[]);
  const close=useCallback(()=>setInitial(false),[]);
  const toast=useCallback((s:string)=>{setMessage(s);if(timer.current)clearTimeout(timer.current);timer.current=setTimeout(()=>setMessage(''),3500)},[]);
  return <main className="shop is-entered preview-shop">

@@ -1,8 +1,18 @@
-import {createNestAmbience} from './nestAmbience.ts';
+import {createNestAmbience,type RecordingState} from './nestAmbience.ts';
 type Sound='click'|'roll'|'lock'|'drop'|'open'|'keep'|'reject'|'wipe'|'unlock';
 let nestActive=false,nestAmbience:ReturnType<typeof createNestAmbience>|undefined;
 const nestListeners=new Set<string>();
 let nestRecordingUrl='',nestRecordingBytes:Promise<ArrayBuffer>|undefined;
+export type NestAudioStatus='inactive'|'muted'|'blocked'|'loading'|'playing'|'error';
+let recordingState:RecordingState='idle';
+const nestAudioObservers=new Set<(status:NestAudioStatus)=>void>();
+function nestAudioStatus():NestAudioStatus{
+ if(!nestActive||(typeof document!=='undefined'&&document.hidden))return 'inactive';
+ if(muted)return 'muted';if(!isAudioReady())return 'blocked';
+ return recordingState==='idle'?'loading':recordingState;
+}
+function publishNestAudioStatus(){const status=nestAudioStatus();for(const listener of nestAudioObservers)listener(status)}
+export function observeNestAudioStatus(listener:(status:NestAudioStatus)=>void){nestAudioObservers.add(listener);listener(nestAudioStatus());return()=>{nestAudioObservers.delete(listener)}}
 function loadNestRecording(context:AudioContext){
  if(!nestRecordingUrl)return Promise.reject(Error('Room recording is not configured'));
  nestRecordingBytes??=fetch(nestRecordingUrl,{signal:AbortSignal.timeout(15000)}).then(r=>{if(!r.ok)throw Error('Room recording unavailable');return r.arrayBuffer()}).catch(e=>{nestRecordingBytes=undefined;throw e});
@@ -11,8 +21,9 @@ function loadNestRecording(context:AudioContext){
 function reconcileMix(){
  setLevel(musicGain,nestActive?0:activeVoice?VOICE_BACKGROUND_LEVEL:BACKGROUND_LEVEL);
  if(nestActive)background?.pause();
- if(ctx&&master&&nestActive&&!nestAmbience){const owner=ctx;nestAmbience=createNestAmbience(owner,master,()=>loadNestRecording(owner));}
+ if(ctx&&master&&nestActive&&!nestAmbience){const owner=ctx;nestAmbience=createNestAmbience(owner,master,()=>loadNestRecording(owner),state=>{recordingState=state;publishNestAudioStatus()});}
  nestAmbience?.set(nestActive&&!muted&&(typeof document==='undefined'||!document.hidden),activeVoice?.14:EFFECT_LEVEL);
+ publishNestAudioStatus();
 }
 export function setNestAmbience(active:boolean,source='scene'){
  const wasActive=nestActive;if(active)nestListeners.add(source);else nestListeners.delete(source);nestActive=nestListeners.size>0;reconcileMix();
@@ -32,12 +43,12 @@ function publishAudioState(){const ready=isAudioReady();for(const listener of re
 export function observeAudioReady(listener:(ready:boolean)=>void){readyListeners.add(listener);listener(isAudioReady());return()=>{readyListeners.delete(listener)}}
 // Native touchstart matters in embedded WebKit; a swipe's touchend may NOT
 // unlock audio. Also keep real click/keyboard paths, rather than a mute toggle.
-export function installAudioStart(url:string){
+export function installAudioStart(url:string,recordingUrl?:string){
   const start=(event?:Event)=>{if(event&&!event.isTrusted)return;
     // Let the sound button resolve its own intent before activating audio.
     // Otherwise capture-phase unlock changes "enable" into "mute" mid-click.
     if(event?.target instanceof Element&&event.target.closest('[data-audio-toggle]'))return;
-    if(event?.type==='pointerdown'&&(event as PointerEvent).pointerType!=='mouse')return;if(!muted)void startBackground(url)};
+    if(event?.type==='pointerdown'&&(event as PointerEvent).pointerType!=='mouse')return;if(!muted)void startBackground(url,recordingUrl)};
   const visible=()=>{if(document.visibilityState==='visible')start()};
   const events=['touchstart','touchend','pointerdown','pointerup','click','keydown'];
   for(const event of events)document.addEventListener(event,start,{capture:true,passive:true});
@@ -87,9 +98,11 @@ function media(url:string){
   return a;
 }
 export function setMuted(m:boolean){muted=m;if(m)queuedSounds=[];setLevel(master,m?0:1);if(background)background.muted=m;if(activeVoice)activeVoice.muted=m;reconcileMix()}
-export async function startBackground(url:string){
-  // The recording lives beside the BGM in the app's existing asset base.
-  nestRecordingUrl=url.replace(/[^/]+$/,'nest-fireplace-asmr.mp3');
+export async function startBackground(url:string,recordingUrl?:string){
+  // Production BGM and the room recording may be hosted on different origins.
+  // Ordinary gestures/mute recovery must preserve the explicitly configured URL.
+  const nextRecordingUrl=recordingUrl||nestRecordingUrl||url.replace(/[^/]+$/,'nest-fireplace-asmr.mp3');
+  if(nextRecordingUrl!==nestRecordingUrl){nestRecordingUrl=nextRecordingUrl;nestRecordingBytes=undefined;nestAmbience?.dispose();nestAmbience=undefined;recordingState='idle';}
   void unlockAudio();
   if(!ctx||!musicGain||muted)return;
   try{
