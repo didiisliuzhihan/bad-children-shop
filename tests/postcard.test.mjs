@@ -100,7 +100,7 @@ test('room keepsakes stay in the room; Notes contains only player drafts and no 
  const room=read('src/components/NestRoom.tsx'),dialog=read('src/components/NestPhotoDialog.tsx');
  assert(room.includes('onCapture={setPhoto}'));assert(room.includes('active&&photo&&<NestPhotoDialog'));assert(room.includes('if(!active)setPhoto(null)'));
  assert(dialog.includes('source="souvenir"'));assert(dialog.includes('playerNickname={playerNickname}'));assert(dialog.includes('URL.revokeObjectURL(url)'));assert(dialog.includes('URL.revokeObjectURL(exportUrl)'));
- assert(dialog.includes('await image.decode()'));assert(dialog.includes('if(!alive)return'));assert(dialog.includes('disabled={!ready||sharing}'));assert(dialog.includes('不会投进扭蛋池'));assert(!dialog.includes('makeNestPostcard'));assert(!dialog.includes('setTab'));
+ assert(read('src/lib/nestPhotoExport.ts').includes('image.decode()'));assert(dialog.includes('photo:photo.blob'));assert(dialog.includes('if(!alive)return'));assert(dialog.includes('disabled={!ready||sharing}'));assert(dialog.includes('不会投进扭蛋池'));assert(!dialog.includes('makeNestPostcard'));assert(!dialog.includes('setTab'));
  for(const path of ['src/lib/postcardDraft.ts','src/lib/postcardMedia.ts','src/lib/nestCapture.ts','src/components/TicketStudio.tsx','src/components/NestPhotoDialog.tsx']){const code=read(path);assert(!code.includes('localStorage'));assert(!code.includes('fetch('));assert(!code.includes('supabase'));assert(!code.includes('dangerouslySetInnerHTML'))}
 });
 
@@ -111,3 +111,4 @@ test('only manual room keepsakes replace Postcard with the account nickname, saf
  const guest=renderToStaticMarkup(React.createElement(Postcard,{source:'souvenir',playerNickname:'   ',text:'留念'}));assert(guest.includes('一个坏小孩'));
  for(const source of ['player','nest']){const original=renderToStaticMarkup(React.createElement(Postcard,{source,playerNickname:'不应替换',text:'你好'}));assert(original.includes('>Postcard<'));assert(!original.includes('不应替换'))}
 });
+

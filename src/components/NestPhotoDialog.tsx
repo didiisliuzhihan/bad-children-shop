@@ -3,7 +3,6 @@ import {renderNestKeepsake} from '../lib/nestPhotoExport';
 import type {CapturedNestPhoto} from '../lib/nestCapture';
 import type {PostcardMedia} from '../lib/postcardTypes';
 import {postcardCaption} from '../lib/postcardDraft';
-import {ensureQuestFont} from '../lib/questFont';
 import {Modal} from './Modal';
 import {Postcard} from './Postcard';
 import {Icon} from './Icon';
@@ -23,16 +22,13 @@ export function NestPhotoDialog({photo,playerNickname,onClose}:{photo:CapturedNe
   if(!media)return;
   let alive=true,exportUrl:string|undefined;setReady(null);setError('');setHint('');
   void (async()=>{
-   await ensureQuestFont();await document.fonts.ready;
-   const node=card.current?.firstElementChild as HTMLElement|null;
+   const node=card.current;
    if(!alive||!node)return;
-   const image=node.querySelector('img');if(!image)throw Error('照片还没有准备好。');await image.decode();
-   if(!alive)return;
-   const blob=await renderNestKeepsake(node);
+   const blob=await renderNestKeepsake({photo:photo.blob,nickname:playerNickname,text:postcardCaption(photo.timeOfDay,photo.residentIds.length),date:photo.createdAt,layout:node.getBoundingClientRect().width>580?'landscape':'portrait'});
    if(!alive)return;if(!blob?.size)throw Error('明信片没有生成成功。');
    exportUrl=URL.createObjectURL(blob);
    setReady({url:exportUrl,file:new File([blob],'我的小窝-'+photo.createdAt.slice(0,10)+'.png',{type:'image/png'})});
-  })().catch(()=>{if(alive)setError('完整明信片暂时没有生成好，可以重试；原照片仍能保存。')});
+  })().catch(cause=>{if(alive)setError(cause instanceof Error?cause.message:'完整明信片暂时没有生成好，请重试。')});
   return()=>{alive=false;if(exportUrl)URL.revokeObjectURL(exportUrl)};
  },[media,photo,playerNickname,retry]);
  const save=()=>{
@@ -47,8 +43,8 @@ export function NestPhotoDialog({photo,playerNickname,onClose}:{photo:CapturedNe
  };
  return <Modal label="小窝拍摄留念" className="nest-photo-modal" onClose={onClose}>
   <header className="nest-photo-heading"><h2>留住这一刻</h2><p>拍一张，给自己留念。</p></header>
-  <div className="nest-photo-preview" aria-busy={!ready&&!error}>
-   {ready?<img className="nest-photo-result" src={ready.url} alt={'小窝留念明信片 · '+(playerNickname?.trim()||'一个坏小孩')}/>:<div ref={card}>{media&&<Postcard source="souvenir" playerNickname={playerNickname} text={postcardCaption(photo.timeOfDay,photo.residentIds.length)} media={media} date={photo.createdAt}/>}</div>}
+  <div ref={card} className="nest-photo-preview" aria-busy={!ready&&!error}>
+   {ready?<img className="nest-photo-result" src={ready.url} alt={'小窝留念明信片 · '+(playerNickname?.trim()||'一个坏小孩')}/>:<div>{media&&<Postcard source="souvenir" playerNickname={playerNickname} text={postcardCaption(photo.timeOfDay,photo.residentIds.length)} media={media} date={photo.createdAt}/>}</div>}
   </div>
   <div className="nest-photo-save-actions"><button className="room-pill" disabled={!ready||sharing} onClick={save}><Icon name="download" size={17}/>{sharing?'正在打开分享…':'保存明信片'}</button><button className="room-pill" onClick={onClose}>回小窝</button></div>
   {!ready&&!error&&<p className="nest-photo-hint" role="status">正在准备完整明信片…</p>}
@@ -57,3 +53,4 @@ export function NestPhotoDialog({photo,playerNickname,onClose}:{photo:CapturedNe
   <p className="nest-photo-hint">仅供自己留念，不会投进扭蛋池。{!playerNickname?.trim()&&'未登录，暂用「一个坏小孩」作为昵称。'}</p>
  </Modal>;
 }
+
