@@ -4,6 +4,13 @@
 
 React、Three.js、Blender 和 Supabase 实现的 3D 扭蛋商店。网址直接进入主界面；拖动旋钮或点击抽取，亲手开蛋，收留角色、听故事和保存收藏卡。
 
+## V5.4.1 模型区色彩修复
+
+- 仅调整扭蛋包自由模型查看：AgX 改为 PBR Neutral，曝光 1.1 → 1.02，环境光 0.75 → 0.5，半球补光 0.65 → 0.28，主光 2 → 1.8，轮廓补光 0.75 → 0.5。
+- 保留原始 GLB 材质、顶点色、粗糙度和高光；模型画布单独使用 0.88 的轻度收色，避免恢复原色后过艳。页面、文字、卡面、毛玻璃和机器场景不套此效果。
+- 本地同角度对照页为 `review/lighting.html`，复用生产 ToyViewer，包含原 V5.4 与新光照，不改变真实收藏或解锁状态。
+- 色彩处理依据：[model-viewer 官方色调映射说明](https://modelviewer.dev/examples/lightingandenv/#toneMapping)，以及当前项目 Three.js 的 NeutralToneMapping 实现。
+
 ## V5.4 收藏详情与 Miss Popcorn
 
 - 新增已确认的第 04 只「爆米花· 幽怨女仆 / Miss Popcorn」，使用原版厨房卡面、已确认的模型材质、故事照片及语音。五项资源独立存放在原有 Supabase 公共素材桶，保留原始文件与 Blender 工程。

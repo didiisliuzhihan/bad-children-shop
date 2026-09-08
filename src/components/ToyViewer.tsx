@@ -4,22 +4,24 @@ import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 import {loadModel} from '../assets';
 import type {Toy} from '../types';
+import {viewerLighting} from '../lib/viewerLighting';
+import type {ViewerLighting} from '../lib/viewerLighting';
 
 const directions={front:[0,.065,1],quarter:[.35,.14,1],side:[-1,.065,0],back:[0,.065,-1]} as const;
-export function ToyViewer({toy}:{toy:Toy}){
+export function ToyViewer({toy,lighting=viewerLighting}:{toy:Toy;lighting?:ViewerLighting}){
  const host=useRef<HTMLDivElement>(null),api=useRef<{angle:(name:keyof typeof directions)=>void;rotate:(value:boolean)=>void}|null>(null);
  const [ready,setReady]=useState(false),[failed,setFailed]=useState(false),[retry,setRetry]=useState(0),[angle,setAngle]=useState('quarter'),[rotating,setRotating]=useState(false);
  useEffect(()=>{
   const el=host.current;if(!el)return;let alive=true;setReady(false);setFailed(false);setRotating(false);setAngle('quarter');
   let renderer:THREE.WebGLRenderer;
   try{renderer=new THREE.WebGLRenderer({alpha:true,antialias:true,powerPreference:'low-power'})}catch{setFailed(true);return}
-  renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.toneMapping=THREE.AgXToneMapping;renderer.toneMappingExposure=1.1;el.append(renderer.domElement);
+  renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=lighting.tone==='neutral'?THREE.NeutralToneMapping:THREE.AgXToneMapping;renderer.toneMappingExposure=lighting.exposure;el.append(renderer.domElement);
   const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(32,1,.01,200);
   const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.enablePan=false;controls.maxPolarAngle=Math.PI*.75;controls.autoRotateSpeed=.9;
-  const pmrem=new THREE.PMREMGenerator(renderer),room=new RoomEnvironment(),environment=pmrem.fromScene(room,.04);scene.environment=environment.texture;scene.environmentIntensity=.75;room.dispose();pmrem.dispose();
-  scene.add(new THREE.HemisphereLight('#fff4dd','#b3c7c8',.65));
-  const key=new THREE.DirectionalLight('#fff1da',2);key.position.set(-3,6,5);scene.add(key);
-  const fill=new THREE.DirectionalLight('#d9ecff',.75);fill.position.set(5,3,-4);scene.add(fill);
+  const pmrem=new THREE.PMREMGenerator(renderer),room=new RoomEnvironment(),environment=pmrem.fromScene(room,.04);scene.environment=environment.texture;scene.environmentIntensity=lighting.environment;room.dispose();pmrem.dispose();
+  scene.add(new THREE.HemisphereLight('#fff4dd','#b3c7c8',lighting.hemisphere));
+  const key=new THREE.DirectionalLight('#fff1da',lighting.key);key.position.set(-3,6,5);scene.add(key);
+  const fill=new THREE.DirectionalLight('#d9ecff',lighting.fill);fill.position.set(5,3,-4);scene.add(fill);
   let radius=1,distance=6,selected:keyof typeof directions='quarter',hasModel=false;
   const bounds=new THREE.Box3();
   const fitDistance=(name:keyof typeof directions)=>{
@@ -56,8 +58,8 @@ export function ToyViewer({toy}:{toy:Toy}){
    renderer.domElement.removeEventListener('webglcontextlost',contextLost);renderer.setAnimationLoop(null);controls.dispose();environment.dispose();renderer.dispose();renderer.forceContextLoss();renderer.domElement.remove();
    // CPU GLTF cache is shared with the reveal animation; never dispose it here.
   };
- },[toy.model_url,retry]);
- return <div className="toy-viewer" data-viewer-ready={ready&&!failed}>
+ },[toy.model_url,retry,lighting]);
+ return <div className="toy-viewer" data-viewer-ready={ready&&!failed} data-viewer-look={lighting.id}>
   <div ref={host} className="toy-viewer-canvas" aria-label={toy.name_zh+'三维模型，可拖动旋转和双指缩放'}/>
   {!ready&&!failed&&<div className="viewer-status" role="status"><span className="loading-ring"/><span>它正在走过来…</span></div>}
   {failed&&<div className="viewer-status"><p>模型暂时没能加载，解锁进度还在。</p><button className="room-pill" onClick={()=>setRetry(n=>n+1)}>重新加载</button></div>}
