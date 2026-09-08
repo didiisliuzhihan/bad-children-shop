@@ -18,6 +18,7 @@ import {NestDialogueBubble,type NestBubble} from './NestDialogueBubble';
 import {NestStatusBubble,type NestMoodBubble} from './NestStatusBubble';
 import {createNestMoodSchedule} from '../lib/nestMood.mjs';
 import {createNestShadowSchedule} from '../lib/nestRenderBudget.mjs';
+import {installNestTouchInput} from '../lib/nestTouchInput';
 import '../nest-life.css';
 let rendererSequence=0;
 type SceneProps={toys:Toy[];placements:HomePlacement[];editing:boolean;active?:boolean;lifeReady?:boolean;selected:string|null;timeOfDay:NestTime;onSelect:(id:string|null)=>void;onMove:(id:string,x:number,z:number)=>void;onOpen:(id:string)=>void;onCapture?:(photo:CapturedNestPhoto)=>void};
@@ -37,7 +38,7 @@ export function NestScene(props:SceneProps){
   let renderer:THREE.WebGLRenderer;try{renderer=new THREE.WebGLRenderer({alpha:true,antialias:true,powerPreference:'low-power'});}catch{setFailure(true);return;}
   renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.NeutralToneMapping;renderer.toneMappingExposure=viewerLighting.exposure;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFShadowMap;
   renderer.shadowMap.autoUpdate=false;const shadows=createNestShadowSchedule();
-  const canvas=renderer.domElement;canvas.dataset.nestRenderer=String(++rendererSequence);canvas.setAttribute('aria-label','小窝三维空间；布置时可以拖动玩具，也可以使用下方位置按钮');el.append(canvas);
+  const canvas=renderer.domElement;canvas.style.touchAction='pan-y pinch-zoom';canvas.dataset.nestRenderer=String(++rendererSequence);canvas.setAttribute('aria-label','小窝三维空间；空白处上下滑动页面，布置时按住玩具拖动，也可以使用下方位置按钮');el.append(canvas);
   const scene=new THREE.Scene(),camera=new THREE.OrthographicCamera(-8,8,7,-7,.1,100),raycaster=new THREE.Raycaster(),room=new THREE.Group();scene.add(room);
   const ownedGeometry:THREE.BufferGeometry[]=[],ownedMaterials:THREE.Material[]=[];
   // Blender-built room has the same world scale/floor origin as placement math.
@@ -65,12 +66,14 @@ export function NestScene(props:SceneProps){
    if(!alive)return;const {model,materials}=cloneNestRoom(g.scene);ownedMaterials.push(...materials);lighting.bindMaterials(materials);room.add(model);roomReady=true;setRoomLoading(false);sync();
   }).catch(()=>{if(!alive)return;setRoomLoading(false);setRoomFailure(true);});
   const resize=()=>{if(!el.clientWidth||!el.clientHeight)return;renderer.setSize(el.clientWidth,el.clientHeight);frameNestCamera(camera,el.clientWidth,el.clientHeight);invalidate();};
-  let gesture:{pointerId:number;toyId:string;startX:number;startY:number;offset:THREE.Vector3;original:HomePlacement;editing:boolean}|null=null;
-  const cancelGesture=()=>{const previous=gesture;gesture=null;if(previous?.editing){latest.current.onMove(previous.toyId,previous.original.x,previous.original.z);const model=actors.get(previous.toyId);if(model)model.position.set(previous.original.x,0,previous.original.z);}if(previous&&canvas.hasPointerCapture(previous.pointerId))canvas.releasePointerCapture(previous.pointerId);invalidate();};
+  type NestPointer=Pick<PointerEvent,'pointerId'|'pointerType'|'clientX'|'clientY'|'isPrimary'|'button'|'preventDefault'>;
+  let touchInput:ReturnType<typeof installNestTouchInput>|undefined;
+  let gesture:{pointerId:number;pointerType:string;toyId:string;startX:number;startY:number;offset:THREE.Vector3;original:HomePlacement;editing:boolean}|null=null;
+  const cancelGesture=()=>{const previous=gesture;gesture=null;touchInput?.reset();if(previous?.editing){latest.current.onMove(previous.toyId,previous.original.x,previous.original.z);const model=actors.get(previous.toyId);if(model)model.position.set(previous.original.x,0,previous.original.z);selection.position.set(previous.original.x,.012,previous.original.z);}if(previous&&previous.pointerType!=='touch'&&canvas.hasPointerCapture(previous.pointerId))canvas.releasePointerCapture(previous.pointerId);canvas.style.cursor=latest.current.editing?'grab':'pointer';invalidate();};
   const sync=()=>{
-   if(!alive)return;const state=latest.current;shadows.invalidate();if(state.active===false){cancelAnimationFrame(raf);raf=0;return;}lighting.setMode(state.timeOfDay);invalidate();if(!roomReady)return;const wanted=new Set(state.placements.map(p=>p.toyId));
+   if(!alive)return;const state=latest.current;shadows.invalidate();if(state.active===false){cancelGesture();cancelAnimationFrame(raf);raf=0;return;}lighting.setMode(state.timeOfDay);invalidate();if(!roomReady)return;const wanted=new Set(state.placements.map(p=>p.toyId));
    if(gesture&&(!wanted.has(gesture.toyId)||gesture.editing!==state.editing))cancelGesture();
-   canvas.style.touchAction=state.editing?'none':'pan-y pinch-zoom';canvas.style.cursor=state.editing?'grab':'pointer';
+   canvas.style.cursor=state.editing?'grab':'pointer';
    for(const [id,model] of actors)if(!wanted.has(id)){scene.remove(model);actors.delete(id);}for(const id of pending.keys())if(!wanted.has(id))pending.delete(id);
    let removedFailure=false;for(const id of failed)if(!wanted.has(id)){failed.delete(id);removedFailure=true;}if(removedFailure)setFailedIds([...failed]);
    for(const p of state.placements){
@@ -88,26 +91,37 @@ export function NestScene(props:SceneProps){
    const blob=await captureNestPhoto(renderer,scene,camera,selection,timeOfDay,options);if(!alive)throw Error('小窝已经关闭，这次没有保存照片。');return {blob,createdAt,timeOfDay,residentIds};
   };
   api.current={sync,capture};
-  const down=(event:PointerEvent)=>{
-   if(!roomReady||!event.isPrimary||event.button!==0||gesture)return;const point=floorPoint(raycaster,camera,canvas.getBoundingClientRect(),event.clientX,event.clientY);if(!point)return;
+  const down=(event:NestPointer)=>{
+   if(!roomReady||latest.current.active===false||!event.isPrimary||event.button!==0||gesture)return false;const point=floorPoint(raycaster,camera,canvas.getBoundingClientRect(),event.clientX,event.clientY);if(!point)return false;
    scene.updateMatrixWorld(true);const hit=raycaster.intersectObjects([...actors.values()],true)[0],id=hit?.object.userData.toyId as string|undefined;
-   if(!id){if(latest.current.editing)latest.current.onSelect(null);return;}const original=latest.current.placements.find(p=>p.toyId===id);if(!original)return;
-   gesture={pointerId:event.pointerId,toyId:id,startX:event.clientX,startY:event.clientY,original:{...original},offset:point.sub(new THREE.Vector3(original.x,0,original.z)),editing:latest.current.editing};
-   if(latest.current.editing){event.preventDefault();canvas.setPointerCapture(event.pointerId);canvas.style.cursor='grabbing';latest.current.onSelect(id);}
+   if(!id){if(latest.current.editing&&event.pointerType!=='touch')latest.current.onSelect(null);return false;}const original=latest.current.placements.find(p=>p.toyId===id);if(!original)return false;
+   gesture={pointerId:event.pointerId,pointerType:event.pointerType,toyId:id,startX:event.clientX,startY:event.clientY,original:{...original},offset:point.sub(new THREE.Vector3(original.x,0,original.z)),editing:latest.current.editing};
+   if(latest.current.editing){event.preventDefault();if(event.pointerType!=='touch')canvas.setPointerCapture(event.pointerId);canvas.style.cursor='grabbing';latest.current.onSelect(id);}return true;
   };
-  const move=(event:PointerEvent)=>{
-   if(!gesture||event.pointerId!==gesture.pointerId)return;if(!gesture.editing){if(Math.hypot(event.clientX-gesture.startX,event.clientY-gesture.startY)>7)gesture=null;return;}
+  const move=(event:NestPointer)=>{
+   if(!gesture||event.pointerType!==gesture.pointerType||event.pointerId!==gesture.pointerId)return;if(!gesture.editing){if(Math.hypot(event.clientX-gesture.startX,event.clientY-gesture.startY)>7)gesture=null;return;}
    event.preventDefault();const point=floorPoint(raycaster,camera,canvas.getBoundingClientRect(),event.clientX,event.clientY);if(!point)return;point.sub(gesture.offset);
    const moved:HomePlacement[]=moveResident(latest.current.placements,gesture.toyId,point.x,point.z),next=moved.find(p=>p.toyId===gesture?.toyId);if(!next)return;
    latest.current={...latest.current,placements:moved};const model=actors.get(gesture.toyId);if(model)model.position.set(next.x,0,next.z);selection.position.set(next.x,.012,next.z);latest.current.onMove(gesture.toyId,next.x,next.z);invalidate();
   };
-  const up=(event:PointerEvent)=>{if(!gesture||event.pointerId!==gesture.pointerId)return;const completed=gesture;gesture=null;if(canvas.hasPointerCapture(event.pointerId))canvas.releasePointerCapture(event.pointerId);canvas.style.cursor=latest.current.editing?'grab':'pointer';if(!completed.editing&&Math.hypot(event.clientX-completed.startX,event.clientY-completed.startY)<7)latest.current.onOpen(completed.toyId);};
-  const cancel=(event:PointerEvent)=>{if(gesture?.pointerId===event.pointerId)cancelGesture();};const contextLost=(event:Event)=>{event.preventDefault();setFailure(true);};
-  canvas.addEventListener('pointerdown',down);canvas.addEventListener('pointermove',move);canvas.addEventListener('pointerup',up);canvas.addEventListener('pointercancel',cancel);canvas.addEventListener('lostpointercapture',cancel);canvas.addEventListener('webglcontextlost',contextLost);
-  const observer=new ResizeObserver(resize);observer.observe(el);document.addEventListener('visibilitychange',invalidate);window.addEventListener('blur',cancelGesture);resize();sync();
-  return()=>{alive=false;api.current=null;cancelAnimationFrame(raf);observer.disconnect();document.removeEventListener('visibilitychange',invalidate);window.removeEventListener('blur',cancelGesture);canvas.removeEventListener('pointerdown',down);canvas.removeEventListener('pointermove',move);canvas.removeEventListener('pointerup',up);canvas.removeEventListener('pointercancel',cancel);canvas.removeEventListener('lostpointercapture',cancel);canvas.removeEventListener('webglcontextlost',contextLost);pending.clear();actors.clear();living.dispose();ownedGeometry.forEach(g=>g.dispose());ownedMaterials.forEach(m=>m.dispose());lighting.dispose();environment.dispose();renderer.dispose();renderer.forceContextLoss();canvas.remove();};
+  const up=(event:NestPointer)=>{if(!gesture||event.pointerType!==gesture.pointerType||event.pointerId!==gesture.pointerId)return;const completed=gesture;gesture=null;if(event.pointerType!=='touch'&&canvas.hasPointerCapture(event.pointerId))canvas.releasePointerCapture(event.pointerId);canvas.style.cursor=latest.current.editing?'grab':'pointer';if(!completed.editing&&Math.hypot(event.clientX-completed.startX,event.clientY-completed.startY)<7)latest.current.onOpen(completed.toyId);};
+  // Touch owns its native stream while arranging; don't also process the
+  // compatibility pointer stream (a browser may cancel it during a pan).
+  const nativeTouch=(event:PointerEvent)=>event.pointerType==='touch'&&(latest.current.editing||!!gesture?.editing);
+  const pointerDown=(event:PointerEvent)=>{if(!nativeTouch(event))down(event)};
+  const pointerMove=(event:PointerEvent)=>{if(!nativeTouch(event))move(event)};
+  const pointerUp=(event:PointerEvent)=>{if(!nativeTouch(event))up(event)};
+  const cancel=(event:PointerEvent)=>{if(!nativeTouch(event)&&gesture?.pointerType===event.pointerType&&gesture.pointerId===event.pointerId)cancelGesture()};
+  const touchPoint=(point:Pick<Touch,'identifier'|'clientX'|'clientY'>):NestPointer=>({pointerId:point.identifier,pointerType:'touch',clientX:point.clientX,clientY:point.clientY,isPrimary:true,button:0,preventDefault(){}});
+  touchInput=installNestTouchInput(canvas,{start:point=>latest.current.editing&&down(touchPoint(point)),move:point=>move(touchPoint(point)),end:point=>up(touchPoint(point)),cancel:cancelGesture});
+  const visibility=()=>{if(document.hidden)cancelGesture();invalidate()};
+  const contextLost=(event:Event)=>{event.preventDefault();cancelGesture();setFailure(true)};
+  canvas.addEventListener('pointerdown',pointerDown);canvas.addEventListener('pointermove',pointerMove);canvas.addEventListener('pointerup',pointerUp);canvas.addEventListener('pointercancel',cancel);canvas.addEventListener('lostpointercapture',cancel);canvas.addEventListener('webglcontextlost',contextLost);
+  const observer=new ResizeObserver(resize);observer.observe(el);document.addEventListener('visibilitychange',visibility);window.addEventListener('blur',cancelGesture);resize();sync();
+  return()=>{alive=false;api.current=null;touchInput?.reset();touchInput?.dispose();cancelAnimationFrame(raf);observer.disconnect();document.removeEventListener('visibilitychange',visibility);window.removeEventListener('blur',cancelGesture);canvas.removeEventListener('pointerdown',pointerDown);canvas.removeEventListener('pointermove',pointerMove);canvas.removeEventListener('pointerup',pointerUp);canvas.removeEventListener('pointercancel',cancel);canvas.removeEventListener('lostpointercapture',cancel);canvas.removeEventListener('webglcontextlost',contextLost);pending.clear();actors.clear();living.dispose();ownedGeometry.forEach(g=>g.dispose());ownedMaterials.forEach(m=>m.dispose());lighting.dispose();environment.dispose();renderer.dispose();renderer.forceContextLoss();canvas.remove();};
   // Cached GLTF geometry/materials are shared with the reveal/viewer, never disposed here.
  },[retry]);
  useEffect(()=>api.current?.sync(),[props.placements,props.toys,props.editing,props.selected,props.timeOfDay,props.active]);
  return <><div className="nest-world" data-nest-mode={props.editing?'arrange':'visit'}><div ref={host} className="nest-world-canvas"/>{mood&&!props.editing&&!bubble&&<NestStatusBubble key={mood.id} mood={mood}/>}{bubble&&!props.editing&&<NestDialogueBubble key={bubble.id} bubble={bubble}/>}{roomLoading&&!failure&&<div className="nest-world-status" role="status">正在为小窝亮灯…</div>}{loading>0&&!failure&&<div className="nest-world-status" role="status">小住客正在走过来…</div>}{failedIds.length>0&&!failure&&<div className="nest-world-status" role="status">有 {failedIds.length} 只暂时没加载好。<button className="room-pill" onClick={()=>setRetry(n=>n+1)}>重试模型</button></div>}{(failure||roomFailure)&&<div className="nest-world-error" role="alert"><p>三维空间暂时没有打开，布置草稿仍在。</p><button className="room-pill" onClick={()=>setRetry(n=>n+1)}>重新打开</button></div>}</div>{life.error&&<p className="nest-life-status" role="status">{life.error}</p>}{props.onCapture&&<div className="nest-photo-actions"><span role="status">{captureError|| (props.editing?'退出布置后，可以拍下这一刻。':'')}</span><button className="room-pill" disabled={capturing||props.editing||roomLoading||roomFailure||failure||loading>0||failedIds.length>0} onClick={()=>void takePhoto()}><Icon name="camera" size={18}/>{capturing?'正在拍照…':'拍成明信片'}</button></div>}</>;
 }
+
