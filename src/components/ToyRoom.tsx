@@ -6,20 +6,19 @@ import {CollectibleCard} from './CollectibleCard';
 import {ToyViewer} from './ToyViewer';
 import {FogUnlock} from './FogUnlock';
 import {questPreview,useToyQuest} from '../lib/useToyQuest';
-import {playVoice,stopVoice} from '../lib/audio';
+import {useToyVoice} from '../lib/useToyVoice';
 type Pane='model'|'card'|'story';
 export function ToyRoom({toy,item,onClose,toast}:{toy:Toy;item:Capsule;onClose:()=>void;toast:(s:string)=>void}){
- const [pane,setPane]=useState<Pane>('card'),[mobile,setMobile]=useState(()=>matchMedia('(max-width:760px)').matches),[playing,setPlaying]=useState(false);
+ const [pane,setPane]=useState<Pane>('card'),[mobile,setMobile]=useState(()=>matchMedia('(max-width:760px)').matches);
+ const {playing,listen}=useToyVoice(toy,()=>toast('声音暂时无法播放，请重试。'));
  const quest=useToyQuest(toy.id);
  useEffect(()=>{const media=matchMedia('(max-width:760px)');const change=()=>{setMobile(media.matches);if(!media.matches)setPane(p=>p==='model'?'card':p)};media.addEventListener('change',change);return()=>media.removeEventListener('change',change)},[]);
- useEffect(()=>{stopVoice();setPlaying(false);return()=>stopVoice()},[pane,toy.id]);
- const listen=async()=>{if(playing){stopVoice();setPlaying(false);return}setPlaying(true);try{await playVoice(toy.audio_url,()=>setPlaying(false))}catch{setPlaying(false);toast('声音暂时无法播放，请重试。')}};
  const showModel=!mobile||pane==='model';
  const tabs=(isMobile:boolean)=><div className={'room-tabs '+(isMobile?'room-mobile-tabs':'room-desktop-tabs')} role="tablist" aria-label="玩具收藏内容">
   {(isMobile?['model','card','story']:['card','story']).map(key=><button key={key} id={'room-'+(isMobile?'mobile-':'desktop-')+key} type="button" role="tab" aria-selected={pane===key} aria-controls={'room-panel-'+key} onClick={()=>setPane(key as Pane)}>{key==='model'?'模型':key==='card'?'卡片':'故事'}{key==='model'&&quest.stage!=='unlocked'&&<Icon name="lock" size={12}/>}</button>)}
  </div>;
  return <Modal label={toy.name_zh+'收藏详情'} onClose={onClose} className="toy-room-modal">
-  <header className="toy-room-header"><button className="room-back" onClick={onClose}><Icon name="back" size={17}/>扭蛋包</button>{questPreview&&quest.stage==='waiting'?<button className="preview-skip" onClick={quest.skipPreviewWait}>预览：体验解锁</button>:<span>{questPreview?'交互预览 · ':''}THE LITTLE MISFITS / {toy.number}</span>}</header>
+  <header className="toy-room-header"><button className="room-back" onClick={onClose}><Icon name="back" size={17}/>扭蛋包</button>{playing&&pane!=='story'?<button className="room-voice-status" aria-label="暂停当前玩具故事" onClick={listen}><Icon name="pause" size={14}/>故事播放中 · 暂停</button>:questPreview&&quest.stage==='waiting'?<button className="preview-skip" onClick={quest.skipPreviewWait}>预览：体验解锁</button>:<span>{questPreview?'交互预览 · ':''}THE LITTLE MISFITS / {toy.number}</span>}</header>
   {mobile&&tabs(true)}
   <div className="toy-room-layout">
    {showModel&&<section id="room-panel-model" className={'room-model-panel '+(quest.stage==='unlocked'?'is-unlocked':'is-locked')} aria-label="模型展示" data-model-state={quest.stage}>

@@ -7,6 +7,8 @@
 .toy-room-modal .modal-close{display:none}
 .toy-room-header{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:20px 28px;border-bottom:1px solid #34584517}
 .room-back{display:inline-flex;align-items:center;gap:10px;min-height:44px;color:#35564e;font-size:13px}
+.room-voice-status{display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:6px 12px;border-radius:24px;background:#d9e3d480;color:#42654f;font-size:11px;white-space:nowrap}
+.room-voice-status:focus-visible{outline:2px solid #be825d;outline-offset:3px}
 .toy-room-header>span{font-size:10px;letter-spacing:.1em;color:#6f867b}
 .toy-room-layout{display:grid;grid-template-columns:minmax(0,1.18fr) minmax(0,.82fr);gap:30px;padding:28px;align-items:start}
 .room-model-panel{min-width:0;height:640px;padding:28px 26px 18px;display:flex;flex-direction:column;overflow:hidden;border-radius:26px;background:radial-gradient(ellipse at 50% 43%,#f4f3e7 0,#d9e1dd 68%,#cddad8 100%)}

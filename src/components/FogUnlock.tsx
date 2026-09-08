@@ -5,7 +5,7 @@ import {WipeCoverage} from '../lib/questProgress.mjs';
 import {sound} from '../lib/audio';
 import {Icon} from './Icon';
 
-const questions:Record<string,string>={jimao:'奶茶安排上了么？',kuku_sunflower:'摸了葵的脑袋了么？',stressed_jimao:'帮小鸡毛做了那件小事了么？',miss_popcorn:'告诉她“别急，你好漂亮”了么？'};
+const questions:Record<string,string>={jimao:'奶茶安排上了么？',kuku_sunflower:'摸了葵的脑袋了么？',stressed_jimao:'帮小鸡毛做了那件小事了么？',miss_popcorn:'告诉她“别急，你好漂亮”了么？',tired_crow:'陪鸦理直气壮地歇过一会儿了么？'};
 export function FogUnlock({toy,stage,onCard,onUnlock}:{toy:Toy;stage:string;onCard:()=>void;onUnlock:()=>boolean}){
  const [armed,setArmed]=useState(false),[progress,setProgress]=useState(0),[error,setError]=useState(false);
  const canvas=useRef<HTMLCanvasElement>(null),coverage=useRef(new WipeCoverage()),pointer=useRef<number|null>(null),last=useRef<{x:number;y:number}|null>(null),lastSound=useRef(0),finished=useRef(false);

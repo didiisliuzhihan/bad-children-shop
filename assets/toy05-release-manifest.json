@@ -1,0 +1,32 @@
+[
+  {
+    "source": "assets/drafts/toy05/toy_tired_crow.glb",
+    "path": "assets/delivery/toy_tired_crow.glb",
+    "bytes": 1712084,
+    "sha256": "2cf1042af8f04dff0971cecb1d063fc6cddca663a46da56eafef3ff2807dc29c"
+  },
+  {
+    "source": "previews/toy05/toy05-front.png",
+    "path": "assets/delivery/toy_tired_crow.png",
+    "bytes": 1584143,
+    "sha256": "460b7604a630df4ef9f9764590298d828f62cc2878d6f0714d9ea9b87681cdfb"
+  },
+  {
+    "source": "assets/source/references/toy5-crow-card-original.png",
+    "path": "assets/delivery/toy_tired_crow_card.png",
+    "bytes": 2036203,
+    "sha256": "72487552d9589f0def749621662c67ef3cbd626d1f328d58844acad3834aa653"
+  },
+  {
+    "source": "assets/source/references/toy5-whatever-dua-story.jpg",
+    "path": "assets/delivery/toy5_whatever_dua_story.jpg",
+    "bytes": 3719971,
+    "sha256": "ec7199aa7c81b3b69fbf1adb3a07181438a78b459cb007319358fac67f1293a3"
+  },
+  {
+    "source": "assets/source/references/toy5-whatever-dua-voice.mp3",
+    "path": "assets/delivery/toy5_whatever_dua_voice.mp3",
+    "bytes": 114779,
+    "sha256": "006521f330e54fbc5b041e190948384c673f4ef20af130a660963b89302628b7"
+  }
+]

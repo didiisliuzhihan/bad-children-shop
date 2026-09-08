@@ -65,4 +65,13 @@ export const fallbackToys:Toy[]=[{
   story_en:'',color:'#f4dc8e',
   model_url:asset('toy_popcorn_maid.glb'),icon_url:asset('toy_popcorn_maid.png'),card_image_url:asset('toy_popcorn_maid_card.png'),
   audio_url:sourceLink('toy4_popcorn_voice.mp3'),story_image_url:sourceLink('toy4_popcorn_story.jpg')
+},{
+  id:'tired_crow',number:'05',name_en:'Whatever Dua',name_zh:'我没招了鸦',
+  tagline_zh:'你问肥宅鸦怎么办，鸦也想问你——今天陪鸦理直气壮地歇一会儿',
+  tagline_en:'You ask Dua what to do. Dua was about to ask you.',
+  story_text:'办法还没想好，坐姿已经摆好了。',
+  story_note:'鸦把毛巾裹好，往红椅子里一瘫，宣布今天的脑袋暂不接单。海浪都追到脚边了，它只慢吞吞地抬了抬爪子。你问它怎么办，它挪出一点位置：要不，你也坐会儿？有些答案可以晚点再想，歇一歇这件事，倒是现在就能一起做。',
+  story_en:'',color:'#cadfdf',
+  model_url:asset('toy_tired_crow.glb'),icon_url:asset('toy_tired_crow.png'),card_image_url:asset('toy_tired_crow_card.png'),
+  audio_url:sourceLink('toy5_whatever_dua_voice.mp3'),story_image_url:sourceLink('toy5_whatever_dua_story.jpg')
 }];
