@@ -40,6 +40,21 @@ begin
  perform public.bc_nest_step(u,'keep',req);perform public.bc_nest_step(u,'keep',req);
  if (select count(*) from public.bc_account_draws where id=req and kept)<>1 then raise exception 'keep not idempotent';end if;
  perform setseed(.12345);
+ -- Missing photos are not drawable, including return-generated stories.
+ for i in 1..20 loop
+  req:=gen_random_uuid();v:=public.bc_nest_step(u,'draw',req);
+  if v->>'type'='story' then raise exception 'blank story became drawable';end if;
+  perform public.bc_nest_step(u,'reject',req);
+ end loop;
+ -- Replay an existing story with a missing photo; deduplication must return its original target.
+ update public.bc_nest_life set entered_at=now()-interval '40 seconds',last_event=now()-interval '4 minutes' where user_id=u;
+ v:=public.bc_nest_step(u,'start',null,1,lease);event:=(v->'event'->>'id')::uuid;
+ update public.bc_nest_life set started_at=now()-interval '14 seconds' where user_id=u;
+ v:=public.bc_nest_step(u,'complete',event,1,lease);
+ if v->>'capture'<>'true' or v->>'captureRepeated'<>'true' or v->>'captureEventId' is null then raise exception 'old missing photo was not repairable';end if;
+ if not exists(select 1 from public.bc_nest_stories where user_id=u and event_id=(v->>'captureEventId')::uuid and media is null) then raise exception 'wrong repair target';end if;
+ -- Transaction-only metadata fixture, never committed or uploaded to a user's account.
+ update public.bc_nest_stories set media='{"fixture":"rollback-only"}' where user_id=u;
  for i in 1..30 loop
   req:=gen_random_uuid();v:=public.bc_nest_step(u,'draw',req);
   if v->>'type'='story' then
@@ -60,3 +75,4 @@ begin
  update public.bc_nest_life set entered_at=now()-interval '40 seconds',last_event=now()-interval '4 minutes' where user_id=u;
  v:=public.bc_nest_step(u,'start',null,2,lease);if v?'event' then raise exception 'empty room performed';end if;
 end $$;
+

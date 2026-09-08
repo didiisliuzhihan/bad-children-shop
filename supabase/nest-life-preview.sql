@@ -70,7 +70,8 @@ begin
    -- Reopening/retrying the machine reuses the same outstanding capsule.
    select * into d from public.bc_account_draws where user_id=p_user and not resolved;
    if d.id is not null then return d.result;end if;
-   select * into r from public.bc_nest_stories where user_id=p_user and collected_at is null order by created_at limit 1;
+   -- A story is drawable only after its real scene photo is durably attached.
+   select * into r from public.bc_nest_stories where user_id=p_user and collected_at is null and media is not null order by created_at limit 1;
    if r.id is not null and random()<.4 then
     v_result:=jsonb_build_object('id',p_request,'type','story','story',jsonb_build_object('id',r.id,'source','nest','text',r.text,'createdAt',r.created_at,'media',r.media));
    else
@@ -121,7 +122,9 @@ begin
   if s.entered_at>v_now-interval '25 seconds' or s.last_event>v_now-interval '3 minutes' then return '{}'::jsonb;end if;
   if s.event_id is not null and s.started_at>v_now-interval '60 seconds' then return '{}'::jsonb;end if;
   select e.* into c from public.bc_nest_eligible(p_user,v_layout) e
-   order by exists(select 1 from public.bc_nest_stories st where st.user_id=p_user and st.kind=e.kind),cardinality(e.actors) desc,random() limit 1;
+   order by case when exists(select 1 from public.bc_nest_stories st where st.user_id=p_user and st.kind=e.kind and st.media is null) then 0
+    when not exists(select 1 from public.bc_nest_stories st where st.user_id=p_user and st.kind=e.kind) then 1 else 2 end,
+    cardinality(e.actors) desc,random() limit 1;
   if c.kind is null then return '{}'::jsonb;end if;
   v_id:=gen_random_uuid();
   update public.bc_nest_life set event_id=v_id,kind=c.kind,started_at=v_now,last_event=v_now where user_id=p_user;
@@ -132,11 +135,14 @@ begin
   if c.kind is null then return '{}'::jsonb;end if;
   insert into public.bc_nest_stories(user_id,kind,event_id,text) values(p_user,c.kind,p_request,c.story) on conflict(user_id,kind) do nothing;
   get diagnostics v_inserted=row_count;
+  select * into r from public.bc_nest_stories where user_id=p_user and kind=c.kind;
   s.trace:=jsonb_build_object('kind',c.prop,'toyId',c.speaker,'until',v_now+interval '10 minutes');
   update public.bc_nest_life set event_id=null,kind=null,trace=s.trace where user_id=p_user;
-  return jsonb_build_object('ok',true,'trace',s.trace,'capture',v_inserted=1);
+  -- An earlier missing photo must not be permanently excluded by story deduplication.
+  return jsonb_build_object('ok',true,'trace',s.trace,'capture',r.media is null,'captureEventId',r.event_id,'captureRepeated',v_inserted=0);
  end if;
  raise exception 'invalid life action';
 end $$;
 revoke all on function public.bc_nest_eligible(uuid,jsonb),public.bc_nest_step(uuid,text,uuid,integer,uuid) from public,anon,authenticated;
 grant execute on function public.bc_nest_eligible(uuid,jsonb),public.bc_nest_step(uuid,text,uuid,integer,uuid) to service_role;
+

@@ -6,7 +6,7 @@ import '../postcard.css';
 
 export function PostcardMediaView({media,active=true}:{media:PostcardMedia;active?:boolean}){
  const video=useRef<HTMLVideoElement>(null),[playing,setPlaying]=useState(false),[failed,setFailed]=useState(false),generation=useRef(0),allowed=useRef(active),mounted=useRef(false);allowed.current=active;
- useEffect(()=>{generation.current++;setPlaying(false);setFailed(false)},[media.id]);
+ useEffect(()=>{generation.current++;setPlaying(false);setFailed(false)},[media.id,media.url]);
  useEffect(()=>{if(!active){generation.current++;video.current?.pause();setPlaying(false)}},[active]);
  useEffect(()=>{mounted.current=true;const element=video.current,hide=()=>{if(document.hidden){generation.current++;element?.pause();setPlaying(false)}};document.addEventListener('visibilitychange',hide);return()=>{mounted.current=false;generation.current++;element?.pause();document.removeEventListener('visibilitychange',hide)}},[]);
  const toggle=async()=>{
@@ -25,9 +25,9 @@ export function PostcardMediaView({media,active=true}:{media:PostcardMedia;activ
 export type PostcardEditorActions={onMedia:()=>void;onMessage:()=>void;onSignature:()=>void;onStamp:()=>void};
 export function Postcard({source,text,signature='',media=null,stamped=false,date,active=true,playerNickname,editor}:{source:'player'|'nest'|'souvenir';text:string;signature?:string;media?:PostcardMedia|null;stamped?:boolean;date?:string;active?:boolean;playerNickname?:string;editor?:PostcardEditorActions}){
  const editing=source==='player'?editor:undefined;
- const photo=media?<PostcardMediaView key={media.id} media={media} active={active}/>:<div className="postcard-no-photo"><span>{source==='nest'?'有些小事，':'没有照片，'}</span><span>{source==='nest'?'在你没看见的时候悄悄发生。':'也可以寄来一句话。'}</span></div>;
+ const photo=media?<PostcardMediaView key={media.id} media={media} active={active}/>:<div className="postcard-no-photo"><span>{source==='nest'?'这张旧明信片还没有照片。':'没有照片，'}</span><span>{source==='nest'?'小片段再次发生时，会尝试补拍。':'也可以寄来一句话。'}</span></div>;
  return <article className={'community-postcard'+(source==='player'&&stamped?' is-stamped':'')+(!media?' is-text-only':'')+(editing?' is-editable':'')} data-postcard-source={source} aria-label={source==='player'?'彩蛋明信片'+(editing?'编辑':'预览'):source==='souvenir'?'小窝拍摄留念':'小窝生活明信片预览'}>
-  <div className="postcard-photo-side">{editing?<div className="postcard-photo-content">{photo}<button type="button" className="postcard-edit-photo" onClick={editing.onMedia} aria-label="编辑明信片图片：添加照片、动态影像或只留文字" aria-haspopup="dialog"><span><Icon name="camera" size={16}/>{media?.origin==='example'?'示例图 · 点此替换':media?'更换图片':'添加图片'}</span></button></div>:photo}<span className="postcard-photo-caption">{source!=='player'?'A LITTLE MOMENT AT HOME':'A LITTLE MOMENT FOR YOU'}</span></div>
+  <div className="postcard-photo-side">{editing?<div className="postcard-photo-content">{photo}<button type="button" className="postcard-edit-photo" onClick={editing.onMedia} aria-label="编辑明信片图片：添加照片、动态影像或只留文字" aria-haspopup="dialog"><span><Icon name="camera" size={16}/>{media?.origin==='example'?'示例图 · 点此替换':media?'更换图片':'添加图片'}</span></button></div>:photo}<span className="postcard-photo-caption">{source==='nest'&&media?.sceneMoment==='repeat'?'这个小故事再次发生时':source!=='player'?'A LITTLE MOMENT AT HOME':'A LITTLE MOMENT FOR YOU'}</span></div>
   <div className="postcard-letter-side"><header><span className="postcard-eyebrow">BAD CHILDREN SHOP</span><span className={'postcard-title'+(source==='souvenir'?' postcard-nickname':'')}>{source==='souvenir'?playerNickname?.trim()||'一个坏小孩':'Postcard'}</span><span className="postcard-source">{source!=='player'?'来自你的小窝':'给另一位坏小孩'}</span></header>
    {editing?<button type="button" className="postcard-edit-message" onClick={editing.onMessage} aria-label="编辑明信片文字：选择一句或自己输入" aria-haspopup="dialog"><span className="postcard-message">{text||'留一句话，让抽到它的人偷偷开心一下。'}</span><small><Icon name="edit" size={14}/>点文字，选一句或自己写</small></button>:<p className="postcard-message">{text||'留一句话，让它替你去遇见另一个坏小孩。'}</p>}
    <footer><div className="postcard-signature">{editing?<button type="button" className="postcard-edit-signature" onClick={editing.onSignature} aria-label="修改明信片落款" aria-haspopup="dialog">来自 · {signature.trim()||'一个坏小孩'}<Icon name="edit" size={14}/></button>:source==='player'?`来自 · ${signature.trim()||'一个坏小孩'}`:'把这一刻，留给你。'}{date&&<time dateTime={date}>{new Date(date).toLocaleDateString('zh-CN')}</time>}</div>
@@ -36,3 +36,4 @@ export function Postcard({source,text,signature='',media=null,stamped=false,date
   </div>
  </article>;
 }
+

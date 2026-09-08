@@ -15,12 +15,15 @@ export function useNestLife(ready:boolean,placements:HomePlacement[],capture:(ev
   const later=(fn:()=>void,ms:number)=>{const id=setTimeout(()=>{timers.delete(id);if(live&&visible)fn()},ms);timers.add(id);};
   const call=(operation:string,requestId?:string)=>latest.current.account?.homeLife?.(operation,{lease,revision,requestId});
   const play=(event:NestMoment)=>{
-   eventActive=true;setMoment(event);let photo:Promise<Blob|null>=Promise.resolve(null);
-   later(()=>{photo=latest.current.capture(event).catch(()=>null)},8000);
+   eventActive=true;setMoment(event);let photo:Promise<Blob|null>=Promise.resolve(null),captured:Blob|null=null;
+   // Retry while this very scene is still performing, never substitute a later room shot.
+   for(const ms of [8000,9500,11000])later(()=>{if(!captured)photo=latest.current.capture(event).then(blob=>captured=blob).catch(()=>null)},ms);
    later(()=>{void (async()=>{
     try{
      if(owner){const result=await call('complete',event.id);if(!live||!visible)return;
-      if(result?.ok){setTrace(result.trace||null);const blob=await photo;if(result.capture&&blob&&live&&visible)await latest.current.account?.captureLife?.(event.id,blob);}
+      if(result?.ok){setTrace(result.trace||null);const blob=captured||await photo;
+       if(result.capture&&live&&visible){if(blob)await latest.current.account?.captureLife?.(result.captureEventId||event.id,blob,result.captureRepeated);else setError('这次照片没拍好；小故事会在再次发生时补拍，不会投出空白明信片。');}
+      }
      }else{const d=lifeDirection(event.kind);if(d)setTrace({kind:d.prop,toyId:d.speaker,until:new Date(Date.now()+600000).toISOString()});}
     }catch{if(live)setError('小片段暂时没能留住，下一次再试。');}
     finally{if(live){eventActive=false;later(()=>setMoment(null),10000);}}
@@ -45,5 +48,6 @@ export function useNestLife(ready:boolean,placements:HomePlacement[],capture:(ev
   document.addEventListener('visibilitychange',visibility);begin();
   return()=>{live=false;timers.forEach(clearTimeout);clearInterval(heartbeat);clearInterval(events);document.removeEventListener('visibilitychange',visibility);if(owner&&ready)void call('leave')?.catch(()=>{});};
  },[ready,owner,revision,layout]);
- return {moment,trace,error};
+ return {moment,trace,error:error||(account?.photoPending?'小窝照片正在等待补传，连上网络后会自动继续。':'')};
 }
+

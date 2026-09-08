@@ -14,6 +14,7 @@ async function harness(){
  let reply=async data=>response(200,data.action==='login'?{session:token('fresh')}:snapshot(session.user.id));
  const emit=(event,next)=>{session=next;listener(event,next)};
  const context={AbortController,setTimeout,clearTimeout,queueMicrotask,accountName,accountPassword,recoveryToken,ACCOUNT_PREVIEW_SESSION,
+  nestPhotoOutbox:{flush:async()=>true},window:{addEventListener(){},removeEventListener(){}},
   asset:value=>value,AccountContext:{Provider:'Provider'},_jsx:(_type,props)=>props.value,
   setInterval:()=>1,clearInterval(){},document:{visibilityState:'visible',addEventListener(){},removeEventListener(){}},
   createClient:()=>({auth:{
@@ -95,3 +96,4 @@ test('preview offers direct login or dismissible guest notice after invalid sess
  assert(source.includes('先看示例小窝'));assert(source.includes('重新登录'));
  assert(source.includes('<AccountMenu loginRequest={loginRequest}/>'));
 });
+

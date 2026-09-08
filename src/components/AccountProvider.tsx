@@ -7,6 +7,7 @@ import type {AccountSnapshot,AccountState} from '../lib/AccountContext';
 import {ACCOUNT_PREVIEW_SESSION,accountName,accountPassword,recoveryToken} from '../lib/accountContract.mjs';
 import {asset} from '../assets';
 import type {PostcardMedia} from '../lib/postcardTypes';
+import {nestPhotoOutbox,type PendingNestPhoto} from '../lib/nestPhotoStorage';
 
 const projectUrl=import.meta.env.VITE_SUPABASE_URL;
 const publishableKey=import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY||import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -93,6 +94,26 @@ export function AccountProvider({children}:{children:ReactNode}){
   return result.media as PostcardMedia;
  };
  const homeLife=useCallback(async(operation:string,options:object={})=>authenticated({action:'life',operation,...options}),[authenticated]);
- const captureLife=useCallback(async(eventId:string,blob:Blob)=>{if(blob.type!=='image/png')throw Error('小窝故事照片需要 PNG 格式。');const form=new FormData();form.set('file',blob,'moment.png');form.set('nestEvent',eventId);form.set('width','960');form.set('height','960');await authenticated(null,form)},[authenticated]);
- return <AccountContext.Provider value={{profile:snapshot?.profile||null,capsules:snapshot?.capsules||[],documents:snapshot?.documents||{},stories:snapshot?.stories||[],receivedPostcards:snapshot?.receivedPostcards||[],status,error,authenticate,logout,reload,saveDocument,quest,importCapsules,uploadMedia,homeLife,captureLife}}>{children}</AccountContext.Provider>;
+ const [photoPending,setPhotoPending]=useState(false);
+ const flushPhotos=useCallback(async(owner:string)=>{
+  const ok=await nestPhotoOutbox.flush(owner,(id:string)=>mounted.current&&session.current?.user.id===id,async(item:PendingNestPhoto)=>{
+   const form=new FormData();form.set('file',item.blob,'moment.png');form.set('nestEvent',item.eventId);form.set('repeated',String(item.repeated));form.set('width','960');form.set('height','960');
+   const result=await authenticated(null,form,owner);
+   setSnapshot(previous=>previous?.profile.user_id===owner?{...previous,stories:previous.stories?.map(story=>story.id===result.media.storyId?{...story,media:result.media}:story)}:previous);
+  });
+  if(mounted.current&&session.current?.user.id===owner)setPhotoPending(!ok);
+ },[authenticated]);
+ useEffect(()=>{
+  const owner=snapshot?.profile.user_id;setPhotoPending(false);if(!owner||status!=='ready')return;
+  const retry=()=>{if(!document.hidden)void flushPhotos(owner)};
+  retry();const timer=setInterval(retry,30000);window.addEventListener('online',retry);document.addEventListener('visibilitychange',retry);
+  return()=>{clearInterval(timer);window.removeEventListener('online',retry);document.removeEventListener('visibilitychange',retry)};
+ },[snapshot?.profile.user_id,status,flushPhotos]);
+ const captureLife=useCallback(async(eventId:string,blob:Blob,repeated=false)=>{
+  if(blob.type!=='image/png')throw Error('小窝故事照片需要 PNG 格式。');
+  const owner=current.current?.profile.user_id;if(!owner)throw Error('请先登录。');
+  await nestPhotoOutbox.put({owner,eventId,blob,repeated});await flushPhotos(owner);
+ },[flushPhotos]);
+ return <AccountContext.Provider value={{profile:snapshot?.profile||null,capsules:snapshot?.capsules||[],documents:snapshot?.documents||{},stories:snapshot?.stories||[],receivedPostcards:snapshot?.receivedPostcards||[],status,error,authenticate,logout,reload,saveDocument,quest,importCapsules,uploadMedia,homeLife,captureLife,photoPending}}>{children}</AccountContext.Provider>;
 }
+

@@ -94,12 +94,13 @@ async function upload(req:Request,uid:string){
  await limited('upload:'+uid,40,3600);
  const bytes=await bodyBytes(req,22*1024*1024),form=await new Response(bytes,{headers:{'content-type':req.headers.get('content-type')!}}).formData(),file=form.get('file');
  if(!(file instanceof File)||!file.size)throw new ApiError(400,'请选择一份影像。');
- const nestEvent=form.get('nestEvent');
+ const nestEvent=form.get('nestEvent');let storyId:string|undefined;
  if(nestEvent){
   if(typeof nestEvent!=='string'||!/^[a-f0-9-]{36}$/.test(nestEvent)||file.type!=='image/png')throw new ApiError(400,'小窝照片格式不正确。');
   const event=await admin.from('bc_nest_stories').select('id,media').eq('user_id',uid).eq('event_id',nestEvent).maybeSingle();check(event.error);
   if(!event.data)throw new ApiError(409,'这个小片段还没有完成。');
-  if(event.data.media)return await signStoryMedia(event.data.media,uid);
+  storyId=event.data.id;
+  if(event.data.media)return {...await signStoryMedia(event.data.media,uid),storyId};
  }
  const types:Record<string,[string,string,number]>={'image/jpeg':['jpg','photo',12],'image/png':['png','photo',12],'image/webp':['webp','photo',12],'image/gif':['gif','gif',8],'video/mp4':['mp4','video',20],'video/webm':['webm','video',20]};
  const spec=types[file.type];if(!spec||file.size>spec[2]*1024*1024)throw new ApiError(400,'这份影像的格式或大小不符合要求。');
@@ -111,8 +112,15 @@ async function upload(req:Request,uid:string){
  const id=crypto.randomUUID(),path=uid+'/'+id+'.'+spec[0];
  const saved=await admin.storage.from(bucket).upload(path,file,{contentType:file.type,upsert:false});check(saved.error);
  if(nestEvent){
-  const media={id,kind:'photo',width,height,label:'小窝当时的模样',origin:'account-file',storagePath:path};
-  const attached=await admin.from('bc_nest_stories').update({media}).eq('user_id',uid).eq('event_id',nestEvent).is('media',null);check(attached.error);
+  const repeated=form.get('repeated')==='true';
+  const media={id,kind:'photo',width,height,label:repeated?'这个小故事再次发生时':'小窝当时的模样',...(repeated?{sceneMoment:'repeat'}:{}),capturedAt:new Date().toISOString(),origin:'account-file',storagePath:path};
+  const attached=await admin.from('bc_nest_stories').update({media}).eq('user_id',uid).eq('event_id',nestEvent).is('media',null).select('id,media').maybeSingle();check(attached.error);
+  if(attached.data)return {...await signStoryMedia(attached.data.media,uid),storyId};
+  // A concurrent successful retry won. Return the saved winner, never an orphan URL.
+  const winner=await admin.from('bc_nest_stories').select('media').eq('user_id',uid).eq('id',storyId).single();check(winner.error);
+  await admin.storage.from(bucket).remove([path]);
+  if(!winner.data.media)throw new ApiError(503,'小窝照片暂未保存，请稍后重试。');
+  return {...await signStoryMedia(winner.data.media,uid),storyId};
  }
  const signed=await admin.storage.from(bucket).createSignedUrl(path,3600);check(signed.error);
  return {id,kind:spec[1],url:signed.data!.signedUrl,width,height,...(spec[1]==='video'?{duration}:{}),label:'我的明信片影像',origin:'account-file',storagePath:path};
@@ -143,7 +151,12 @@ Deno.serve(async req=>{
    const uuid=(v:unknown)=>typeof v==='string'&&/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(v);
    if((data.requestId&&!uuid(data.requestId))||(data.lease&&!uuid(data.lease)))throw new ApiError(400,'小窝记录无法识别。');
    const result=await admin.rpc('bc_nest_step',{p_user:auth.uid,p_action:data.operation,p_request:data.requestId||null,p_revision:data.revision??0,p_lease:data.lease||null});if(result.error?.message==='draw not found')throw new ApiError(404,'没有找到这枚扭蛋。');check(result.error);
-   const value=result.data||{};if(value.story?.media)value.story.media=await signStoryMedia(value.story.media,auth.uid);
+   const value=result.data||{};
+   if(value.story?.id){
+    // Draw results are idempotent snapshots; media may have arrived after that snapshot.
+    const fresh=await admin.from('bc_nest_stories').select('media').eq('user_id',auth.uid).eq('id',value.story.id).single();check(fresh.error);
+    value.story.media=await signStoryMedia(fresh.data.media,auth.uid);
+   }
    return reply(200,value);
   }
   if(action==='logout'){
@@ -184,3 +197,4 @@ Deno.serve(async req=>{
   throw new ApiError(400,'没有这个操作。');
  }catch(error){return reply(error instanceof ApiError?error.status:error instanceof Error&&!(error instanceof TypeError)?400:500,{error:error instanceof ApiError?error.message:error instanceof Error&&!(error instanceof TypeError)?error.message:'暂时没有处理成功，请稍后重试。'})}
 });
+

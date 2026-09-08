@@ -34,6 +34,7 @@ test('PNG close-up uses an independent camera, preserves pose/lighting, and rest
 test('story upload and capture agree on PNG; completion remains owner-scoped with no historical replacement',()=>{
  const scene=read('src/components/NestScene.tsx'),provider=read('src/components/AccountProvider.tsx'),edge=read('supabase/functions/bc-account-preview/index.ts');
  assert(scene.includes("format:'image/png'"));assert(scene.includes('moment.id!==lifeRef.current.moment?.id'));assert(scene.includes('if(!moment)sync()'));
- assert(provider.includes("blob.type!=='image/png'"));assert(provider.includes("form.set('nestEvent',eventId)"));assert(edge.includes("file.type!=='image/png'"));
+ assert(provider.includes("blob.type!=='image/png'"));assert(provider.includes("form.set('nestEvent',item.eventId)"));assert(edge.includes("file.type!=='image/png'"));
  assert(edge.includes(".eq('user_id',uid).eq('event_id',nestEvent).is('media',null)"));assert(edge.includes(".not('collected_at','is',null)"));
 });
+

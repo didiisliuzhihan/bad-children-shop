@@ -1,8 +1,8 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import vm from 'node:vm';import {stripTypeScriptTypes} from 'node:module';
 import {eligibleMoments,lifeDirection} from '../src/lib/nestLifeRules.mjs';
-function harness(accountMode=true){
+function harness(accountMode=true,options={}){
  const slots=[],timers=new Map(),listeners=new Map(),requests=[],ambience=[],photos=[],shots=[];let cursor=0,pending=[],now=0,seq=0;
- const account=accountMode?{profile:{user_id:'owner'},documents:{nest:{revision:1}},homeLife:async(op,options)=>{requests.push({op,...options});return op==='start'?{event:{id:'moment',kind:'soup'}}:op==='complete'?{ok:true,capture:true}:{};},captureLife:async(id,blob)=>photos.push({id,blob})}:null;
+ const account=accountMode?{profile:{user_id:'owner'},documents:{nest:{revision:1}},homeLife:async(op,request)=>{requests.push({op,...request});return op==='start'?{event:{id:'moment',kind:'soup'}}:op==='complete'?{ok:true,capture:true,...options.complete}:{};},captureLife:async(id,blob,repeated)=>photos.push({id,blob,repeated})}:null;
  const context={eligibleMoments,lifeDirection,crypto:{randomUUID:()=>String(++seq)},Math:Object.assign(Object.create(Math),{random:()=>0}),Date,Promise,document:{hidden:false,addEventListener:(k,f)=>listeners.set(k,f),removeEventListener:k=>listeners.delete(k)},
   useAccount:()=>account,useRef(initial){const i=cursor++;slots[i]??={current:initial};return slots[i]},
   useState(initial){const i=cursor++;slots[i]??={value:initial};return [slots[i].value,v=>{slots[i].value=typeof v==='function'?v(slots[i].value):v}]},
@@ -13,7 +13,7 @@ function harness(accountMode=true){
  };
  const source=stripTypeScriptTypes(fs.readFileSync(new URL('../src/lib/useNestLife.ts',import.meta.url),'utf8')).replace(/^import .*;\s*$/gm,'').replace('export function useNestLife','function useNestLife')+'\nglobalThis.hook=useNestLife;';vm.runInNewContext(source,context);
  const placements=[{toyId:'miss_popcorn',x:0,z:1},{toyId:'tired_crow',x:2,z:1}];
- const render=(ready=true)=>{cursor=0;pending=[];const result=context.hook(ready,placements,async(event)=>{shots.push({event,at:now});return {type:'image/png'}});pending.forEach(f=>f());return result};
+ const render=(ready=true)=>{cursor=0;pending=[];const result=context.hook(ready,placements,async(event)=>{shots.push({event,at:now});if(shots.length<=(options.failShots||0))throw Error('capture unavailable');return {type:'image/png'}});pending.forEach(f=>f());return result};
  const flush=async()=>{for(let i=0;i<12;i++)await Promise.resolve()};
  const advance=async(ms)=>{const end=now+ms;while(true){const entries=[...timers].filter(([,v])=>v.at<=end).sort((a,b)=>a[1].at-b[1].at);if(!entries.length)break;const [id,t]=entries[0];now=t.at;if(t.ms)t.at+=t.ms;else timers.delete(id);t.fn();await flush();}now=end;await flush();};
  return {render,advance,requests,photos,shots,ambience,timers,hide(){context.document.hidden=true;listeners.get('visibilitychange')?.()},show(){context.document.hidden=false;listeners.get('visibilitychange')?.()},unmount(){slots.forEach(s=>s?.cleanup?.())}};
@@ -30,3 +30,11 @@ test('hiding or entering arrangement cancels incomplete performances and cannot 
 test('guest scene has performances but no account rewards or uploads',async()=>{
  const h=harness(false);h.render();await h.advance(18000);assert.equal(h.render().moment.kind,'soup');await h.advance(13500);assert(h.render().trace);assert.equal(h.requests.length,0);assert.equal(h.photos.length,0);h.unmount();
 });
+test('a missed shot is retried inside the same event, and fills the original missing story ID',async()=>{
+ const h=harness(true,{failShots:2,complete:{captureEventId:'original-event',captureRepeated:true}});h.render();await h.advance(48500);
+ assert.equal(h.shots.length,3);assert.equal(h.photos.length,1);assert.equal(h.photos[0].id,'original-event');assert.equal(h.photos[0].repeated,true);h.unmount();
+});
+test('failed captures are visible and never upload a placeholder',async()=>{
+ const h=harness(true,{failShots:3});h.render();await h.advance(48500);assert.equal(h.photos.length,0);assert.match(h.render().error,/照片没拍好/);h.unmount();
+});
+

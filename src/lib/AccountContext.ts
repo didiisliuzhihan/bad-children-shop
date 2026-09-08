@@ -16,7 +16,9 @@ export type AccountState={
  importCapsules:(items:unknown[],legacyToken?:string)=>Promise<number>;
  uploadMedia:(media:PostcardMedia)=>Promise<PostcardMedia>;
  homeLife?:(operation:string,options?:{requestId?:string;revision?:number;lease?:string})=>Promise<NestLifeReply&Partial<AccountDraw>>;
- captureLife?:(eventId:string,blob:Blob)=>Promise<void>;
+ captureLife?:(eventId:string,blob:Blob,repeated?:boolean)=>Promise<void>;
+ photoPending?:boolean;
 };
 export const AccountContext=createContext<AccountState|null>(null);
 export const useAccount=()=>useContext(AccountContext);
+
