@@ -1,0 +1,50 @@
+/* A photograph and a small letter share one warm sheet; no decorative stamps. */
+.community-postcard{--postcard-ink:#594c43;--postcard-muted:#827768;display:grid;grid-template-columns:minmax(0,1.03fr) minmax(0,1fr);gap:clamp(18px,3vw,34px);padding:clamp(18px,3vw,32px);background:#f6ecd7;color:var(--postcard-ink);border:1px solid #fff5de;border-radius:5px;box-shadow:0 14px 38px #263c3420;min-width:0;max-width:900px;margin-inline:auto}
+.postcard-photo-side{display:flex;flex-direction:column;gap:12px;min-width:0}
+.postcard-media{position:relative;aspect-ratio:1;overflow:hidden;background:#d9dfd6;border:1px solid #ad9e7d20}
+.postcard-media>img,.postcard-media>video{display:block;width:100%;height:100%;object-fit:contain;background:#e8e3d7}
+.postcard-photo-caption{font-size:12px;letter-spacing:.11em;line-height:1.5;color:var(--postcard-muted)}
+.postcard-letter-side{min-width:0;display:flex;flex-direction:column;border-left:1px solid #9f8d6c52;padding-left:clamp(18px,3vw,34px)}
+.postcard-letter-side>header{display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+.postcard-eyebrow{font-size:12px;letter-spacing:.11em;line-height:1.5;color:var(--postcard-muted)}
+.postcard-title{font-family:Georgia,'Times New Roman',serif;font-style:italic;font-size:clamp(28px,3.4vw,42px);line-height:1.1;color:#9e6551;letter-spacing:.02em}
+.postcard-nickname{font-family:'BC Quest','PingFang SC','Microsoft YaHei',sans-serif;font-style:normal;overflow-wrap:anywhere;max-width:100%;line-height:1.35}
+.postcard-source{font-size:14px;color:var(--postcard-muted)}
+.postcard-message{font-family:'BC Quest','PingFang SC','Microsoft YaHei',sans-serif;font-size:clamp(20px,2.1vw,26px);line-height:1.8;margin:26px 0 18px;overflow-wrap:anywhere;white-space:pre-wrap;background:repeating-linear-gradient(to bottom,transparent 0,transparent calc(1.8em - 1px),#b7a48552 calc(1.8em - 1px),#b7a48552 1.8em)}
+.postcard-letter-side>footer{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-top:auto;min-width:0}
+.postcard-signature{font-size:14px;line-height:1.8;overflow-wrap:anywhere;min-width:0;color:var(--postcard-muted)}
+.postcard-signature time{display:block;font-size:12px;margin-top:6px}
+.postcard-stamp{width:clamp(64px,8vw,88px);flex-shrink:0;mix-blend-mode:multiply;opacity:.88;transform:rotate(-9deg);animation:postcard-stamp .25s ease-out}
+.postcard-stamp img{width:100%;height:auto}
+.postcard-no-photo{min-height:260px;flex:1;display:flex;flex-direction:column;justify-content:center;gap:10px;padding:25px;border:1px solid #b6a58445;color:var(--postcard-muted);font-family:'BC Quest',sans-serif;font-size:22px;line-height:1.8}
+.postcard-motion-toggle{position:absolute;left:12px;bottom:12px;display:flex;align-items:center;gap:8px;min-height:44px;background:#f8f1dfed;color:#4b594d;border:1px solid #fffbef;border-radius:24px;padding:10px 14px;font-size:14px;box-shadow:0 3px 12px #24342b20}
+.postcard-media-error{position:absolute;inset:0;background:#ece6d9e8;display:flex;align-items:center;justify-content:center;text-align:center;font-size:14px;line-height:1.8;padding:22px;color:#735b50}
+@keyframes postcard-stamp{from{opacity:0;transform:rotate(-9deg) scale(1.18)}to{opacity:.88;transform:rotate(-9deg) scale(1)}}
+@media(max-width:600px){.community-postcard{grid-template-columns:1fr;padding:20px;gap:22px;max-width:440px}.postcard-letter-side{border-left:0;border-top:1px solid #9f8d6c52;padding:22px 0 0}.postcard-title{font-size:34px}.postcard-message{font-size:23px;margin-top:22px}.postcard-letter-side>header{gap:9px}.postcard-no-photo{min-height:180px}.postcard-stamp{width:76px}}
+@media(prefers-reduced-motion:reduce){.postcard-stamp{animation:none}}
+
+.postcard-studio{max-width:1500px}
+.postcard-workbench{display:grid;grid-template-columns:minmax(0,1.85fr) minmax(280px,.8fr);gap:clamp(25px,4vw,58px);align-items:start}
+.postcard-preview-pane{min-width:0;container-type:inline-size;position:sticky;top:24px}
+.postcard-caption{font-size:13px;line-height:1.8;color:var(--community-muted);margin:18px 8px 0;text-align:center}
+.postcard-editor{min-width:0;padding:0 2px}
+.postcard-field-heading{display:flex;align-items:center;gap:12px;margin:0 0 18px}.postcard-field-heading>span{font-size:12px;letter-spacing:.08em;color:#8c7961;border-bottom:1px solid #bca489;padding-bottom:3px}.postcard-field-heading h3{font-size:18px;font-weight:550}
+.postcard-file-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.postcard-file-actions .text-button{font-size:14px;min-height:44px}
+.postcard-field-help{font-size:14px;line-height:1.85;color:var(--community-muted);margin:14px 0 28px}
+.postcard-editor .suggestion-heading{font-size:14px;margin-bottom:12px}.postcard-editor .suggestion-heading button{font-size:14px}
+.postcard-editor .note-suggestions{margin-bottom:22px}.postcard-editor .note-suggestions button{font-size:14px;padding:11px 14px}
+.postcard-editor .note-field{font-size:16px}.postcard-editor .note-field textarea{min-height:100px}.postcard-editor .room-pill{font-size:14px}
+.postcard-studio .notes-switch button{min-height:44px;font-size:14px}
+.postcard-studio .community-preview-notice{font-size:13px}
+.postcard-draft-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:32px}
+.postcard-draft-item{min-width:0;container-type:inline-size}.postcard-draft-meta{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:13px;color:var(--community-muted);padding:12px 4px}.postcard-draft-meta button{font-size:14px;min-height:44px}
+.nest-photo-actions{display:flex;align-items:center;justify-content:flex-end;gap:16px;flex-wrap:wrap;margin-top:8px}.nest-photo-actions>span{font-size:13px;line-height:1.7;color:var(--community-muted)}.nest-photo-actions button{font-size:14px}
+.nest-photo-modal .modal-panel{width:min(900px,100%);padding:28px;overflow:auto;overscroll-behavior:contain;background:#dce7e7}
+.nest-photo-heading{padding:0 45px 22px 0}.nest-photo-heading h2{font-size:22px;font-weight:550}.nest-photo-heading p{font-size:14px;line-height:1.7;margin-top:8px;color:#657c7b}
+.nest-photo-preview{container-type:inline-size;min-height:120px}.nest-photo-result{display:block;width:100%;height:auto;border-radius:5px;box-shadow:0 14px 38px #263c3420}
+.nest-photo-save-actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:24px}.nest-photo-save-actions button{min-height:44px;font-size:14px}
+.nest-photo-hint{font-size:13px;line-height:1.8;color:#526d6b;margin-top:14px;text-align:center}.nest-photo-hint a,.nest-photo-hint button{display:inline-flex;align-items:center;min-height:44px;margin-inline:10px;font-size:14px;text-decoration:underline;text-underline-offset:4px}
+@media(max-width:600px){.nest-photo-modal{padding:12px}.nest-photo-modal .modal-panel{padding:22px 14px;max-height:calc(100dvh - 24px)}.nest-photo-preview{max-width:440px;margin:auto}}
+@container(max-width:580px){.community-postcard{grid-template-columns:1fr;padding:22px;gap:20px;max-width:440px}.postcard-letter-side{border-left:0;border-top:1px solid #9f8d6c52;padding:22px 0 0}.postcard-message{font-size:22px}.postcard-stamp{width:76px}}
+@media(max-width:1100px){.postcard-workbench{grid-template-columns:1fr;gap:34px;max-width:900px}.postcard-preview-pane{position:static}.postcard-editor{max-width:650px;width:100%;margin-inline:auto}.postcard-draft-grid{grid-template-columns:1fr}}
+@media(max-width:600px){.postcard-studio .notes-switch{width:100%;gap:0}.postcard-studio .notes-switch button{padding:10px 8px}.postcard-caption{text-align:left}.postcard-draft-grid{gap:25px}.postcard-studio .ticket-availability{font-size:13px}.nest-photo-actions{gap:8px}}

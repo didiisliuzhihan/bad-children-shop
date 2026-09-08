@@ -9,7 +9,10 @@ export const localPreview=!!document.querySelector('meta[name="bc-local-preview"
 const previewBase=document.querySelector<HTMLMetaElement>('meta[name="bc-asset-base"]')?.content;
 export const cloudAssets=!localPreview&&!!import.meta.env.VITE_ASSET_BASE_URL;
 export const assetBase=new URL(previewBase||import.meta.env.VITE_ASSET_BASE_URL||(import.meta.env.DEV?'./assets/delivery/':'../assets/delivery/'),location.href).href.replace(/\/$/,'');
-export const asset=(name:string)=>`${assetBase}/${encodeURIComponent(name)}`;
+// New room assets ship atomically with the Pages release; existing media stays
+// on Storage. Local previews continue reading the same delivery originals.
+const releaseAssets=new Set(['room_furnished_nest.glb','nest-fireplace-asmr.mp3','default-stamp-white.png']);
+export const asset=(name:string)=>!localPreview&&!import.meta.env.DEV&&releaseAssets.has(name)?new URL('./assets/delivery/'+encodeURIComponent(name),location.href).href:`${assetBase}/${encodeURIComponent(name)}`;
 for(const [family,file,weight] of [['Fredoka','fredoka.woff2','300 700'],['Inter','inter.woff2','100 900']]){
  const face=new FontFace(family,`url("${asset(file)}")`,{weight,display:'swap'});document.fonts.add(face);void face.load().catch(()=>{});
 }

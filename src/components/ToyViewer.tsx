@@ -33,18 +33,21 @@ export function ToyViewer({toy,lighting=viewerLighting}:{toy:Toy;lighting?:Viewe
    }
    return Math.max(radius,fit)*1.12;
   };
-  const frame=()=>{controls.update();renderer.render(scene,camera)};
-  const angleTo=(name:keyof typeof directions)=>{selected=name;controls.autoRotate=false;if(hasModel)distance=fitDistance(name);controls.maxDistance=distance*1.8;camera.position.copy(controls.target).add(new THREE.Vector3(...directions[name]).normalize().multiplyScalar(distance));controls.update();frame()};
+  let raf=0;
+  const invalidate=()=>{if(alive&&!document.hidden&&!raf)raf=requestAnimationFrame(frame)};
+  const frame=()=>{raf=0;if(!alive||document.hidden||!el.clientWidth||!el.clientHeight)return;const changed=controls.update();renderer.render(scene,camera);if(controls.autoRotate||changed)invalidate()};
+  controls.addEventListener('change',invalidate);
+  const angleTo=(name:keyof typeof directions)=>{selected=name;controls.autoRotate=false;if(hasModel)distance=fitDistance(name);controls.maxDistance=distance*1.8;camera.position.copy(controls.target).add(new THREE.Vector3(...directions[name]).normalize().multiplyScalar(distance));controls.update();invalidate()};
   const resize=()=>{
    const w=el.clientWidth,h=el.clientHeight;if(!w||!h)return;
    camera.aspect=w/h;const vertical=THREE.MathUtils.degToRad(camera.fov/2),horizontal=Math.atan(Math.tan(vertical)*camera.aspect);
    distance=radius/Math.sin(Math.min(vertical,horizontal))*1.01;camera.near=radius/100;camera.far=distance*20;camera.updateProjectionMatrix();
    controls.minDistance=radius*1.5;controls.maxDistance=distance*1.8;renderer.setSize(w,h);if(hasModel){const spinning=controls.autoRotate;angleTo(selected);controls.autoRotate=spinning;}
   };
-  api.current={angle:angleTo,rotate:value=>{controls.autoRotate=value}};
+  api.current={angle:angleTo,rotate:value=>{controls.autoRotate=value;invalidate()}};
   const manual=()=>{controls.autoRotate=false;setRotating(false);setAngle('')};controls.addEventListener('start',manual);
   const observer=new ResizeObserver(resize);observer.observe(el);
-  const visibility=()=>renderer.setAnimationLoop(document.visibilityState==='hidden'?null:frame);
+  const visibility=()=>{if(document.hidden){cancelAnimationFrame(raf);raf=0}else invalidate()};
   document.addEventListener('visibilitychange',visibility);visibility();
   const contextLost=(e:Event)=>{e.preventDefault();if(alive)setFailed(true)};renderer.domElement.addEventListener('webglcontextlost',contextLost);
   void loadModel(toy.model_url).then(g=>{
@@ -55,7 +58,7 @@ export function ToyViewer({toy,lighting=viewerLighting}:{toy:Toy;lighting?:Viewe
   }).catch(()=>{if(alive)setFailed(true)});
   return()=>{
    alive=false;api.current=null;observer.disconnect();document.removeEventListener('visibilitychange',visibility);
-   renderer.domElement.removeEventListener('webglcontextlost',contextLost);renderer.setAnimationLoop(null);controls.dispose();environment.dispose();renderer.dispose();renderer.forceContextLoss();renderer.domElement.remove();
+   renderer.domElement.removeEventListener('webglcontextlost',contextLost);cancelAnimationFrame(raf);controls.removeEventListener('change',invalidate);controls.dispose();environment.dispose();renderer.dispose();renderer.forceContextLoss();renderer.domElement.remove();
    // CPU GLTF cache is shared with the reveal animation; never dispose it here.
   };
  },[toy.model_url,retry,lighting]);

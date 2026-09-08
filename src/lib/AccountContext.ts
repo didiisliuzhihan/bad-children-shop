@@ -1,0 +1,22 @@
+import {createContext,useContext} from 'react';
+import type {Capsule} from '../types';
+import type {PostcardMedia} from './postcardTypes';
+import type {ReceivedPostcard} from './collectedPostcards';
+import type {PrivateStory,AccountDraw,NestLifeReply} from './nestLifeTypes';
+export type AccountProfile={user_id:string;nickname:string;created_at:string};
+export type AccountDocument={key:string;value:any;revision:number;updated_at:string};
+export type AccountSnapshot={profile:AccountProfile;capsules:Capsule[];documents:Record<string,AccountDocument>;stories?:PrivateStory[];receivedPostcards?:ReceivedPostcard[]};
+export type AccountState={
+ profile:AccountProfile|null;capsules:Capsule[];documents:Record<string,AccountDocument>;stories?:PrivateStory[];receivedPostcards?:ReceivedPostcard[];
+ status:'loading'|'ready'|'signed-out'|'error';error:string;
+ authenticate:(mode:'register'|'login'|'recover',name:string,password:string,code?:string)=>Promise<string|undefined>;
+ logout:()=>Promise<void>;reload:()=>Promise<void>;
+ saveDocument:(key:'nest'|'postcards',value:unknown,revision?:number)=>Promise<void>;
+ quest:(toyId:string,operation:'save'|'unlock')=>Promise<void>;
+ importCapsules:(items:unknown[],legacyToken?:string)=>Promise<number>;
+ uploadMedia:(media:PostcardMedia)=>Promise<PostcardMedia>;
+ homeLife?:(operation:string,options?:{requestId?:string;revision?:number;lease?:string})=>Promise<NestLifeReply&Partial<AccountDraw>>;
+ captureLife?:(eventId:string,blob:Blob)=>Promise<void>;
+};
+export const AccountContext=createContext<AccountState|null>(null);
+export const useAccount=()=>useContext(AccountContext);

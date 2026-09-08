@@ -1,13 +1,34 @@
+import {createNestAmbience} from './nestAmbience.ts';
 type Sound='click'|'roll'|'lock'|'drop'|'open'|'keep'|'reject'|'wipe'|'unlock';
+let nestActive=false,nestAmbience:ReturnType<typeof createNestAmbience>|undefined;
+const nestListeners=new Set<string>();
+let nestRecordingUrl='',nestRecordingBytes:Promise<ArrayBuffer>|undefined;
+function loadNestRecording(context:AudioContext){
+ if(!nestRecordingUrl)return Promise.reject(Error('Room recording is not configured'));
+ nestRecordingBytes??=fetch(nestRecordingUrl,{signal:AbortSignal.timeout(15000)}).then(r=>{if(!r.ok)throw Error('Room recording unavailable');return r.arrayBuffer()}).catch(e=>{nestRecordingBytes=undefined;throw e});
+ return nestRecordingBytes.then(bytes=>context.decodeAudioData(bytes.slice(0)));
+}
+function reconcileMix(){
+ setLevel(musicGain,nestActive?0:activeVoice?VOICE_BACKGROUND_LEVEL:BACKGROUND_LEVEL);
+ if(nestActive)background?.pause();
+ if(ctx&&master&&nestActive&&!nestAmbience){const owner=ctx;nestAmbience=createNestAmbience(owner,master,()=>loadNestRecording(owner));}
+ nestAmbience?.set(nestActive&&!muted&&(typeof document==='undefined'||!document.hidden),activeVoice?.14:EFFECT_LEVEL);
+}
+export function setNestAmbience(active:boolean,source='scene'){
+ const wasActive=nestActive;if(active)nestListeners.add(source);else nestListeners.delete(source);nestActive=nestListeners.size>0;reconcileMix();
+ if(wasActive&&!nestActive&&background&&!muted&&isAudioReady()&&(typeof document==='undefined'||!document.hidden))void background.play().catch(()=>{});
+}
 let ctx:AudioContext|undefined;let gain:GainNode|undefined;let master:GainNode|undefined;let musicGain:GainNode|undefined;let voiceGain:GainNode|undefined;
 let muted=false;let background:HTMLAudioElement|undefined;let activeVoice:HTMLAudioElement|undefined;
 let backgroundSource:MediaElementAudioSourceNode|undefined;let voiceSource:MediaElementAudioSourceNode|undefined;
 const EFFECT_LEVEL=.55;
-const BACKGROUND_LEVEL=.08,VOICE_BACKGROUND_LEVEL=.025;
+// The music asset is already quiet (about .031 RMS); do not attenuate it twice
+// into near-silence. Cooking still mutes it completely, speech ducks it.
+const BACKGROUND_LEVEL=.24,VOICE_BACKGROUND_LEVEL=.05;
 const readyListeners=new Set<(ready:boolean)=>void>();
 let queuedSounds:{kind:Sound;at:number}[]=[];
 export function isAudioReady(){return ctx?.state==='running'}
-function publishAudioState(){const ready=isAudioReady();for(const listener of readyListeners)listener(ready);if(ready)flushSounds()}
+function publishAudioState(){const ready=isAudioReady();for(const listener of readyListeners)listener(ready);if(ready)flushSounds();reconcileMix()}
 export function observeAudioReady(listener:(ready:boolean)=>void){readyListeners.add(listener);listener(isAudioReady());return()=>{readyListeners.delete(listener)}}
 // Native touchstart matters in embedded WebKit; a swipe's touchend may NOT
 // unlock audio. Also keep real click/keyboard paths, rather than a mute toggle.
@@ -36,7 +57,7 @@ export async function unlockAudio():Promise<boolean>{
       const Context=globalThis.AudioContext||(window as unknown as {webkitAudioContext?:typeof AudioContext}).webkitAudioContext;
       if(!Context)return false;
       background?.pause();backgroundSource?.disconnect();background=undefined;backgroundSource=undefined;stopVoice();
-      ctx=new Context();master=ctx.createGain();master.gain.value=muted?0:1;master.connect(ctx.destination);
+      nestAmbience?.dispose();nestAmbience=undefined;ctx=new Context();master=ctx.createGain();master.gain.value=muted?0:1;master.connect(ctx.destination);
       gain=ctx.createGain();gain.gain.value=EFFECT_LEVEL;gain.connect(master);
       musicGain=ctx.createGain();musicGain.gain.value=BACKGROUND_LEVEL;musicGain.connect(master);
       voiceGain=ctx.createGain();voiceGain.gain.value=.75;voiceGain.connect(master);
@@ -65,23 +86,25 @@ function media(url:string){
   // Leave element.volume at 1: iOS may ignore its setter. GainNodes do all mixing.
   return a;
 }
-export function setMuted(m:boolean){muted=m;if(m)queuedSounds=[];setLevel(master,m?0:1);if(background)background.muted=m;if(activeVoice)activeVoice.muted=m}
+export function setMuted(m:boolean){muted=m;if(m)queuedSounds=[];setLevel(master,m?0:1);if(background)background.muted=m;if(activeVoice)activeVoice.muted=m;reconcileMix()}
 export async function startBackground(url:string){
+  // The recording lives beside the BGM in the app's existing asset base.
+  nestRecordingUrl=url.replace(/[^/]+$/,'nest-fireplace-asmr.mp3');
   void unlockAudio();
   if(!ctx||!musicGain||muted)return;
   try{
     if(!background){const a=media(url);backgroundSource=ctx.createMediaElementSource(a);backgroundSource.connect(musicGain);background=a;background.loop=true;}
-    setLevel(musicGain,activeVoice?VOICE_BACKGROUND_LEVEL:BACKGROUND_LEVEL);
-    if(background.paused)await background.play(); // Called synchronously in the gesture, before awaiting.
+    reconcileMix();
+    if(!nestActive&&background.paused)await background.play(); // Called synchronously in the gesture, before awaiting.
   }catch{/* Never fall back to an unattenuated HTML player; retry next gesture. */}
 }
-export function stopVoice(){activeVoice?.pause();activeVoice=undefined;voiceSource?.disconnect();voiceSource=undefined;setLevel(musicGain,BACKGROUND_LEVEL)}
+export function stopVoice(){activeVoice?.pause();activeVoice=undefined;voiceSource?.disconnect();voiceSource=undefined;reconcileMix()}
 export async function playVoice(url:string,onEnd:()=>void){
   const ready=unlockAudio();stopVoice();if(!ctx||!voiceGain)throw Error('Audio unavailable');
   const a=media(url);activeVoice=a;
   const finish=()=>{if(activeVoice===a){stopVoice();onEnd()}};
   try{
-    voiceSource=ctx.createMediaElementSource(a);voiceSource.connect(voiceGain);setLevel(musicGain,VOICE_BACKGROUND_LEVEL);
+    voiceSource=ctx.createMediaElementSource(a);voiceSource.connect(voiceGain);reconcileMix();
     a.onended=finish;a.onerror=finish;
     const play=a.play(); // Preserve trusted gesture for Safari's media policy.
     const [unlocked]=await Promise.all([ready,play]);if(!unlocked)throw Error('Audio locked');return a;

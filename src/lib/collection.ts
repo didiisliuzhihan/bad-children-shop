@@ -2,8 +2,10 @@ import {createClient} from '@supabase/supabase-js';
 import type {Capsule,Toy} from '../types';
 import {fallbackToys,localPreview} from '../assets';
 import {mergeCapsules} from '../flow.mjs';
+import {readAllCapsules} from './readAllCapsules.mjs';
 const key=import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY||import.meta.env.VITE_SUPABASE_ANON_KEY;
-export const supabase=key?createClient(import.meta.env.VITE_SUPABASE_URL,key):null;
+const communityPreview=!!document.querySelector('meta[name="bc-community-preview"]');
+export const supabase=key&&!communityPreview?createClient(import.meta.env.VITE_SUPABASE_URL,key):null;
 const CACHE='bc-shop:collection:v1';let userId:string|null=null;let writable=false;
 type CloudState={toys:Toy[];items:Capsule[];mode:'cloud'|'local'};
 let initializing:Promise<CloudState>|null=null;
@@ -23,9 +25,8 @@ async function hydrateCloud():Promise<CloudState>{
     const auth=session.data.session?{data:{user:session.data.session.user},error:null}:await supabase.auth.signInAnonymously();
     if(auth.error||!auth.data.user)return {toys,items:local,mode:'local'};
     userId=auth.data.user.id;
-    const remote=await supabase.from('user_capsules').select('id,toy_id,obtained_at').eq('user_id',userId).order('obtained_at',{ascending:false});
-    if(remote.error)return {toys,items:local,mode:'local'};
-    writable=true;const merged=mergeCapsules(readLocal(),(remote.data||[]).map(x=>({...x,synced:true}))) as Capsule[];
+    const remote=await readAllCapsules((after:string|undefined,size:number)=>{let q=supabase!.from('user_capsules').select('id,toy_id,obtained_at').eq('user_id',userId!).order('id').limit(size);if(after)q=q.gt('id',after);return q});
+    writable=true;const merged=mergeCapsules(readLocal(),remote.map((x:Capsule)=>({...x,synced:true}))) as Capsule[];
     for(const item of merged.filter(x=>!x.synced)){item.synced=await syncCapsule(item)}
     writeLocal(merged);return {toys,items:merged,mode:'cloud'};
   }catch{return {toys,items:local,mode:'local'}}
@@ -33,4 +34,13 @@ async function hydrateCloud():Promise<CloudState>{
 export async function syncCapsule(item:Capsule){
   if(!supabase||!userId||!writable)return false;
   try{const {error}=await supabase.from('user_capsules').insert({id:item.id,user_id:userId,toy_id:item.toy_id,obtained_at:item.obtained_at});return !error||error.code==='23505'}catch{return false}
+}
+
+export async function readLegacyImport(){
+ const cached=readLocal();if(!supabase)return {items:cached,token:undefined};
+ const {data,error}=await supabase.auth.getSession();if(error)throw Error('旧收藏身份暂时没有同步，请稍后重试。');
+ const session=data.session;if(!session)return {items:cached,token:undefined};
+ if(!session.user.is_anonymous)throw Error('旧收藏身份不符合预期，原记录没有改动。');
+ const remote=await readAllCapsules((after:string|undefined,size:number)=>{let q=supabase!.from('user_capsules').select('id,toy_id,obtained_at').eq('user_id',session.user.id).order('id').limit(size);if(after)q=q.gt('id',after);return q});
+ return {items:mergeCapsules(cached,remote) as Capsule[],token:session.access_token};
 }

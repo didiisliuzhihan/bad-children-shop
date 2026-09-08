@@ -1,10 +1,10 @@
-import {Suspense,useEffect,useMemo,useRef,useState} from 'react';
+import {Component,Suspense,useEffect,useMemo,useRef,useState,type ReactNode} from 'react';
 import {Canvas,useFrame,useThree} from '@react-three/fiber';
 import type {ThreeEvent} from '@react-three/fiber';
 import {Environment,Lightformer,ContactShadows} from '@react-three/drei';
 import * as THREE from 'three';
 import type {GLTF} from 'three/addons/loaders/GLTFLoader.js';
-import {asset,loadModel,releaseModel} from '../assets';
+import {asset,loadModel} from '../assets';
 import {dragProgress,shouldCommitDrag} from '../flow.mjs';
 import type {Phase,Toy} from '../types';
 
@@ -62,10 +62,15 @@ export function MachineScene(props:{model:GLTF;phase:Phase;progress:number;onPro
  return <Canvas dpr={[1,Math.min(devicePixelRatio,innerWidth<768?1.4:1.75)]} camera={{position:[1.65,3.8,13.5],fov:32}} gl={{alpha:true,antialias:true,powerPreference:'high-performance'}}><CameraRig/><Studio/><Suspense fallback={null}><Machine {...props}/></Suspense><ContactShadows position={[0,.015,0]} opacity={.38} scale={11} blur={2.8} far={8} resolution={256} color="#28495c" frames={1}/></Canvas>
 }
 
-function RevealObjects({toy,opened,decision,reduced,onReady,onError}:{toy:Toy;opened:boolean;decision:Phase;reduced:boolean;onReady:()=>void;onError:()=>void}){
+type RevealProps={toy:Toy;opened:boolean;decision:Phase;reduced:boolean;loadToy?:boolean;onReady:()=>void;onError:()=>void};
+function RevealObjects({toy,opened,decision,reduced,loadToy=true,onReady,onError}:RevealProps){
  const [model,setModel]=useState<GLTF|null>(null),[shell,setShell]=useState<GLTF|null>(null);const group=useRef<THREE.Group>(null),t=useRef(0);const shellRoot=useRef<THREE.Group>(null);
+ const [failed,setFailed]=useState(false);
  useEffect(()=>{let alive=true;loadModel(asset('capsule_shell.glb')).then(s=>{if(alive)setShell(s)}).catch(()=>{});return()=>{alive=false}},[]);
- useEffect(()=>{if(!opened)return;let alive=true;loadModel(toy.model_url).then(s=>{if(alive){setModel(s);onReady()}}).catch(()=>{if(alive)onError()});return()=>{alive=false;releaseModel(toy.model_url)}},[toy.model_url,opened]);
+ // Preload while the shell is still closed. This cache is also used by the home
+ // and toy viewer: disposing its shared geometry on reveal-close causes stalls.
+ useEffect(()=>{if(!loadToy)return;let alive=true;setFailed(false);loadModel(toy.model_url).then(s=>{if(alive)setModel(s)}).catch(()=>{if(alive)setFailed(true)});return()=>{alive=false}},[toy.model_url,loadToy]);
+ useEffect(()=>{if(!opened)return;if(model)onReady();else if(failed)onError()},[opened,model,failed,onReady,onError]);
  const modelClone=useMemo(()=>{if(!model)return;const clone=model.scene.clone(true);if(toy.id==='stressed_jimao'||toy.id==='miss_popcorn'||toy.id==='tired_crow'){const bounds=new THREE.Box3().setFromObject(clone),size=bounds.getSize(new THREE.Vector3()),center=bounds.getCenter(new THREE.Vector3());const scale=2.12/size.y;clone.scale.setScalar(scale);clone.position.set(-center.x*scale,1-center.y*scale,-center.z*scale);}return clone},[model,toy.id]);const shellClone=useMemo(()=>shell?.scene.clone(true),[shell]);
  const mixer=useMemo(()=>shellClone?new THREE.AnimationMixer(shellClone):null,[shellClone]);
  useEffect(()=>{t.current=0;if(opened&&mixer&&shell){const clip=shell.animations.find(c=>c.name==='shell_open');if(clip){const a=mixer.clipAction(clip);a.reset().setLoop(THREE.LoopOnce,1);a.clampWhenFinished=true;a.play()}}return()=>{mixer?.stopAllAction()}},[opened,mixer,shell]);
@@ -75,6 +80,10 @@ function RevealObjects({toy,opened,decision,reduced,onReady,onError}:{toy:Toy;op
   <group ref={group} visible={opened&&!!modelClone} scale={0}>{modelClone&&<group scale={toy.id==='jimao'?1.25:1}><primitive object={modelClone}/></group>}</group>
  </>
 }
-export function RevealScene(props:{toy:Toy;opened:boolean;decision:Phase;reduced:boolean;onReady:()=>void;onError:()=>void}){
- return <Canvas dpr={[1,1.6]} camera={{position:[.1,1.1,5.7],fov:32}} gl={{alpha:true,antialias:true}} onCreated={({camera})=>{camera.lookAt(0,.45,0)}}><Studio reveal/><RevealObjects {...props}/></Canvas>
+class RevealBoundary extends Component<{children:ReactNode;onError:()=>void},{failed:boolean}>{
+ state={failed:false};static getDerivedStateFromError(){return {failed:true}};componentDidCatch(){this.props.onError()};
+ render(){return this.state.failed?<span className="reveal-render-error" role="status">三维画面暂时未能显示，仍可以打开这枚扭蛋。</span>:this.props.children;}
+}
+export function RevealScene(props:RevealProps){
+ return <RevealBoundary onError={props.onError}><Canvas dpr={[1,1.6]} camera={{position:[.1,1.1,5.7],fov:32}} gl={{alpha:true,antialias:true}} onCreated={({camera})=>{camera.lookAt(0,.45,0)}}><Studio reveal/><RevealObjects {...props}/></Canvas></RevealBoundary>
 }

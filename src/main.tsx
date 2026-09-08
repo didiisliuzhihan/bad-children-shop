@@ -1,6 +1,7 @@
 import React from 'react';
 import {createRoot} from 'react-dom/client';
-import App from './App';
+import {AccountProvider} from './components/AccountProvider';
+import {CommunityShop} from './components/CommunityShop';
 import './styles.css';
 import './v3.css';
 import './v4.css';
@@ -8,4 +9,4 @@ import './v5.css';
 import './collection-room.css';
 import {questPreview} from './lib/useToyQuest';
 import {CollectionPreview} from './components/CollectionPreview';
-createRoot(document.getElementById('root')!).render(<React.StrictMode>{questPreview?<CollectionPreview/>:<App/>}</React.StrictMode>);
+createRoot(document.getElementById('root')!).render(<React.StrictMode>{questPreview?<CollectionPreview/>:<AccountProvider><CommunityShop/></AccountProvider>}</React.StrictMode>);

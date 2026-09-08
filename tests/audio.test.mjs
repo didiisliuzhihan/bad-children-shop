@@ -1,17 +1,19 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-const started=[],contexts=[],media=[];let resumeAllowed=false,denyPending=false;
+const started=[],contexts=[],media=[],recordings=[];let resumeAllowed=false,denyPending=false;
 const parameter=()=>({value:0,cancelScheduledValues(){},setValueAtTime(v){this.value=v},exponentialRampToValueAtTime(v){this.value=v},setTargetAtTime(v){this.value=v}});
 class FakeContext extends EventTarget{
  constructor(){super();this.state='suspended';this.currentTime=0;this.destination={};this.sampleRate=44100;this.gains=[];this.sources=[];contexts.push(this)}
  createGain(){const g={gain:parameter(),connect(to){this.to=to},disconnect(){}};this.gains.push(g);return g}
  createMediaElementSource(a){assert.equal(a.crossOriginAtSrc,'anonymous');assert(!this.sources.some(s=>s.media===a),'Never reconnect the same element twice');const s={media:a,connect(to){this.to=to},disconnect(){this.disconnected=true}};this.sources.push(s);return s}
  createOscillator(){const c=this;return {frequency:parameter(),connect(){},disconnect(){},start(){started.push(c.state)},stop(){},onended:null}}
- createBuffer(){return {}}
- createBufferSource(){return {connect(){},disconnect(){},start(){},buffer:null,onended:null}}
+ createBuffer(_channels=1,length=1){return {getChannelData:()=>new Float32Array(length)}}
+ createBufferSource(){return {connect(){},disconnect(){},stop(){this.stopped=true},start(){if(this.loop)recordings.push(this)},buffer:null,onended:null}}
+ async decodeAudioData(){return {duration:11.34}}
  async resume(){if(!resumeAllowed){if(denyPending)return new Promise(()=>{});throw Error('Gesture rejected')}await new Promise(r=>setTimeout(r,5));this.run()}
  run(){this.state='running';this.dispatchEvent(new Event('statechange'));this.onstatechange?.()}
 }
 globalThis.AudioContext=FakeContext;globalThis.window={AudioContext:FakeContext};
+globalThis.fetch=async()=>({ok:true,arrayBuffer:async()=>new ArrayBuffer(8)});
 Object.defineProperty(navigator,'audioSession',{configurable:true,value:{type:'auto'}});
 globalThis.Audio=class{
  paused=true;muted=false;fail=false;
@@ -32,17 +34,17 @@ test('first sound waits for unlock; a later release gesture can recover',async()
 });
 test('iOS ignores media volume: shared GainNodes still attenuate BGM and voice',async()=>{
  await audio.startBackground('test-bgm.wav');const bgm=media.at(-1),c=contexts.at(-1);
- const [master,effects,music,voice]=c.gains;assert.equal(master.gain.value,1);assert.equal(effects.gain.value,.55);assert.equal(music.gain.value,.08);
+ const [master,effects,music,voice]=c.gains;assert.equal(master.gain.value,1);assert.equal(effects.gain.value,.55);assert.equal(music.gain.value,.24);
  assert.equal(bgm.volume,1);assert.equal(c.sources[0].to,music);assert.equal(music.to,master);assert.equal(effects.to,master);
- await audio.playVoice('test-story.mp3',()=>{});assert.equal(music.gain.value,.025);assert.equal(voice.gain.value,.75);assert.equal(c.sources.at(-1).to,voice);
- await audio.startBackground('test-bgm.wav');assert.equal(music.gain.value,.025);assert.equal(c.sources.length,2);
- audio.stopVoice();assert.equal(music.gain.value,.08);assert(c.sources.at(-1).disconnected);
+ await audio.playVoice('test-story.mp3',()=>{});assert.equal(music.gain.value,.05);assert.equal(voice.gain.value,.75);assert.equal(c.sources.at(-1).to,voice);
+ await audio.startBackground('test-bgm.wav');assert.equal(music.gain.value,.05);assert.equal(c.sources.length,2);
+ audio.stopVoice();assert.equal(music.gain.value,.24);assert(c.sources.at(-1).disconnected);
  audio.setMuted(true);assert.equal(master.gain.value,0);assert(bgm.muted);audio.setMuted(false);assert.equal(master.gain.value,1);assert(!bgm.muted);
 });
 test('failed story restores music and stale voice events do not stop a newer story',async()=>{
- let ended=0;await assert.rejects(audio.playVoice('fail.mp3',()=>ended++));assert.equal(ended,1);assert.equal(contexts.at(-1).gains[2].gain.value,.08);
+ let ended=0;await assert.rejects(audio.playVoice('fail.mp3',()=>ended++));assert.equal(ended,1);assert.equal(contexts.at(-1).gains[2].gain.value,.24);
  const first=await audio.playVoice('first.mp3',()=>ended++);const second=await audio.playVoice('second.mp3',()=>ended++);
- first.onended();assert.equal(second.paused,false);assert.equal(ended,1);second.onended();assert.equal(ended,2);assert.equal(contexts.at(-1).gains[2].gain.value,.08);
+ first.onended();assert.equal(second.paused,false);assert.equal(ended,1);second.onended();assert.equal(ended,2);assert.equal(contexts.at(-1).gains[2].gain.value,.24);
 });
 test('a pending WebKit resume does not block the next gesture or hang forever',async()=>{
  contexts.at(-1).state='suspended';resumeAllowed=false;denyPending=true;const pending=audio.unlockAudio();
@@ -50,7 +52,7 @@ test('a pending WebKit resume does not block the next gesture or hang forever',a
 });
 test('closed audio context rebuilds media routing without duplicate or full-volume playback',async()=>{
  contexts.at(-1).state='closed';const old=media.find(a=>a.src==='test-bgm.wav');await audio.startBackground('test-bgm.wav');await tick();
- assert(old.paused);const c=contexts.at(-1);assert.equal(c.sources.length,1);assert.equal(c.sources[0].to,c.gains[2]);assert.equal(c.gains[2].gain.value,.08);
+ assert(old.paused);const c=contexts.at(-1);assert.equal(c.sources.length,1);assert.equal(c.sources[0].to,c.gains[2]);assert.equal(c.gains[2].gain.value,.24);
 });
 test('unsupported playback session override cannot break audio',async()=>{
  Object.defineProperty(navigator,'audioSession',{configurable:true,get(){throw Error('Not supported')}});
@@ -65,6 +67,21 @@ test('permanently blocked audio returns false but has no gameplay decision autho
  const c=contexts.at(-1);c.state='suspended';resumeAllowed=false;denyPending=true;assert.equal(await audio.unlockAudio(),false);resumeAllowed=true;denyPending=false;c.run();
 });
 test('new unlock and wipe effects use the existing mixer and respect mute',async()=>{
- const before=started.length;audio.sound('unlock');audio.sound('wipe');assert.equal(started.length,before+4);assert.equal(contexts.at(-1).gains[1].gain.value,.55);assert.equal(contexts.at(-1).gains[2].gain.value,.08);
+ const before=started.length;audio.sound('unlock');audio.sound('wipe');assert.equal(started.length,before+4);assert.equal(contexts.at(-1).gains[1].gain.value,.55);assert.equal(contexts.at(-1).gains[2].gain.value,.24);
  audio.setMuted(true);audio.sound('unlock');audio.sound('wipe');assert.equal(started.length,before+4);audio.setMuted(false);
+});
+test('home cooking uses effects volume, pauses BGM, and ducks only under toy speech',async()=>{
+ const context=contexts.at(-1);context.createBiquadFilter=()=>({type:'',frequency:parameter(),Q:parameter(),connect(){},disconnect(){}});
+ const busIndex=context.gains.length,before=recordings.length;audio.setNestAmbience(true,'room');await tick();const bus=context.gains[busIndex];
+ assert.equal(bus.to,context.gains[0]);assert.equal(bus.gain.value,context.gains[1].gain.value);assert.equal(context.gains[2].gain.value,0);assert.equal(recordings.length,before+1,'Recording starts after decode, with no random delay');
+ const bgm=media.filter(a=>a.src==='test-bgm.wav').at(-1);assert(bgm.paused);
+ await audio.startBackground('test-bgm.wav');assert(bgm.paused,'A room gesture must not restart BGM');
+ await audio.playVoice('nest-voice.mp3',()=>{});assert.equal(bus.gain.value,.14);assert.equal(context.gains[2].gain.value,0);
+ audio.stopVoice();assert.equal(bus.gain.value,.55);assert.equal(context.gains[2].gain.value,0);
+ audio.setNestAmbience(false);assert.equal(bus.gain.value,.55,'Inactive toy scenes cannot silence the room');
+ audio.setMuted(true);assert.equal(bus.gain.value,0);assert.equal(context.gains[0].gain.value,0);
+ audio.setMuted(false);assert.equal(bus.gain.value,.55);
+ context.state='suspended';context.onstatechange();assert.equal(bus.gain.value,0);const suspendedCount=recordings.length;
+ context.run();assert(recordings.length>suspendedCount,'Audio resume restores the recording');
+ audio.setNestAmbience(false,'room');assert.equal(bus.gain.value,0);assert.equal(context.gains[2].gain.value,.24);assert(!bgm.paused);
 });
