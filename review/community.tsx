@@ -4,6 +4,7 @@ import App from '../src/App';
 import {fallbackToys} from '../src/assets';
 import {AccountProvider} from '../src/components/AccountProvider';
 import {AccountMenu} from '../src/components/AccountMenu';
+import {AccountSyncNotice} from '../src/components/AccountSyncNotice';
 import {useAccount} from '../src/lib/AccountContext';
 import {QUEST_KEY,QUEST_WAIT_MS,updateQuest} from '../src/lib/questProgress.mjs';
 import type {Capsule} from '../src/types';
@@ -28,7 +29,7 @@ function Preview(){
   const result:AccountDraw={id:request.current,type:'toy',toyId:fallbackToys[Math.floor(Math.random()*fallbackToys.length)].id};request.current=null;return result;
  };
  const keep=async(draw:AccountDraw)=>{
-  if(account.profile){await account.homeLife!('keep',{requestId:draw.id});await account.reload();}
+  if(account.profile){await account.homeLife!('keep',{requestId:draw.id});}
   else if(draw.toyId)setGuest(items=>items.some(c=>c.id===draw.id)?items:[{id:draw.id,toy_id:draw.toyId!,obtained_at:new Date().toISOString(),synced:false},...items]);
  };
  const reject=async(draw:AccountDraw)=>{if(account.profile)await account.homeLife!('reject',{requestId:draw.id});};
@@ -37,4 +38,4 @@ function Preview(){
 }
 // No anonymous production client is initialized anywhere in this preview.
 startPerformanceProbe();
-createRoot(document.getElementById('root')!).render(<React.StrictMode><AccountProvider><Preview/></AccountProvider></React.StrictMode>);
+createRoot(document.getElementById('root')!).render(<React.StrictMode><AccountProvider><Preview/><AccountSyncNotice/></AccountProvider></React.StrictMode>);

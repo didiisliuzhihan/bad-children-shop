@@ -7,8 +7,11 @@ export type AccountProfile={user_id:string;nickname:string;created_at:string};
 export type AccountDocument={key:string;value:any;revision:number;updated_at:string};
 export type AccountSnapshot={profile:AccountProfile;capsules:Capsule[];documents:Record<string,AccountDocument>;stories?:PrivateStory[];receivedPostcards?:ReceivedPostcard[]};
 export type AccountState={
+ persistence?:'device';
  profile:AccountProfile|null;capsules:Capsule[];documents:Record<string,AccountDocument>;stories?:PrivateStory[];receivedPostcards?:ReceivedPostcard[];
  status:'loading'|'ready'|'signed-out'|'error';error:string;
+ syncError?:string;
+ mediaUrls?:(paths:string[])=>Promise<{expiresAt:number;urls:{path:string;url:string|null}[]}>;
  authenticate:(mode:'register'|'login'|'recover',name:string,password:string,code?:string)=>Promise<string|undefined>;
  logout:()=>Promise<void>;reload:()=>Promise<void>;
  saveDocument:(key:'nest'|'postcards',value:unknown,revision?:number)=>Promise<void>;
@@ -21,4 +24,3 @@ export type AccountState={
 };
 export const AccountContext=createContext<AccountState|null>(null);
 export const useAccount=()=>useContext(AccountContext);
-

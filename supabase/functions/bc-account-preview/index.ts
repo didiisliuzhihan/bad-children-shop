@@ -2,6 +2,7 @@ import {createClient} from 'npm:@supabase/supabase-js@2.115.0';
 import {accountName,accountPassword,recoveryToken,validCapsules,safeDocument} from './accountContract.mjs';
 import {validateLayout,NEST_ROOM_ID} from './nestPlacement.mjs';
 import {readAllCapsules} from './readAllCapsules.mjs';
+import {isConfirmedDocumentRetry} from './documentRetry.mjs';
 
 const url=Deno.env.get('SUPABASE_URL')!;
 const secrets=JSON.parse(Deno.env.get('SUPABASE_SECRET_KEYS')||'{}');
@@ -76,14 +77,19 @@ async function recover(name:{canonical:string;display:string},password:string,co
  await admin.auth.admin.signOut(result.session.access_token,'others');
  return {...result,recoveryCode:nextCode};
 }
-async function load(uid:string){
+function describeMedia(media:any,uid:string){
+ if(!media)return null;
+ if(!ownMediaPath(media.storagePath,uid)||(media.posterStoragePath&&!ownMediaPath(media.posterStoragePath,uid)))throw new ApiError(500,'照片归属需要检查。');
+ return {...media,url:'',posterUrl:undefined};
+}
+async function load(uid:string,deferMedia=false){
  const [profile,capsules,documents]=await Promise.all([admin.from('bc_account_profiles').select('user_id,nickname,created_at').eq('user_id',uid).single(),readAllCapsules((after:string|undefined,size:number)=>{let q=admin.from('bc_account_capsules').select('id,toy_id,obtained_at').eq('user_id',uid).order('id').limit(size);if(after)q=q.gt('id',after);return q}),admin.from('bc_account_documents').select('key,value,revision,updated_at').eq('user_id',uid)]);
  check(profile.error||documents.error);
  capsules.sort((a:any,b:any)=>b.obtained_at.localeCompare(a.obtained_at)||a.id.localeCompare(b.id));
  const docs=Object.fromEntries((documents.data||[]).map(d=>[d.key,d]));
- if(docs.postcards)for(const card of docs.postcards.value.drafts||[]){if(card.media?.storagePath){const path=card.media.storagePath;if(!ownMediaPath(path,uid))throw new ApiError(500,'明信片记录需要检查。');const signed=await admin.storage.from(bucket).createSignedUrl(path,3600);check(signed.error);card.media.url=signed.data!.signedUrl;if(card.media.posterStoragePath){if(!ownMediaPath(card.media.posterStoragePath,uid))throw new ApiError(500,'封面记录需要检查。');const poster=await admin.storage.from(bucket).createSignedUrl(card.media.posterStoragePath,3600);check(poster.error);card.media.posterUrl=poster.data!.signedUrl}}}
+ if(docs.postcards)for(const card of docs.postcards.value.drafts||[]){if(card.media?.storagePath){if(deferMedia){card.media=describeMedia(card.media,uid);continue;}const path=card.media.storagePath;if(!ownMediaPath(path,uid))throw new ApiError(500,'明信片记录需要检查。');const signed=await admin.storage.from(bucket).createSignedUrl(path,3600);check(signed.error);card.media.url=signed.data!.signedUrl;if(card.media.posterStoragePath){if(!ownMediaPath(card.media.posterStoragePath,uid))throw new ApiError(500,'封面记录需要检查。');const poster=await admin.storage.from(bucket).createSignedUrl(card.media.posterStoragePath,3600);check(poster.error);card.media.posterUrl=poster.data!.signedUrl}}}
  const stories=await admin.from('bc_nest_stories').select('id,text,created_at,media').eq('user_id',uid).not('collected_at','is',null).order('collected_at',{ascending:false});check(stories.error);
- const privateStories=[];for(const row of stories.data||[]){privateStories.push({id:row.id,source:'nest',text:row.text,createdAt:row.created_at,media:await signStoryMedia(row.media,uid)});}
+ const privateStories=[];for(const row of stories.data||[]){privateStories.push({id:row.id,source:'nest',text:row.text,createdAt:row.created_at,media:deferMedia?describeMedia(row.media,uid):await signStoryMedia(row.media,uid)});}
  return {profile:profile.data,capsules,documents:docs,stories:privateStories};
 }
 async function signStoryMedia(media:any,uid:string){
@@ -145,17 +151,35 @@ Deno.serve(async req=>{
    return reply(200,action==='recover'?await recover(name,password,recoveryToken(data.code)):await issue(name,password,action==='register'));
   }
   const auth=await verified(req);await limited('api:'+auth.uid,500);
-  if(action==='load')return reply(200,await load(auth.uid));
+  if(action==='load')return reply(200,await load(auth.uid,data.deferMedia===true));
+  if(action==='media'){
+   if(!Array.isArray(data.paths)||!data.paths.length||data.paths.length>24||data.paths.some((path:unknown)=>!ownMediaPath(path,auth.uid)))throw new ApiError(403,'只能查看自己的照片。');
+   const paths=[...new Set(data.paths)] as string[],signed=await admin.storage.from(bucket).createSignedUrls(paths,3600);check(signed.error);
+   return reply(200,{expiresAt:Date.now()+3600000,urls:(signed.data||[]).map(row=>({path:row.path,url:row.error?null:row.signedUrl}))});
+  }
   if(action==='life'){
    if(!['visit','start','complete','leave','draw','keep','reject'].includes(data.operation)||!Number.isInteger(data.revision??0))throw new ApiError(400,'小窝操作不正确。');
    const uuid=(v:unknown)=>typeof v==='string'&&/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(v);
    if((data.requestId&&!uuid(data.requestId))||(data.lease&&!uuid(data.lease)))throw new ApiError(400,'小窝记录无法识别。');
    const result=await admin.rpc('bc_nest_step',{p_user:auth.uid,p_action:data.operation,p_request:data.requestId||null,p_revision:data.revision??0,p_lease:data.lease||null});if(result.error?.message==='draw not found')throw new ApiError(404,'没有找到这枚扭蛋。');check(result.error);
    const value=result.data||{};
+   if(['keep','reject'].includes(data.operation)&&data.responseMode==='patch'){
+    // Confirm the committed choice, including idempotent retries. An already
+    // rejected draw must never become a successful keep acknowledgement.
+    const draw=await admin.from('bc_account_draws').select('resolved,kept,result').eq('id',data.requestId).eq('user_id',auth.uid).single();check(draw.error);
+    if(data.operation==='reject'){if(!draw.data.resolved||draw.data.kept)throw new ApiError(409,'这枚扭蛋已经收入卡包，不能再放回；可以再次确认收留。');return reply(200,{ok:true})}
+    if(!draw.data.resolved||!draw.data.kept)throw new ApiError(409,'这枚扭蛋已被放回，没有加入收藏。');
+    if(draw.data.result.type==='toy'){
+     const capsule=await admin.from('bc_account_capsules').select('id,toy_id,obtained_at').eq('id',data.requestId).eq('user_id',auth.uid).single();check(capsule.error);
+     return reply(200,{ok:true,patch:{ownerId:auth.uid,capsules:[capsule.data]}});
+    }
+    const story=await admin.from('bc_nest_stories').select('id,text,created_at,media').eq('id',draw.data.result.story.id).eq('user_id',auth.uid).not('collected_at','is',null).single();check(story.error);
+    return reply(200,{ok:true,patch:{ownerId:auth.uid,stories:[{id:story.data.id,source:'nest',text:story.data.text,createdAt:story.data.created_at,media:describeMedia(story.data.media,auth.uid)}]}});
+   }
    if(value.story?.id){
     // Draw results are idempotent snapshots; media may have arrived after that snapshot.
     const fresh=await admin.from('bc_nest_stories').select('media').eq('user_id',auth.uid).eq('id',value.story.id).single();check(fresh.error);
-    value.story.media=await signStoryMedia(fresh.data.media,auth.uid);
+    value.story.media=data.deferMedia===true?describeMedia(fresh.data.media,auth.uid):await signStoryMedia(fresh.data.media,auth.uid);
    }
    return reply(200,value);
   }
@@ -167,11 +191,13 @@ Deno.serve(async req=>{
    const known=await admin.from('toys').select('id');check(known.error);
    const items=validCapsules(data.items,(known.data||[]).map(t=>t.id));let legacy:string|null=null;
    if(data.legacyToken){const old=await admin.auth.getUser(data.legacyToken);if(old.error||!old.data.user?.is_anonymous)throw new ApiError(403,'旧收藏的身份没有验证通过。');legacy=old.data.user.id}
-   const imported=await admin.rpc('bc_account_import',{p_user:auth.uid,p_items:items,p_legacy:legacy});check(imported.error);return reply(200,{added:imported.data,...await load(auth.uid)});
+   const imported=await admin.rpc('bc_account_import',{p_user:auth.uid,p_items:items,p_legacy:legacy});check(imported.error);return reply(200,{added:imported.data,...await load(auth.uid,data.deferMedia===true)});
   }
   if(action==='quest'){
    if(typeof data.toyId!=='string'||!['save','unlock'].includes(data.operation))throw new ApiError(400,'任务操作不正确。');
-   const result=await admin.rpc('bc_account_quest',{p_user:auth.uid,p_toy:data.toyId,p_action:data.operation});if(result.error)throw new ApiError(409,'做完小任务，再回来看看它吧。');return reply(200,await load(auth.uid));
+   const result=await admin.rpc('bc_account_quest',{p_user:auth.uid,p_toy:data.toyId,p_action:data.operation});if(result.error)throw new ApiError(409,'做完小任务，再回来看看它吧。');
+   if(data.responseMode==='patch'){const doc=await admin.from('bc_account_documents').select('key,value,revision,updated_at').eq('user_id',auth.uid).eq('key','quests').single();check(doc.error);return reply(200,{patch:{ownerId:auth.uid,document:doc.data}})}
+   return reply(200,await load(auth.uid));
   }
   if(action==='save'){
    let value=safeDocument(data.key,data.value);if(!Number.isInteger(data.revision)||data.revision<0)throw new ApiError(400,'保存版本无法识别。');
@@ -192,9 +218,15 @@ Deno.serve(async req=>{
      return {id:d.id,source:'player',text:d.text.trim(),signature:d.signature.trim(),stampId:'shop-default',media,createdAt:new Date(d.createdAt).toISOString(),status:'local-draft'};
     })};
    }
-   const saved=await admin.rpc('bc_account_write',{p_user:auth.uid,p_key:data.key,p_value:value,p_revision:data.revision});check(saved.error);if(!saved.data?.length)throw new ApiError(409,'另一处刚保存了更新，这份修改没有覆盖它。请先重新载入再修改。');return reply(200,await load(auth.uid));
+   const saved=await admin.rpc('bc_account_write',{p_user:auth.uid,p_key:data.key,p_value:value,p_revision:data.revision});check(saved.error);
+   if(!saved.data?.length){
+    const current=await admin.from('bc_account_documents').select('key,value,revision,updated_at').eq('user_id',auth.uid).eq('key',data.key).maybeSingle();check(current.error);
+    if(!isConfirmedDocumentRetry(current.data,data.key,value,data.revision))throw new ApiError(409,'另一处刚保存了更新，这份修改没有覆盖它。请先重新载入再修改。');
+    saved.data=[current.data];
+   }
+   if(data.responseMode==='patch'){const {key,value,revision,updated_at}=saved.data[0];if(key==='postcards')for(const card of value.drafts||[])if(card.media?.storagePath)card.media=describeMedia(card.media,auth.uid);return reply(200,{patch:{ownerId:auth.uid,document:{key,value,revision,updated_at}}})}
+   return reply(200,await load(auth.uid));
   }
   throw new ApiError(400,'没有这个操作。');
  }catch(error){return reply(error instanceof ApiError?error.status:error instanceof Error&&!(error instanceof TypeError)?400:500,{error:error instanceof ApiError?error.message:error instanceof Error&&!(error instanceof TypeError)?error.message:'暂时没有处理成功，请稍后重试。'})}
 });
-

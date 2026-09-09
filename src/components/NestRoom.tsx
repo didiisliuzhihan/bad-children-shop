@@ -51,7 +51,7 @@ export function NestRoom({items,toys,active=true,soundActive=active,onOpen,onCar
  const save=async()=>{
   if(saving)return;
   if(account?.profile){
-   setSaving(true);try{await account.saveDocument('nest',{version:1,roomId:NEST_ROOM_ID,placements:visible},baseRevision);setPlacements(visible);setSaved(visible);setPersisted(true);setEditing(false);setSelected(null);setNotice('小窝已保存到你的账户。')}
+   setSaving(true);try{await account.saveDocument('nest',{version:1,roomId:NEST_ROOM_ID,placements:visible},baseRevision);setPlacements(visible);setSaved(visible);setPersisted(true);setEditing(false);setSelected(null);setNotice(account.persistence==='device'?'试玩布置已保存在此浏览器。':'小窝已保存到你的账户。')}
    catch(e){setNotice((e as Error).message)}finally{setSaving(false)}return;
   }
   if(!saveLayout({setItem:(key:string,value:string)=>localStorage.setItem(key,value)},visible,eligible)){setNotice('浏览器未能保存布置。可能是存储空间不足或禁用了网站存储；当前布置仍在，请先不要关闭页面。');return;}

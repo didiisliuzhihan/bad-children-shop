@@ -27,7 +27,7 @@ export function ToyRoom({toy,item,onClose,toast,returnLabel='扭蛋包'}:{toy:To
    </section>}
    <section className="room-companion" hidden={mobile&&pane==='model'}>
     {!mobile&&tabs(false)}
-    <div id="room-panel-card" role="tabpanel" aria-labelledby={'room-'+(mobile?'mobile-':'desktop-')+'card'} hidden={pane!=='card'}><CollectibleCard toy={toy} item={item} toast={toast} onConfirmSaved={quest.confirmSaved} questStage={quest.stage}/></div>
+    <div id="room-panel-card" role="tabpanel" aria-labelledby={'room-'+(mobile?'mobile-':'desktop-')+'card'} hidden={pane!=='card'}><CollectibleCard toy={toy} item={item} active={pane==='card'} toast={toast} onConfirmSaved={quest.confirmSaved} questStage={quest.stage}/></div>
     {pane==='story'&&<article id="room-panel-story" role="tabpanel" aria-labelledby={'room-'+(mobile?'mobile-':'desktop-')+'story'} className="room-story">
      <img className="room-story-photo" src={toy.story_image_url} alt={toy.name_zh+'的故事照片'}/>
      <div className="room-story-copy"><h2>{toy.name_zh}</h2><p className="room-name-en">{toy.name_en}</p><p className="room-story-caption">{toy.story_text}</p>{toy.story_note&&<p className="room-story-note">{toy.story_note}</p>}<button className="room-pill room-voice" aria-pressed={playing} onClick={listen}><Icon name={playing?'pause':'play'} size={17}/>{playing?'暂停故事':'听它说说话'}</button></div>

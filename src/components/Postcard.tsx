@@ -2,23 +2,28 @@ import {useEffect,useRef,useState} from 'react';
 import {defaultStamp} from '../lib/communityTypes';
 import type {PostcardMedia} from '../lib/postcardTypes';
 import {Icon} from './Icon';
+import {usePostcardMedia} from '../lib/usePostcardMedia';
 import '../postcard.css';
 
 export function PostcardMediaView({media,active=true}:{media:PostcardMedia;active?:boolean}){
+ const picture=usePostcardMedia(media,active),url=picture.media?.url,posterUrl=picture.media?.posterUrl;
+ const [loadedImage,setLoadedImage]=useState(''),imageKey=(url||'')+':'+picture.attempt;
+ const imageLoading=picture.loading||!!url&&media.kind!=='video'&&loadedImage!==imageKey&&!picture.error;
  const video=useRef<HTMLVideoElement>(null),[playing,setPlaying]=useState(false),[failed,setFailed]=useState(false),generation=useRef(0),allowed=useRef(active),mounted=useRef(false);allowed.current=active;
- useEffect(()=>{generation.current++;setPlaying(false);setFailed(false)},[media.id,media.url]);
+ useEffect(()=>{generation.current++;setPlaying(false);setFailed(false)},[media.id,url]);
  useEffect(()=>{if(!active){generation.current++;video.current?.pause();setPlaying(false)}},[active]);
- useEffect(()=>{mounted.current=true;const element=video.current,hide=()=>{if(document.hidden){generation.current++;element?.pause();setPlaying(false)}};document.addEventListener('visibilitychange',hide);return()=>{mounted.current=false;generation.current++;element?.pause();document.removeEventListener('visibilitychange',hide)}},[]);
+ useEffect(()=>{mounted.current=true;const element=video.current,hide=()=>{if(document.hidden){generation.current++;element?.pause();setPlaying(false)}};document.addEventListener('visibilitychange',hide);return()=>{mounted.current=false;generation.current++;element?.pause();document.removeEventListener('visibilitychange',hide)}},[url]);
  const toggle=async()=>{
   const token=++generation.current,element=video.current;
   if(playing){element?.pause();setPlaying(false);return}if(!active||document.hidden)return;setPlaying(true);
   if(media.kind==='video')try{await element?.play();if(!mounted.current||!allowed.current||document.hidden){element?.pause();return}}
   catch{if(token===generation.current&&mounted.current&&allowed.current){setPlaying(false);setFailed(true)}}
  };
- return <div className="postcard-media">
-  {media.kind==='video'?<video ref={video} src={media.url} poster={media.posterUrl} muted playsInline preload="metadata" onEnded={()=>setPlaying(false)} onPause={()=>setPlaying(false)} onError={()=>setFailed(true)} aria-label={media.label}/>:<img src={media.kind==='gif'&&!playing?(media.posterUrl||media.url):media.url} alt={media.label} onError={()=>setFailed(true)}/>}
-  {media.kind!=='photo'&&!failed&&<button className="postcard-motion-toggle" onClick={()=>void toggle()} aria-label={playing?'暂停影像':'播放影像'} aria-pressed={playing}><Icon name={playing?'pause':'play'} size={16}/><span>{playing?'暂停':media.kind==='gif'?'GIF':'动态'}<span className="postcard-motion-word"> · {playing?'留在这一刻':'点按播放'}</span></span></button>}
-  {failed&&<p className="postcard-media-error" role="status">这份影像暂时无法显示，请换一份试试。</p>}
+ return <div className="postcard-media" ref={picture.ref} aria-busy={imageLoading}>
+  {url&&(media.kind==='video'?<video key={picture.attempt} ref={video} src={url} poster={posterUrl} muted playsInline preload="none" onEnded={()=>setPlaying(false)} onPause={()=>setPlaying(false)} onError={picture.imageFailed} aria-label={media.label}/>:<img key={picture.attempt} src={media.kind==='gif'&&!playing?(posterUrl||url):url} alt={media.label} decoding="async" onLoad={()=>setLoadedImage(imageKey)} onError={picture.imageFailed}/>)}
+  {imageLoading&&<span className="postcard-media-loading" role="status">照片正在赶来…</span>}
+  {url&&media.kind!=='photo'&&!failed&&!picture.error&&<button className="postcard-motion-toggle" onClick={()=>void toggle()} aria-label={playing?'暂停影像':'播放影像'} aria-pressed={playing}><Icon name={playing?'pause':'play'} size={16}/><span>{playing?'暂停':media.kind==='gif'?'GIF':'动态'}<span className="postcard-motion-word"> · {playing?'留在这一刻':'点按播放'}</span></span></button>}
+  {(failed||picture.error)&&<div className="postcard-media-error" role="status"><span>影像暂时没有打开，不影响这张明信片的收藏。</span><button className="text-button" onClick={()=>{setFailed(false);picture.retry()}}>重试影像</button></div>}
  </div>;
 }
 
@@ -36,4 +41,3 @@ export function Postcard({source,text,signature='',media=null,stamped=false,date
   </div>
  </article>;
 }
-

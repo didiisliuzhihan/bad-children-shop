@@ -2,6 +2,17 @@ import type {Capsule,Toy} from '../types';
 import {ensureQuestFont,QUEST_FONT_FAMILY} from './questFont';
 
 export const CARD_SIZE={width:1080,height:1440};
+export const collectibleCardKey=(toy:Toy,item:Capsule)=>JSON.stringify([toy.id,toy.card_image_url,toy.icon_url,toy.name_zh,toy.name_en,toy.tagline_zh,toy.color,toy.number,new Date(item.obtained_at).toLocaleDateString('zh-CN')]);
+const exportsCache=new Map<string,{promise:Promise<Blob>;blob?:Blob}>();
+export function cachedCollectibleCard(key:string){return exportsCache.get(key)?.blob}
+export function prepareCollectibleCard(toy:Toy,item:Capsule):Promise<Blob>{
+ const key=collectibleCardKey(toy,item),existing=exportsCache.get(key);if(existing){exportsCache.delete(key);exportsCache.set(key,existing);return existing.promise}
+ const entry:{promise:Promise<Blob>;blob?:Blob}={promise:renderCollectibleCard(toy,item)};exportsCache.set(key,entry);
+ entry.promise=entry.promise.then(blob=>{entry.blob=blob;let bytes=[...exportsCache.values()].reduce((sum,value)=>sum+(value.blob?.size||0),0);
+  for(const [old,value] of exportsCache){if(exportsCache.size<=8&&bytes<=16*1024*1024)break;if(value.blob){bytes-=value.blob.size;exportsCache.delete(old)}}return blob;
+ }).catch(error=>{if(exportsCache.get(key)===entry)exportsCache.delete(key);throw error});return entry.promise;
+}
+
 const imageCache=new Map<string,Promise<HTMLImageElement>>();
 async function decodedImage(url:string):Promise<HTMLImageElement>{
   if(!imageCache.has(url))imageCache.set(url,(async()=>{
@@ -13,18 +24,30 @@ async function decodedImage(url:string):Promise<HTMLImageElement>{
         const response=await fetch(url,{mode:'cors',credentials:'omit',signal:abort.signal,cache:attempt?'reload':'default'});
         if(!response.ok)throw Error(`Image HTTP ${response.status}`);
         const blob=await response.blob();if(!blob.size)throw Error('Image is empty');
-        objectUrl=URL.createObjectURL(blob);const img=new Image();img.decoding='sync';img.src=objectUrl;
-        await img.decode();if(!img.naturalWidth||!img.naturalHeight)throw Error('Image has no pixels');
+        objectUrl=URL.createObjectURL(blob);const img=new Image();img.decoding='async';img.src=objectUrl;
+        await new Promise<void>((resolve,reject)=>{
+          const cancel=()=>reject(Error('Image decode timed out'));
+          if(abort.signal.aborted){cancel();return}abort.signal.addEventListener('abort',cancel,{once:true});
+          img.decode().then(resolve,reject).finally(()=>abort.signal.removeEventListener('abort',cancel));
+        });if(!img.naturalWidth||!img.naturalHeight)throw Error('Image has no pixels');
         return img;
       }catch(error){failure=error}
       finally{clearTimeout(timer);if(objectUrl)URL.revokeObjectURL(objectUrl)}
     }
     throw failure;
   })().catch(error=>{imageCache.delete(url);throw error}));
+  while(imageCache.size>6)imageCache.delete(imageCache.keys().next().value!);
   return imageCache.get(url)!;
 }
 function rounded(ctx:CanvasRenderingContext2D,x:number,y:number,w:number,h:number,r:number){
   ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();
+}
+function encodeCard(canvas:HTMLCanvasElement):Promise<Blob>{
+ return new Promise((resolve,reject)=>{
+  const timer=setTimeout(()=>reject(Error('PNG encoding timed out')),12000);
+  try{canvas.toBlob(blob=>{clearTimeout(timer);blob?.size?resolve(blob):reject(Error('PNG encoding failed'))},'image/png')}
+  catch(error){clearTimeout(timer);reject(error)}
+ });
 }
 function lines(ctx:CanvasRenderingContext2D,text:string,width:number){
   const result:string[]=[];let line='';
@@ -39,8 +62,8 @@ function fitFont(ctx:CanvasRenderingContext2D,text:string,max:number,min:number,
  * Image download and decode must succeed before any PNG can be offered to the user.
  */
 export async function renderCollectibleCard(toy:Toy,item:Capsule):Promise<Blob>{
-  const [img]=await Promise.all([decodedImage(toy.card_image_url||toy.icon_url),ensureQuestFont()]);
-  await Promise.race([document.fonts.ready,new Promise(resolve=>setTimeout(resolve,4000))]);
+  const [img]=await Promise.all([decodedImage(toy.card_image_url||toy.icon_url),ensureQuestFont(1800).catch(()=>{})]);
+  // A slow optional font cannot prevent viewing or exporting the actual card.
   const canvas=document.createElement('canvas');canvas.width=CARD_SIZE.width;canvas.height=CARD_SIZE.height;
   const ctx=canvas.getContext('2d');if(!ctx)throw Error('Canvas is unavailable');
   ctx.fillStyle='#f0f2ea';ctx.fillRect(0,0,1080,1440);
@@ -61,7 +84,7 @@ export async function renderCollectibleCard(toy:Toy,item:Capsule):Promise<Blob>{
     ctx.fillStyle='#284653';fitFont(ctx,statement,34,24,920,500);ctx.fillText(statement,80,1246);
     const quest=task.join('——').trim();ctx.fillStyle='#b84635';fitFont(ctx,quest,43,27,920,400,QUEST_FONT_FAMILY);ctx.fillText(quest,80,1312);
     ctx.font='400 25px Inter,sans-serif';ctx.fillStyle='#899b9d';ctx.fillText(new Date(item.obtained_at).toLocaleDateString('zh-CN'),80,1380);
-    return new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?.size?resolve(blob):reject(Error('PNG encoding failed')),'image/png'));
+    return encodeCard(canvas);
   }
   rounded(ctx,36,36,1008,790,42);ctx.fillStyle=color;ctx.fill();ctx.save();ctx.clip();
   const light=ctx.createRadialGradient(505,310,20,510,390,760);light.addColorStop(0,'rgba(255,255,255,.62)');light.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=light;ctx.fillRect(36,36,1008,790);
@@ -79,5 +102,5 @@ export async function renderCollectibleCard(toy:Toy,item:Capsule):Promise<Blob>{
   for(const line of lines(ctx,quest,910)){ctx.fillText(line,80,y);y+=62}
   if(y>1330)throw Error('Card copy is too long for this template');
   ctx.font='400 26px Inter,sans-serif';ctx.fillStyle='#899b9d';ctx.fillText(new Date(item.obtained_at).toLocaleDateString('zh-CN'),80,1365);
-  return new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?.size?resolve(blob):reject(Error('PNG encoding failed')),'image/png'));
+  return encodeCard(canvas);
 }

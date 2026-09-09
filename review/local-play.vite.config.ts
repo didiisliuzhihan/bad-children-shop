@@ -1,0 +1,5 @@
+import {defineConfig} from 'vite';import react from '@vitejs/plugin-react';import {viteSingleFile} from 'vite-plugin-singlefile';import {fileURLToPath} from 'node:url';
+export default defineConfig({root:fileURLToPath(new URL('.',import.meta.url)),base:'./',envDir:false,publicDir:false,
+ define:{'import.meta.env.VITE_SUPABASE_URL':JSON.stringify(''),'import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY':JSON.stringify(''),'import.meta.env.VITE_SUPABASE_ANON_KEY':JSON.stringify(''),'import.meta.env.VITE_ASSET_BASE_URL':JSON.stringify('')},
+ plugins:[{name:'embedded-draco-defaults',enforce:'pre',transform(code,id){if(id.endsWith('/loaders/DRACOLoader.js'))return code.replace(/new URL\( [^\n]+?\)\.toString\(\)/g,"''")}},react(),viteSingleFile({useRecommendedBuildConfig:false})],
+ build:{outDir:'../previews/local-play',emptyOutDir:false,assetsInlineLimit:0,cssCodeSplit:false,minify:true,target:'es2022',rolldownOptions:{input:fileURLToPath(new URL('local-play.html',import.meta.url)),output:{codeSplitting:false}}}});
