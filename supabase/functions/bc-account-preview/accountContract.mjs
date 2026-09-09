@@ -9,7 +9,7 @@ export function accountName(input){
  return {display,canonical};
 }
 export function accountPassword(input){
- if(typeof input!=='string'||Array.from(input).length<10||new TextEncoder().encode(input).length>72)throw Error('密码至少 10 个字符，最长 72 字节；可以用一句只有你记得的话。');
+ if(typeof input!=='string'||Array.from(input).length<6||new TextEncoder().encode(input).length>72)throw Error('密码至少 6 个字符，最长 72 字节。');
  return input;
 }
 export function recoveryToken(input){

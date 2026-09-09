@@ -21,7 +21,7 @@ import {createNestShadowSchedule} from '../lib/nestRenderBudget.mjs';
 import {installNestTouchInput} from '../lib/nestTouchInput';
 import '../nest-life.css';
 let rendererSequence=0;
-type SceneProps={toys:Toy[];placements:HomePlacement[];editing:boolean;active?:boolean;lifeReady?:boolean;selected:string|null;timeOfDay:NestTime;onSelect:(id:string|null)=>void;onMove:(id:string,x:number,z:number)=>void;onOpen:(id:string)=>void;onCapture?:(photo:CapturedNestPhoto)=>void};
+type SceneProps={toys:Toy[];placements:HomePlacement[];editing:boolean;active?:boolean;lifeReady?:boolean;selected:string|null;timeOfDay:NestTime;onSelect:(id:string|null)=>void;onMove:(id:string,x:number,z:number)=>void;onCapture?:(photo:CapturedNestPhoto)=>void};
 export function NestScene(props:SceneProps){
  const host=useRef<HTMLDivElement>(null),latest=useRef(props),api=useRef<{sync:()=>void;capture:(moment?:NestMoment)=>Promise<CapturedNestPhoto>}|null>(null);latest.current=props;
  const [capturing,setCapturing]=useState(false),[captureError,setCaptureError]=useState('');
@@ -69,11 +69,11 @@ export function NestScene(props:SceneProps){
   type NestPointer=Pick<PointerEvent,'pointerId'|'pointerType'|'clientX'|'clientY'|'isPrimary'|'button'|'preventDefault'>;
   let touchInput:ReturnType<typeof installNestTouchInput>|undefined;
   let gesture:{pointerId:number;pointerType:string;toyId:string;startX:number;startY:number;offset:THREE.Vector3;original:HomePlacement;editing:boolean}|null=null;
-  const cancelGesture=()=>{const previous=gesture;gesture=null;touchInput?.reset();if(previous?.editing){latest.current.onMove(previous.toyId,previous.original.x,previous.original.z);const model=actors.get(previous.toyId);if(model)model.position.set(previous.original.x,0,previous.original.z);selection.position.set(previous.original.x,.012,previous.original.z);}if(previous&&previous.pointerType!=='touch'&&canvas.hasPointerCapture(previous.pointerId))canvas.releasePointerCapture(previous.pointerId);canvas.style.cursor=latest.current.editing?'grab':'pointer';invalidate();};
+  const cancelGesture=()=>{const previous=gesture;gesture=null;touchInput?.reset();if(previous?.editing){latest.current.onMove(previous.toyId,previous.original.x,previous.original.z);const model=actors.get(previous.toyId);if(model)model.position.set(previous.original.x,0,previous.original.z);selection.position.set(previous.original.x,.012,previous.original.z);}if(previous&&previous.pointerType!=='touch'&&canvas.hasPointerCapture(previous.pointerId))canvas.releasePointerCapture(previous.pointerId);canvas.style.cursor=latest.current.editing?'grab':'auto';invalidate();};
   const sync=()=>{
    if(!alive)return;const state=latest.current;shadows.invalidate();if(state.active===false){cancelGesture();cancelAnimationFrame(raf);raf=0;return;}lighting.setMode(state.timeOfDay);invalidate();if(!roomReady)return;const wanted=new Set(state.placements.map(p=>p.toyId));
    if(gesture&&(!wanted.has(gesture.toyId)||gesture.editing!==state.editing))cancelGesture();
-   canvas.style.cursor=state.editing?'grab':'pointer';
+   canvas.style.cursor=state.editing?'grab':'auto';
    for(const [id,model] of actors)if(!wanted.has(id)){scene.remove(model);actors.delete(id);}for(const id of pending.keys())if(!wanted.has(id))pending.delete(id);
    let removedFailure=false;for(const id of failed)if(!wanted.has(id)){failed.delete(id);removedFailure=true;}if(removedFailure)setFailedIds([...failed]);
    for(const p of state.placements){
@@ -92,7 +92,9 @@ export function NestScene(props:SceneProps){
   };
   api.current={sync,capture};
   const down=(event:NestPointer)=>{
-   if(!roomReady||latest.current.active===false||!event.isPrimary||event.button!==0||gesture)return false;const point=floorPoint(raycaster,camera,canvas.getBoundingClientRect(),event.clientX,event.clientY);if(!point)return false;
+   // Visiting is for watching the residents. Only arrangement starts a mesh gesture;
+   // story bubbles have their own independent DOM button and remain interactive.
+   if(!latest.current.editing||!roomReady||latest.current.active===false||!event.isPrimary||event.button!==0||gesture)return false;const point=floorPoint(raycaster,camera,canvas.getBoundingClientRect(),event.clientX,event.clientY);if(!point)return false;
    scene.updateMatrixWorld(true);const hit=raycaster.intersectObjects([...actors.values()],true)[0],id=hit?.object.userData.toyId as string|undefined;
    if(!id){if(latest.current.editing&&event.pointerType!=='touch')latest.current.onSelect(null);return false;}const original=latest.current.placements.find(p=>p.toyId===id);if(!original)return false;
    gesture={pointerId:event.pointerId,pointerType:event.pointerType,toyId:id,startX:event.clientX,startY:event.clientY,original:{...original},offset:point.sub(new THREE.Vector3(original.x,0,original.z)),editing:latest.current.editing};
@@ -104,7 +106,7 @@ export function NestScene(props:SceneProps){
    const moved:HomePlacement[]=moveResident(latest.current.placements,gesture.toyId,point.x,point.z),next=moved.find(p=>p.toyId===gesture?.toyId);if(!next)return;
    latest.current={...latest.current,placements:moved};const model=actors.get(gesture.toyId);if(model)model.position.set(next.x,0,next.z);selection.position.set(next.x,.012,next.z);latest.current.onMove(gesture.toyId,next.x,next.z);invalidate();
   };
-  const up=(event:NestPointer)=>{if(!gesture||event.pointerType!==gesture.pointerType||event.pointerId!==gesture.pointerId)return;const completed=gesture;gesture=null;if(event.pointerType!=='touch'&&canvas.hasPointerCapture(event.pointerId))canvas.releasePointerCapture(event.pointerId);canvas.style.cursor=latest.current.editing?'grab':'pointer';if(!completed.editing&&Math.hypot(event.clientX-completed.startX,event.clientY-completed.startY)<7)latest.current.onOpen(completed.toyId);};
+  const up=(event:NestPointer)=>{if(!gesture||event.pointerType!==gesture.pointerType||event.pointerId!==gesture.pointerId)return;gesture=null;if(event.pointerType!=='touch'&&canvas.hasPointerCapture(event.pointerId))canvas.releasePointerCapture(event.pointerId);canvas.style.cursor=latest.current.editing?'grab':'auto';};
   // Touch owns its native stream while arranging; don't also process the
   // compatibility pointer stream (a browser may cancel it during a pan).
   const nativeTouch=(event:PointerEvent)=>event.pointerType==='touch'&&(latest.current.editing||!!gesture?.editing);
@@ -124,4 +126,3 @@ export function NestScene(props:SceneProps){
  useEffect(()=>api.current?.sync(),[props.placements,props.toys,props.editing,props.selected,props.timeOfDay,props.active]);
  return <><div className="nest-world" data-nest-mode={props.editing?'arrange':'visit'}><div ref={host} className="nest-world-canvas"/>{mood&&!props.editing&&!bubble&&<NestStatusBubble key={mood.id} mood={mood}/>}{bubble&&!props.editing&&<NestDialogueBubble key={bubble.id} bubble={bubble}/>}{roomLoading&&!failure&&<div className="nest-world-status" role="status">正在为小窝亮灯…</div>}{loading>0&&!failure&&<div className="nest-world-status" role="status">小住客正在走过来…</div>}{failedIds.length>0&&!failure&&<div className="nest-world-status" role="status">有 {failedIds.length} 只暂时没加载好。<button className="room-pill" onClick={()=>setRetry(n=>n+1)}>重试模型</button></div>}{(failure||roomFailure)&&<div className="nest-world-error" role="alert"><p>三维空间暂时没有打开，布置草稿仍在。</p><button className="room-pill" onClick={()=>setRetry(n=>n+1)}>重新打开</button></div>}</div>{life.error&&<p className="nest-life-status" role="status">{life.error}</p>}{props.onCapture&&<div className="nest-photo-actions"><span role="status">{captureError|| (props.editing?'退出布置后，可以拍下这一刻。':'')}</span><button className="room-pill" disabled={capturing||props.editing||roomLoading||roomFailure||failure||loading>0||failedIds.length>0} onClick={()=>void takePhoto()}><Icon name="camera" size={18}/>{capturing?'正在拍照…':'拍成明信片'}</button></div>}</>;
 }
-

@@ -34,7 +34,7 @@ export function AccountMenu({loginRequest=0}:{loginRequest?:number}={}){
    <form onSubmit={e=>void submit(e)}>
     <label>你的名字<input value={name} onChange={e=>setName(e.target.value)} autoComplete="username" maxLength={32} required placeholder="2–16 个字，名字不能重复" disabled={busy}/></label>
     {mode==='recover'&&<label>找回码<input value={code} onChange={e=>setCode(e.target.value)} autoComplete="off" spellCheck={false} required placeholder="备用钥匙上的那串字符" disabled={busy}/></label>}
-    <label>{mode==='recover'?'新密码':'密码'}<input type="password" value={password} onChange={e=>setPassword(e.target.value)} autoComplete={mode==='login'?'current-password':'new-password'} minLength={10} maxLength={72} required placeholder="至少 10 个字符，可以是一句话" disabled={busy}/></label>
+    <label>{mode==='recover'?'新密码':'密码'}<input type="password" value={password} onChange={e=>setPassword(e.target.value)} autoComplete={mode==='login'?'current-password':'new-password'} minLength={6} maxLength={72} required placeholder="至少 6 个字符" disabled={busy}/></label>
     <button className="room-pill account-primary" disabled={busy||account.status==='loading'} type="submit">{busy?'正在认钥匙…':mode==='register'?'给自己留一把钥匙':mode==='login'?'回到我的小窝':'换一把新钥匙'}<Icon name="arrow" size={17}/></button>
    </form>
    <div className="account-form-links">{mode!=='login'&&<button disabled={busy} onClick={()=>{setMode('login');setError('');setPassword('');setCode('')}}>已经住下了，去登录</button>}{mode!=='register'&&<button disabled={busy} onClick={()=>{setMode('register');setError('');setPassword('');setCode('')}}>第一次来，创建账户</button>}{mode!=='recover'&&<button disabled={busy} onClick={()=>{setMode('recover');setError('');setPassword('')}}>忘记密码了</button>}</div>

@@ -21,6 +21,12 @@ test('password checks never trim or truncate and enforce bcrypt byte limit',()=>
  assert.equal(accountPassword(phrase),phrase);assert.equal(accountPassword('密'.repeat(24)),'密'.repeat(24));
  for(const value of [undefined,'short','密'.repeat(25),'a'.repeat(73)])assert.throws(()=>accountPassword(value));
 });
+test('six-character passwords need no character mixture and match the Edge validator',()=>{
+ for(const value of ['abcxyz','123456','只要六个字符','😀'.repeat(6),' abcde'])assert.equal(accountPassword(value),value);
+ for(const value of ['12345','😀'.repeat(5)])assert.throws(()=>accountPassword(value),/至少 6 个字符/);
+ const passwordFunction=path=>read(path).match(/export function accountPassword\(input\)\{[\s\S]*?\n\}/)[0];
+ assert.equal(passwordFunction('src/lib/accountContract.mjs'),passwordFunction('supabase/functions/bc-account-preview/accountContract.mjs'));
+});
 test('one-time backup key can be pasted directly from the displayed or downloaded groups',()=>{
  const code='a0123456'.repeat(8);assert.equal(recoveryToken(code.toUpperCase().match(/.{8}/g).join(' - ')),code);
  for(const value of ['123','g'.repeat(64),null])assert.throws(()=>recoveryToken(value));
@@ -78,7 +84,7 @@ async function menuMarkup({profile=null,mode='register',rescue=''}={}){
  vm.runInNewContext(source,context);return renderToStaticMarkup(React.createElement(context.AccountMenu));
 }
 test('rendered account forms ask for username/password, never an email, and expose accessible recovery',async()=>{
- for(const mode of ['register','login','recover']){const markup=await menuMarkup({mode});assert(markup.includes('autoComplete="username"'));assert(markup.includes('type="password"'));assert(markup.includes('minLength="10"'));assert(!markup.includes('type="email"'));if(mode==='recover')assert(markup.includes('找回码'));}
+ for(const mode of ['register','login','recover']){const markup=await menuMarkup({mode});assert(markup.includes('autoComplete="username"'));assert(markup.includes('type="password"'));assert(markup.includes('minLength="6"'));assert(markup.includes('placeholder="至少 6 个字符"'));assert(!markup.includes('type="email"'));if(mode==='recover')assert(markup.includes('找回码'));}
 });
 test('rendered account nickname is escaped and backup key is shown as copyable ASCII groups',async()=>{
  const profile={nickname:'<script>alert(1)</script>',created_at:'2026-09-08T11:00:00Z'};

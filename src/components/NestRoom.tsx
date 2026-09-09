@@ -41,7 +41,6 @@ export function NestRoom({items,toys,active=true,soundActive=active,onOpen,onCar
  const ownedIds=residents.map(r=>r.toy.id);
  const visible=useMemo(()=>placements.filter(p=>eligible.includes(p.toyId)&&residents.some(r=>r.toy.id===p.toyId)),[placements,eligible,residents]);
  const dirty=JSON.stringify(placements)!==JSON.stringify(saved);
- const openId=useCallback((id:string)=>{const resident=residents.find(r=>r.toy.id===id);if(resident)onOpen(resident.toy,resident.item)},[residents,onOpen]);
  const move=useCallback((id:string,x:number,z:number)=>{setPlacements(previous=>moveResident(previous,id,x,z));setPersisted(false)},[]);
  const add=(id:string)=>{
   if(!eligible.includes(id)||!ownedIds.includes(id))return;const next=placeResident(visible,id,eligible);
@@ -61,9 +60,9 @@ export function NestRoom({items,toys,active=true,soundActive=active,onOpen,onCar
  const nudge=(dx:number,dz:number)=>{const p=visible.find(v=>v.toyId===selected);if(p)move(p.toyId,p.x+dx,p.z+dz);};
  const chosen=residents.find(r=>r.toy.id===selected&&visible.some(p=>p.toyId===selected));
  return <div className={"nest-room nest-room-spatial"+(saving?" is-saving":"")} data-nest-time={timeOfDay} data-nest-active={active} data-nest-audio={audioStatus} inert={saving} aria-busy={saving}>
-  <header className="nest-heading"><div><h2>我的小窝</h2><p>{editing?'选中一位小住客，拖到喜欢的位置。':timeOfDay==='night'?'把灯留着，陪小住客待一会儿。':'点点小住客，陪它待一会儿。'}</p></div><div className="nest-mode-actions"><div className="nest-time-switch" role="group" aria-label="小窝昼夜"><button aria-pressed={timeOfDay==='day'} onClick={()=>setTimeOfDay('day')}>白天</button><button aria-pressed={timeOfDay==='night'} onClick={()=>setTimeOfDay('night')}>夜晚</button></div>{editing?<><button className="room-pill" onClick={()=>{setPlacements(saved);setEditing(false);setSelected(null);setNotice('已回到上次保存的布置。')}}>取消</button><button className="room-pill nest-save" disabled={saving} onClick={()=>void save()}>{saving?'正在保存…':'保存布置'}</button></>:<button className="room-pill" onClick={()=>{setEditing(true);setSelected(null);setNotice('')}}>布置小窝</button>}</div></header>
-  {sceneVisited?<NestScene active={active} lifeReady={active&&!dirty&&(!account?.profile||baseRevision>0)&&!photo} toys={toys} placements={visible} editing={editing} selected={selected} timeOfDay={timeOfDay} onSelect={setSelected} onMove={move} onOpen={openId} onCapture={setPhoto}/>:<div className="nest-world nest-world-paused"/>}
-  <div className="nest-under-scene"><span>{editing?'按住玩具拖动 · 空白处上下滑动':'逛小窝 · 点击玩具查看详情'}</span><span>{account?.profile?(dirty?'尚未保存':'已连接账户 · 布置需点保存'):`游客 · ${dirty?'尚未保存':persisted?'已保存在此浏览器':'点保存后留在此浏览器'} · 不跨设备同步`}</span></div>
+  <header className="nest-heading"><div><h2>我的小窝</h2><p>{editing?'选中一位小住客，拖到喜欢的位置。':timeOfDay==='night'?'把灯留着，陪小住客待一会儿。':'陪小住客待一会儿。'}</p></div><div className="nest-mode-actions"><div className="nest-time-switch" role="group" aria-label="小窝昼夜"><button aria-pressed={timeOfDay==='day'} onClick={()=>setTimeOfDay('day')}>白天</button><button aria-pressed={timeOfDay==='night'} onClick={()=>setTimeOfDay('night')}>夜晚</button></div>{editing?<><button className="room-pill" onClick={()=>{setPlacements(saved);setEditing(false);setSelected(null);setNotice('已回到上次保存的布置。')}}>取消</button><button className="room-pill nest-save" disabled={saving} onClick={()=>void save()}>{saving?'正在保存…':'保存布置'}</button></>:<button className="room-pill" onClick={()=>{setEditing(true);setSelected(null);setNotice('')}}>布置小窝</button>}</div></header>
+  {sceneVisited?<NestScene active={active} lifeReady={active&&!dirty&&(!account?.profile||baseRevision>0)&&!photo} toys={toys} placements={visible} editing={editing} selected={selected} timeOfDay={timeOfDay} onSelect={setSelected} onMove={move} onCapture={setPhoto}/>:<div className="nest-world nest-world-paused"/>}
+  <div className="nest-under-scene"><span>{editing?'按住玩具拖动 · 空白处上下滑动':'逛小窝 · 有话想说时，点点「…」气泡'}</span><span>{account?.profile?(dirty?'尚未保存':'已连接账户 · 布置需点保存'):`游客 · ${dirty?'尚未保存':persisted?'已保存在此浏览器':'点保存后留在此浏览器'} · 不跨设备同步`}</span></div>
   {active&&audioStatus==='loading'&&<p className="nest-life-status" role="status">炉火声正在加载…</p>}
   {active&&(audioStatus==='blocked'||audioStatus==='muted')&&<p className="nest-life-status" role="status">{audioStatus==='muted'?'声音已关闭':'声音尚未开启'}，可点右上角喇叭打开。</p>}
   {active&&audioStatus==='error'&&<p className="nest-life-status" role="status">炉火声暂时没有加载成功。<button className="text-button" onClick={()=>void unlockAudio()}>重试炉火声</button></p>}
@@ -74,4 +73,3 @@ export function NestRoom({items,toys,active=true,soundActive=active,onOpen,onCar
   {active&&photo&&<NestPhotoDialog photo={photo} playerNickname={playerNickname} onClose={closePhoto}/>}
  </div>;
 }
-
