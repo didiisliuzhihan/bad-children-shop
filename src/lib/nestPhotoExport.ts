@@ -62,4 +62,3 @@ export async function renderNestKeepsake(input:NestKeepsakeInput):Promise<Blob>{
   return await canvasBlob(canvas,'image/png');
  }finally{decoded.release()}
 }
-

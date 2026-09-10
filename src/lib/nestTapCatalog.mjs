@@ -5,6 +5,8 @@ export const NEST_TAP_CLIPS=Object.freeze({
  stressed_jimao:[{file:'nest-tap-stressed-jimao.mp3',gain:1.192}],
  kuku_sunflower:[{file:'nest-tap-kuku.mp3',gain:.649}],
  jimao:[{file:'nest-tap-jimao.mp3',gain:.958}],
+ stock_gourd:[{file:'nest-tap-gourd-1.mp3',gain:.453}],
+ matcha_clown:[{file:'nest-tap-matcha-1.mp3',gain:.890},{file:'nest-tap-matcha-2.mp3',gain:.614},{file:'nest-tap-matcha-3.mp3',gain:.515}],
  stove:[{file:'nest-tap-stove.mp3',gain:3.589}],
  window:[{file:'nest-tap-window.mp3',gain:8.868}],
 });

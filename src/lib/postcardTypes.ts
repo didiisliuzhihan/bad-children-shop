@@ -6,4 +6,3 @@ export type PostcardMedia={
 export type NestSnapshot={id:string;media:PostcardMedia;createdAt:string;timeOfDay:'day'|'night';residentIds:string[]};
 type DraftBase={id:string;text:string;media:PostcardMedia|null;createdAt:string;status:'local-draft'};
 export type PostcardDraft=(DraftBase&{source:'player';signature:string;stampId:string})|(DraftBase&{source:'nest';snapshotId:string;stampId?:never});
-

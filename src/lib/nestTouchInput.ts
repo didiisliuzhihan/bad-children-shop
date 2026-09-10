@@ -38,4 +38,3 @@ export function installNestTouchInput(canvas:HTMLElement,actions:TouchActions){
  canvas.addEventListener('touchcancel',cancel,{passive:true});
  return {reset,dispose(){cancel();canvas.removeEventListener('touchstart',start);canvas.removeEventListener('touchmove',move);canvas.removeEventListener('touchend',end);canvas.removeEventListener('touchcancel',cancel)}};
 }
-

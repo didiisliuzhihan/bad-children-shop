@@ -1,13 +1,22 @@
 import * as THREE from 'three';
 import {RESIDENT_BASE_RADIUS,RESIDENT_SCALE} from './nestPlacement.mjs';
+/** Speech sits above the character, not above the matcha's tall side balloon. */
+export function residentInteractionBounds(actor:THREE.Object3D){
+ if(actor.userData.toyId!=='matcha_clown')return new THREE.Box3().setFromObject(actor);
+ const box=new THREE.Box3();actor.traverse(o=>{if((o as THREE.Mesh).isMesh&&!o.userData.nestOverhead)box.expandByObject(o)});
+ return box.isEmpty()?new THREE.Box3().setFromObject(actor):box;
+}
 /** Shared world; source geometry/materials remain unchanged. */
 export function normalizeResident(source:THREE.Object3D,toyId:string){
  const clone=source.clone(true),group=new THREE.Group();group.name='resident-'+toyId;group.userData.toyId=toyId;group.add(clone);
  clone.updateMatrixWorld(true);const box=new THREE.Box3().setFromObject(clone),size=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3());
  if(box.isEmpty()||!Number.isFinite(size.length())||size.y<=0)throw Error('Empty model bounds');
- const heights:Record<string,number>={jimao:1.6,kuku_sunflower:1.95,stressed_jimao:2.1,miss_popcorn:2,tired_crow:1.9};
+ const heights:Record<string,number>={jimao:1.6,kuku_sunflower:1.95,stressed_jimao:2.1,miss_popcorn:2,tired_crow:1.9,matcha_clown:2.35,stock_gourd:2.05};
+ // Size the matcha body, not its high balloon. All old fits remain identical.
+ const bodyBox=new THREE.Box3();if(toyId==='matcha_clown')clone.traverse(o=>{if((o as THREE.Mesh).isMesh&&!o.userData.nestOverhead)bodyBox.expandByObject(o)});
+ if(!bodyBox.isEmpty()){bodyBox.getSize(size);bodyBox.getCenter(center);}
  // Apply 1.5× after the original fit, including wide toys whose footprint is the limit.
- const scale=Math.min((heights[toyId]||1.9)/size.y,(RESIDENT_BASE_RADIUS*2-.08)/Math.hypot(size.x,size.z))*RESIDENT_SCALE;
+ const scale=Math.min((heights[toyId]||1.9)/size.y,(RESIDENT_BASE_RADIUS*2-.08)/Math.hypot(size.x,size.z),toyId==='matcha_clown'?3.9/RESIDENT_SCALE/(box.max.y-box.min.y):Infinity)*RESIDENT_SCALE;
  clone.scale.multiplyScalar(scale);clone.position.multiplyScalar(scale);clone.position.sub(new THREE.Vector3(center.x*scale,box.min.y*scale,center.z*scale));
  clone.traverse(o=>{const mesh=o as THREE.Mesh;if(mesh.isMesh){mesh.castShadow=true;mesh.receiveShadow=true;mesh.userData.toyId=toyId;}});
  group.updateMatrixWorld(true);return group;

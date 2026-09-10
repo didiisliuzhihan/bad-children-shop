@@ -53,4 +53,3 @@ export function NestPhotoDialog({photo,playerNickname,onClose}:{photo:CapturedNe
   <p className="nest-photo-hint">仅供自己留念，不会投进扭蛋池。{!playerNickname?.trim()&&'未登录，暂用「一个坏小孩」作为昵称。'}</p>
  </Modal>;
 }
-

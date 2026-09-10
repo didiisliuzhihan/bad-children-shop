@@ -42,7 +42,8 @@ export function useNestLife(ready:boolean,placements:HomePlacement[],capture:(ev
      const e=pool[Math.floor(Math.random()*pool.length)];if(e)play({id:crypto.randomUUID(),kind:e.id});}
    }catch{if(live)setError('小住客正在安静待着，稍后再同步。');}
   };
-  const begin=()=>{if(ready&&visible){void poll();later(()=>void tryEvent(),owner?35000+Math.random()*15000:18000+Math.random()*9000);}};
+  const rehearsal=typeof location!=='undefined'&&['127.0.0.1','localhost'].includes(location.hostname)&&!!document.querySelector('meta[name="bc-resident-review"]');
+  const begin=()=>{if(ready&&visible){void poll();later(()=>void tryEvent(),rehearsal?3500:owner?35000+Math.random()*15000:18000+Math.random()*9000);}};
   const visibility=()=>{visible=!document.hidden;if(!visible){timers.forEach(clearTimeout);timers.clear();setMoment(null);eventActive=false;if(owner&&ready)void call('leave')?.catch(()=>{});}else begin();};
   const heartbeat=setInterval(()=>void poll(),20000),events=setInterval(()=>void tryEvent(),185000+Math.random()*35000);
   document.addEventListener('visibilitychange',visibility);begin();
@@ -50,4 +51,3 @@ export function useNestLife(ready:boolean,placements:HomePlacement[],capture:(ev
  },[ready,owner,revision,layout]);
  return {moment,trace,error:error||(account?.photoPending?'小窝照片正在等待补传，连上网络后会自动继续。':'')};
 }
-

@@ -31,7 +31,10 @@ export function createNestLifeVisuals(scene:THREE.Scene){
   for(const p of placements){const actor=actors.get(p.toyId);if(!actor)continue;const pose=idlePose(p.toyId,t,reduced.matches||editing);
    actor.position.set(p.x,pose.y,p.z);actor.rotation.set(0,p.rotation+pose.turn,pose.roll);
    if(!editing&&direction&&direction.actors.includes(p.toyId)){
-    const other=placements.find(v=>v.toyId!==p.toyId&&direction.actors.includes(v.toyId));if(other){const target=Math.atan2(other.x-p.x,other.z-p.z),delta=Math.atan2(Math.sin(target-p.rotation),Math.cos(target-p.rotation)),crowReply=direction.id==='soup'&&p.toyId==='tired_crow';const response=crowReply&&!reduced.matches?-eventEnvelope(elapsed-1.4)*.45:amount;actor.rotation.y+=THREE.MathUtils.clamp(delta,-.45,.45)*response;}
+    const behavior=(direction as {response?:string}).response;
+    const other=placements.find(v=>v.toyId!==p.toyId&&direction.actors.includes(v.toyId));if(other){const target=Math.atan2(other.x-p.x,other.z-p.z),delta=Math.atan2(Math.sin(target-p.rotation),Math.cos(target-p.rotation)),crowReply=(direction.id==='soup'||behavior==='ignore'||behavior==='bicker')&&p.toyId==='tired_crow';const response=crowReply&&!reduced.matches?(behavior==='bicker'&&elapsed>6?amount*.3:-eventEnvelope(elapsed-1.4)*.45):amount;actor.rotation.y+=THREE.MathUtils.clamp(delta,-.45,.45)*response;}
+    if(!reduced.matches&&behavior==='celebrate'){actor.rotation.z+=Math.sin(elapsed*3)*amount*.035;actor.position.y+=Math.max(0,Math.sin(elapsed*3))*amount*.026;}
+    if(behavior==='soften'){actor.rotation.z*=1-amount*.75;actor.rotation.y-=pose.turn*amount*.75;}
    }
   }
   const simmer=!editing&&(Math.sin(t*.21)>.05||(direction?.id==='soup'&&elapsed<5));
@@ -41,10 +44,12 @@ export function createNestLifeVisuals(scene:THREE.Scene){
   const key=!editing&&prop?prop.kind+':'+prop.toyId:'';
   if(key!==propKey){propKey=key;props.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();const index=geometry.indexOf(o.geometry);if(index>=0)geometry.splice(index,1);}});props.clear();if(prop&&key){
    if(prop.kind==='book'){const binding=mesh(new THREE.BoxGeometry(.52,.045,.34),cover,props);binding.position.y=.035;for(const x of [-.125,.125]){const page=mesh(new THREE.BoxGeometry(.24,.036,.30),paper,props);page.position.set(x,.072,0);page.rotation.z=x<0?.12:-.12;}}
+   else if(prop.kind==='memo'){const note=mesh(new THREE.BoxGeometry(.40,.018,.29),paper,props);note.position.y=.025;note.rotation.y=-.18;}
+   else if(prop.kind==='gift'){const parcel=mesh(new THREE.BoxGeometry(.31,.20,.28),paper,props);parcel.position.y=.11;const ribbon=mesh(new THREE.BoxGeometry(.045,.205,.285),cover,props);ribbon.position.y=.11;const band=mesh(new THREE.BoxGeometry(.315,.207,.045),cover,props);band.position.y=.11;}
    else {cup(props,prop.kind==='cups'?-.21:0);if(prop.kind==='cups')cup(props,.21);}
   }}
   if(prop&&key){const owner=placements.find(p=>p.toyId===prop.toyId);if(owner)props.position.set(owner.x,.025,owner.z+.67);}props.visible=!!key;
-  drinkSteam.forEach((s,i)=>{const q=(t*.25+i/3)%1;s.visible=!!key&&prop?.kind!=='book'&&!reduced.matches;s.position.copy(props.position).add(new THREE.Vector3(Math.sin(q*4)*.025,.25+q*.4,0));s.scale.setScalar(.12+q*.25);});
+  drinkSteam.forEach((s,i)=>{const q=(t*.25+i/3)%1;s.visible=!!key&&['cup','cups'].includes(prop?.kind||'')&&!reduced.matches;s.position.copy(props.position).add(new THREE.Vector3(Math.sin(q*4)*.025,.25+q*.4,0));s.scale.setScalar(.12+q*.25);});
   return {elapsed,speaker:!editing&&direction&&elapsed>=6?direction.speaker:null,line:direction?.line||'',pulse:editing||reduced.matches?1:1+Math.sin(t*2.1)*.035+Math.sin(t*5.7)*.015};
  }
  return {update,photoProps:()=>props.visible?props:undefined,elapsed:()=>momentId?(lastTime-start)/1000:0,dispose(){scene.remove(group);geometry.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());}};

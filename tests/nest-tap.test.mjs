@@ -12,9 +12,10 @@ function player(options={}){
  const destination={name:'master'},engine=createNestTapPlayer(context,destination,{load:async file=>{loads.push(file);return {duration:.2,file}},now:()=>clock.ms,...options});
  return {context,sources,gains,loads,clock,engine,destination};
 }
-test('10 supplied short recordings map to exactly 7 scene objects and use distinct release assets',()=>{
- assert.equal(Object.keys(NEST_TAP_CLIPS).length,7);assert.equal(NEST_TAP_FILES.length,10);assert.equal(new Set(NEST_TAP_FILES).size,10);
+test('14 supplied short recordings map to exactly 9 scene objects and use distinct release assets',()=>{
+ assert.equal(Object.keys(NEST_TAP_CLIPS).length,9);assert.equal(NEST_TAP_FILES.length,14);assert.equal(new Set(NEST_TAP_FILES).size,14);
  assert.equal(NEST_TAP_CLIPS.tired_crow.length,2);assert.equal(NEST_TAP_CLIPS.miss_popcorn.length,3);
+ assert.equal(NEST_TAP_CLIPS.stock_gourd.length,1);assert.equal(NEST_TAP_CLIPS.matcha_clown.length,3);
  for(const file of NEST_TAP_FILES){const bytes=fs.readFileSync(new URL('../assets/delivery/'+file,import.meta.url));assert(bytes.length>1000&&bytes.length<100000);}
  const assets=fs.readFileSync(new URL('../src/assets.ts',import.meta.url),'utf8'),pages=fs.readFileSync(new URL('../scripts/prepare-pages.mjs',import.meta.url),'utf8');
  assert(assets.includes('...NEST_TAP_FILES'));assert(pages.includes('...NEST_TAP_FILES'));
@@ -34,8 +35,8 @@ test('warm only enabled residents; playback is one-shot on its own bus, with cac
  h.sources[0].onended();h.clock.ms+=1000;assert.equal(await h.engine.play('tired_crow'),'played');assert.equal(h.loads.length,2);
  }finally{h.engine.dispose()}
 });
-test('both crow variants and all popcorn variants are reachable by independent random draws',async()=>{
- for(const [target,count] of [['tired_crow',2],['miss_popcorn',3]])for(let i=0;i<count;i++){
+test('all crow, popcorn, matcha and gourd clips are reachable by independent random draws',async()=>{
+ for(const [target,count] of [['tired_crow',2],['miss_popcorn',3],['matcha_clown',3],['stock_gourd',1]])for(let i=0;i<count;i++){
   const h=player({random:()=>i/count+.001});try{h.engine.setTargets([target]);await flush();assert.equal(await h.engine.play(target),'played');assert.equal(h.sources[0].buffer.file,NEST_TAP_CLIPS[target][i].file);}finally{h.engine.dispose()}
  }
 });

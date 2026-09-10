@@ -1,0 +1,50 @@
+[
+  {
+    "source": "assets/drafts/new-residents/toy_stock_gourd.glb",
+    "path": "assets/delivery/toy_stock_gourd.glb",
+    "bytes": 247240,
+    "sha256": "79c4ca062e28a29c3ede6d6fbec7caadc39ac2bceb9f0957ef3c5955f515b5ac"
+  },
+  {
+    "source": "assets/drafts/new-residents/gourd-office-card-original.png",
+    "path": "assets/delivery/gourd-office-card-original.png",
+    "bytes": 1827422,
+    "sha256": "294513a121edda1c1ae823bc262c9cd6c8af43ac24158730d71173a63103ee0e"
+  },
+  {
+    "source": "assets/drafts/new-residents/references/toy6-hulu-story.jpg",
+    "path": "assets/delivery/toy6-hulu-story.jpg",
+    "bytes": 1006695,
+    "sha256": "62b6188b9513ce1ff57143d6c6d71790a074ec1fa98ec8c6ce5d2b5438f743b4"
+  },
+  {
+    "source": "assets/drafts/new-residents/references/toy6-hulu-voice.mp3",
+    "path": "assets/delivery/toy6-hulu-voice.mp3",
+    "bytes": 169323,
+    "sha256": "9f4e78be4d57ce3055a40601d638699dd6c461abbdb45b41c9ec9b49c86251e2"
+  },
+  {
+    "source": "assets/drafts/new-residents/toy_matcha_clown.glb",
+    "path": "assets/delivery/toy_matcha_clown.glb",
+    "bytes": 198956,
+    "sha256": "b61cffd99f4e8b4babfba86de9d72c376376542fd2761a99b8463756c0a7db69"
+  },
+  {
+    "source": "assets/drafts/new-residents/matcha-card-original.png",
+    "path": "assets/delivery/matcha-card-original.png",
+    "bytes": 1784820,
+    "sha256": "0f8d13234ad9f20ed3dc035e7d918ef0cb8699ddee236f10573d0a092771264b"
+  },
+  {
+    "source": "assets/drafts/new-residents/references/toy7-matcha-story.jpg",
+    "path": "assets/delivery/toy7-matcha-story.jpg",
+    "bytes": 968297,
+    "sha256": "8b53b58bf4d385fa491e27e7f584caca551dea6747566193b9ca314397f01785"
+  },
+  {
+    "source": "assets/drafts/new-residents/references/toy7-matcha-voice.mp3",
+    "path": "assets/delivery/toy7-matcha-voice.mp3",
+    "bytes": 279664,
+    "sha256": "6aafa57216846e75dce71450392f79dcf28dcdd7940b2955f16973010cbec9eb"
+  }
+]

@@ -4,7 +4,7 @@ import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 import {asset,loadModel} from '../assets';
 import {viewerLighting} from '../lib/viewerLighting';
 import {cloneNestRoom,createNestLighting,type NestTime} from '../lib/nestLighting';
-import {floorPoint,frameNestCamera,normalizeResident} from '../lib/nestSceneGeometry';
+import {floorPoint,frameNestCamera,normalizeResident,residentInteractionBounds} from '../lib/nestSceneGeometry';
 import {moveResident,RESIDENT_RADIUS} from '../lib/nestPlacement.mjs';
 import type {Toy} from '../types';
 import type {HomePlacement} from '../lib/communityTypes';
@@ -22,6 +22,7 @@ import {installNestTouchInput} from '../lib/nestTouchInput';
 import {createNestTapInput} from '../lib/nestTapInput';
 import {isNestTapTarget,roomTapTarget} from '../lib/nestTapCatalog.mjs';
 import {setNestTapTargets,playNestTap} from '../lib/audio';
+import {createMatchaNightLight} from '../lib/matchaNightLight';
 import '../nest-life.css';
 let rendererSequence=0;
 type SceneProps={toys:Toy[];placements:HomePlacement[];editing:boolean;active?:boolean;lifeReady?:boolean;selected:string|null;timeOfDay:NestTime;onSelect:(id:string|null)=>void;onMove:(id:string,x:number,z:number)=>void;onCapture?:(photo:CapturedNestPhoto)=>void};
@@ -58,11 +59,12 @@ export function NestScene(props:SceneProps){
   const ringGeometry=new THREE.RingGeometry(RESIDENT_RADIUS-.035,RESIDENT_RADIUS,64),ringMaterial=new THREE.MeshBasicMaterial({color:'#527664',side:THREE.DoubleSide,transparent:true,opacity:.8});ownedGeometry.push(ringGeometry);ownedMaterials.push(ringMaterial);
   const selection=new THREE.Mesh(ringGeometry,ringMaterial);selection.rotation.x=-Math.PI/2;selection.position.y=.012;selection.visible=false;scene.add(selection);
   const actors=new Map<string,THREE.Group>(),pending=new Map<string,object>(),failed=new Set<string>();
+  const residentLights=new Map<string,NonNullable<ReturnType<typeof createMatchaNightLight>>>();
   const living=createNestLifeVisuals(scene),moods=createNestMoodSchedule();let lastFrame=0,lastBubble=0;
   const render=(now:number)=>{raf=0;if(alive&&latest.current.active!==false&&document.visibilityState!=='hidden'&&el.clientWidth&&el.clientHeight){
    if(latest.current.editing||now-lastFrame>=33){lastFrame=now;const state=latest.current,performance=living.update(now,actors,state.placements,state.editing,lifeRef.current.moment,lifeRef.current.trace);lighting.simmer(performance.pulse);
     if(now-lastBubble>150){lastBubble=now;const speaker=performance.speaker&&actors.get(performance.speaker);
-     const anchor=(actor:THREE.Group)=>{const box=new THREE.Box3().setFromObject(actor),point=box.getCenter(new THREE.Vector3());point.y=box.max.y+.12;point.project(camera);const edge=Math.min(45,125/el.clientWidth*100);return {x:Math.max(edge,Math.min(100-edge,(point.x+1)*50)),y:Math.max(18,Math.min(82,(1-point.y)*50))};};
+     const anchor=(actor:THREE.Group)=>{const box=residentInteractionBounds(actor),point=box.getCenter(new THREE.Vector3());point.y=box.max.y+.12;point.project(camera);const edge=Math.min(45,125/el.clientWidth*100);return {x:Math.max(edge,Math.min(100-edge,(point.x+1)*50)),y:Math.max(18,Math.min(82,(1-point.y)*50))};};
      if(speaker&&lifeRef.current.moment){setBubble({...anchor(speaker),line:performance.line,id:lifeRef.current.moment.id});}else setBubble(previous=>previous?null:previous);
      const feeling=moods.update(now,state.placements.map(p=>p.toyId).filter(id=>actors.has(id)),state.editing||!!lifeRef.current.moment),resident=feeling&&actors.get(feeling.toyId);
      if(feeling&&resident)setMood({...anchor(resident),kind:feeling.kind,id:feeling.id,leaving:feeling.leaving});else setMood(previous=>previous?null:previous);
@@ -84,12 +86,13 @@ export function NestScene(props:SceneProps){
    if(!alive)return;const state=latest.current;shadows.invalidate();if(state.active===false){cancelGesture();cancelAnimationFrame(raf);raf=0;return;}lighting.setMode(state.timeOfDay);invalidate();if(!roomReady)return;const wanted=new Set(state.placements.map(p=>p.toyId));
    if(gesture&&(!wanted.has(gesture.toyId)||gesture.editing!==state.editing))cancelGesture();
    canvas.style.cursor=state.editing?'grab':'auto';
-   for(const [id,model] of actors)if(!wanted.has(id)){scene.remove(model);actors.delete(id);}for(const id of pending.keys())if(!wanted.has(id))pending.delete(id);
+   for(const [id,model] of actors)if(!wanted.has(id)){residentLights.get(id)?.dispose();residentLights.delete(id);scene.remove(model);actors.delete(id);}for(const id of pending.keys())if(!wanted.has(id))pending.delete(id);
+   for(const light of residentLights.values())light.setMode(state.timeOfDay);
    let removedFailure=false;for(const id of failed)if(!wanted.has(id)){failed.delete(id);removedFailure=true;}if(removedFailure)setFailedIds([...failed]);
    for(const p of state.placements){
     const model=actors.get(p.toyId);if(model){model.position.set(p.x,0,p.z);model.rotation.y=p.rotation;continue;}if(pending.has(p.toyId)||failed.has(p.toyId))continue;
     const toy=state.toys.find(t=>t.id===p.toyId);if(!toy)continue;const token={};pending.set(p.toyId,token);
-    void loadModel(toy.model_url).then(g=>{if(!alive||pending.get(p.toyId)!==token)return;const current=latest.current.placements.find(entry=>entry.toyId===p.toyId);if(!current)return;const resident=normalizeResident(g.scene,p.toyId);actors.set(p.toyId,resident);scene.add(resident);pending.delete(p.toyId);sync();}).catch(()=>{if(!alive||pending.get(p.toyId)!==token)return;pending.delete(p.toyId);failed.add(p.toyId);setFailedIds([...failed]);sync();});
+    void loadModel(toy.model_url).then(g=>{if(!alive||pending.get(p.toyId)!==token)return;const current=latest.current.placements.find(entry=>entry.toyId===p.toyId);if(!current)return;const resident=normalizeResident(g.scene,p.toyId);const light=createMatchaNightLight(resident);if(light)residentLights.set(p.toyId,light);actors.set(p.toyId,resident);scene.add(resident);pending.delete(p.toyId);sync();}).catch(()=>{if(!alive||pending.get(p.toyId)!==token)return;pending.delete(p.toyId);failed.add(p.toyId);setFailedIds([...failed]);sync();});
    }
    setLoading(pending.size);selection.visible=state.editing&&!!state.selected&&actors.has(state.selected);const chosen=state.placements.find(p=>p.toyId===state.selected);if(chosen)selection.position.set(chosen.x,.012,chosen.z);invalidate();
   };
@@ -148,7 +151,7 @@ export function NestScene(props:SceneProps){
   const contextLost=(event:Event)=>{event.preventDefault();cancelGesture();setFailure(true)};
   canvas.addEventListener('pointerdown',pointerDown);canvas.addEventListener('pointermove',pointerMove);canvas.addEventListener('pointerup',pointerUp);canvas.addEventListener('pointercancel',cancel);canvas.addEventListener('lostpointercapture',cancel);canvas.addEventListener('webglcontextlost',contextLost);
   const observer=new ResizeObserver(resize);observer.observe(el);document.addEventListener('visibilitychange',visibility);window.addEventListener('blur',cancelGesture);resize();sync();
-  return()=>{alive=false;api.current=null;taps.cancel();canvas.removeEventListener('pointerdown',tapDown);canvas.removeEventListener('pointermove',tapMove);canvas.removeEventListener('pointerup',tapUp);canvas.removeEventListener('pointercancel',cancelTap);canvas.removeEventListener('touchstart',multiTouch);document.removeEventListener('scroll',cancelTap,true);window.removeEventListener('blur',cancelTap);touchInput?.reset();touchInput?.dispose();cancelAnimationFrame(raf);observer.disconnect();document.removeEventListener('visibilitychange',visibility);window.removeEventListener('blur',cancelGesture);canvas.removeEventListener('pointerdown',pointerDown);canvas.removeEventListener('pointermove',pointerMove);canvas.removeEventListener('pointerup',pointerUp);canvas.removeEventListener('pointercancel',cancel);canvas.removeEventListener('lostpointercapture',cancel);canvas.removeEventListener('webglcontextlost',contextLost);pending.clear();actors.clear();living.dispose();ownedGeometry.forEach(g=>g.dispose());ownedMaterials.forEach(m=>m.dispose());lighting.dispose();environment.dispose();renderer.dispose();renderer.forceContextLoss();canvas.remove();};
+  return()=>{alive=false;api.current=null;taps.cancel();canvas.removeEventListener('pointerdown',tapDown);canvas.removeEventListener('pointermove',tapMove);canvas.removeEventListener('pointerup',tapUp);canvas.removeEventListener('pointercancel',cancelTap);canvas.removeEventListener('touchstart',multiTouch);document.removeEventListener('scroll',cancelTap,true);window.removeEventListener('blur',cancelTap);touchInput?.reset();touchInput?.dispose();cancelAnimationFrame(raf);observer.disconnect();document.removeEventListener('visibilitychange',visibility);window.removeEventListener('blur',cancelGesture);canvas.removeEventListener('pointerdown',pointerDown);canvas.removeEventListener('pointermove',pointerMove);canvas.removeEventListener('pointerup',pointerUp);canvas.removeEventListener('pointercancel',cancel);canvas.removeEventListener('lostpointercapture',cancel);canvas.removeEventListener('webglcontextlost',contextLost);pending.clear();for(const light of residentLights.values())light.dispose();residentLights.clear();actors.clear();living.dispose();ownedGeometry.forEach(g=>g.dispose());ownedMaterials.forEach(m=>m.dispose());lighting.dispose();environment.dispose();renderer.dispose();renderer.forceContextLoss();canvas.remove();};
   // Cached GLTF geometry/materials are shared with the reveal/viewer, never disposed here.
  },[retry]);
  useEffect(()=>api.current?.sync(),[props.placements,props.toys,props.editing,props.selected,props.timeOfDay,props.active]);

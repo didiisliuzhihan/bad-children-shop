@@ -17,12 +17,12 @@ import type {Capsule,Phase,Toy} from './types';
 
 const phaseCopy:Partial<Record<Phase,string>>={IDLE:'向右滑动，遇见你的坏小孩',SPINNING:'抽取中…',LOCKING:'抽取中…',DROPPING:'扭蛋正在落下…',PAUSE:'准备开蛋…'};
 
-export type ShopPreview={items:Capsule[];mode:'local'|'cloud';owner?:string;nickname?:string;storyCount?:number;initialBag?:boolean;production?:boolean;extra:ReactNode;onDraw:()=>Promise<AccountDraw>;onKeep:(draw:AccountDraw)=>Promise<void>;onReject:(draw:AccountDraw)=>Promise<void>};
+export type ShopPreview={items:Capsule[];catalog?:Toy[];mode:'local'|'cloud';owner?:string;nickname?:string;storyCount?:number;initialBag?:boolean;production?:boolean;extra:ReactNode;onDraw:()=>Promise<AccountDraw>;onKeep:(draw:AccountDraw)=>Promise<void>;onReject:(draw:AccountDraw)=>Promise<void>};
 export default function App({preview}:{preview?:ShopPreview}={}){
   const[machine,setMachine]=useState<GLTF|null>(null),[loadPercent,setLoadPercent]=useState(0),[loadError,setLoadError]=useState(false),[retry,setRetry]=useState(0);
   const[phase,setPhase]=useState<Phase>('IDLE'),[drag,setDrag]=useState(0),[muted,setMuted]=useState(false);
   const[audioReady,setAudioReady]=useState(isAudioReady);
-  const[toys,setToys]=useState<Toy[]>(fallbackToys),[items,setItems]=useState<Capsule[]>(()=>preview?.items||readLocal()),[mode,setMode]=useState<'local'|'cloud'>(preview?.mode||'local');
+  const[toys,setToys]=useState<Toy[]>(preview?.catalog||fallbackToys),[items,setItems]=useState<Capsule[]>(()=>preview?.items||readLocal()),[mode,setMode]=useState<'local'|'cloud'>(preview?.mode||'local');
   const[bag,setBag]=useState(preview?.initialBag??!!preview),[guide,setGuide]=useState(false),[selected,setSelected]=useState<Toy|null>(null);
   const [drawResult,setDrawResult]=useState<AccountDraw|null>(null),[requesting,setRequesting]=useState(false),savingDraw=useRef(false),mounted=useRef(true);
   const ownerRef=useRef(preview?.owner);ownerRef.current=preview?.owner;

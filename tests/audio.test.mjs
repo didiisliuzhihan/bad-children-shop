@@ -115,3 +115,18 @@ test('actual shared mixer overlays one-shots without ducking/restarting fireplac
   audio.setMuted(true);assert(shots[1].stopped);assert.equal(await audio.playNestTap('tired_crow'),'cancelled');audio.setMuted(false);assert.equal(shots.length,2,'Unmute never replays old one-shots');
  }finally{audio.setNestTapTargets([],file=>file);audio.setNestAmbience(false,'room');c.createBufferSource=create;}
 });
+
+test('new gourd and matcha taps leave the existing ASMR loop and all music/voice levels untouched',async()=>{
+ const c=contexts.at(-1);
+ try{
+  audio.setNestAmbience(true,'new-resident-test');await tick();
+  const loop=recordings.at(-1),count=recordings.length,mediaCount=media.length,levels=c.gains.slice(0,4).map(g=>g.gain.value);
+  const ambience=c.gains.find(g=>g.to===c.gains[0]&&g.gain.value===.55),level=ambience.gain.value;
+  for(const id of ['stock_gourd','matcha_clown']){
+   audio.setNestTapTargets([id],file=>'https://audio.example/'+file);await tick();
+   assert.equal(await audio.playNestTap(id),'played');assert.equal(await audio.playNestTap(id),'busy');
+   assert.equal(recordings.length,count);assert(!loop.stopped);assert.equal(ambience.gain.value,level);
+   assert.equal(media.length,mediaCount);assert.deepEqual(c.gains.slice(0,4).map(g=>g.gain.value),levels);
+  }
+ }finally{audio.setNestTapTargets([],file=>file);audio.setNestAmbience(false,'new-resident-test')}
+});

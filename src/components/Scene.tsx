@@ -7,6 +7,7 @@ import type {GLTF} from 'three/addons/loaders/GLTFLoader.js';
 import {asset,loadModel} from '../assets';
 import {dragProgress,shouldCommitDrag} from '../flow.mjs';
 import type {Phase,Toy} from '../types';
+import {normalizeRevealModel,revealMotionBounds,frameRevealCamera} from '../lib/revealFraming';
 
 export function Studio({reveal=false}:{reveal?:boolean}){
  return <><ambientLight intensity={reveal?.6:.55}/><directionalLight position={[-4,8,6]} intensity={reveal?2.5:2.0} color="#fff0dd"/><directionalLight position={[4,3,-3]} intensity={1.4} color="#c8e0ff"/><Environment resolution={256} frames={1}><Lightformer form="rect" intensity={1.9} position={[-5,4,5]} scale={[5,6,1]} rotation={[0,.65,0]}/><Lightformer form="rect" intensity={1.2} position={[5,1,3]} scale={[3,6,1]} rotation={[0,-.85,0]}/><Lightformer form="rect" intensity={1.6} position={[0,7,-1]} scale={[5,5,1]} rotation={[Math.PI/2,0,0]}/></Environment></>
@@ -64,6 +65,7 @@ export function MachineScene(props:{model:GLTF;phase:Phase;progress:number;onPro
 
 type RevealProps={toy:Toy;opened:boolean;decision:Phase;reduced:boolean;loadToy?:boolean;onReady:()=>void;onError:()=>void};
 function RevealObjects({toy,opened,decision,reduced,loadToy=true,onReady,onError}:RevealProps){
+ const {camera,size}=useThree();
  const [model,setModel]=useState<GLTF|null>(null),[shell,setShell]=useState<GLTF|null>(null);const group=useRef<THREE.Group>(null),t=useRef(0);const shellRoot=useRef<THREE.Group>(null);
  const [failed,setFailed]=useState(false);
  useEffect(()=>{let alive=true;loadModel(asset('capsule_shell.glb')).then(s=>{if(alive)setShell(s)}).catch(()=>{});return()=>{alive=false}},[]);
@@ -71,7 +73,9 @@ function RevealObjects({toy,opened,decision,reduced,loadToy=true,onReady,onError
  // and toy viewer: disposing its shared geometry on reveal-close causes stalls.
  useEffect(()=>{if(!loadToy)return;let alive=true;setFailed(false);loadModel(toy.model_url).then(s=>{if(alive)setModel(s)}).catch(()=>{if(alive)setFailed(true)});return()=>{alive=false}},[toy.model_url,loadToy]);
  useEffect(()=>{if(!opened)return;if(model)onReady();else if(failed)onError()},[opened,model,failed,onReady,onError]);
- const modelClone=useMemo(()=>{if(!model)return;const clone=model.scene.clone(true);if(toy.id==='stressed_jimao'||toy.id==='miss_popcorn'||toy.id==='tired_crow'){const bounds=new THREE.Box3().setFromObject(clone),size=bounds.getSize(new THREE.Vector3()),center=bounds.getCenter(new THREE.Vector3());const scale=2.12/size.y;clone.scale.setScalar(scale);clone.position.set(-center.x*scale,1-center.y*scale,-center.z*scale);}return clone},[model,toy.id]);const shellClone=useMemo(()=>shell?.scene.clone(true),[shell]);
+ const modelClone=useMemo(()=>model?normalizeRevealModel(model.scene,toy.id):undefined,[model,toy.id]);const shellClone=useMemo(()=>shell?.scene.clone(true),[shell]);
+ const motionBounds=useMemo(()=>modelClone?revealMotionBounds(modelClone,toy.id):undefined,[modelClone,toy.id]);
+ useEffect(()=>{frameRevealCamera(camera as THREE.PerspectiveCamera,size.width,size.height,opened?motionBounds:undefined)},[camera,size.width,size.height,opened,motionBounds]);
  const mixer=useMemo(()=>shellClone?new THREE.AnimationMixer(shellClone):null,[shellClone]);
  useEffect(()=>{t.current=0;if(opened&&mixer&&shell){const clip=shell.animations.find(c=>c.name==='shell_open');if(clip){const a=mixer.clipAction(clip);a.reset().setLoop(THREE.LoopOnce,1);a.clampWhenFinished=true;a.play()}}return()=>{mixer?.stopAllAction()}},[opened,mixer,shell]);
  useFrame((_,dt)=>{t.current+=dt;mixer?.update(dt);if(group.current){const p=opened?Math.min(t.current/1.1,1):0;group.current.scale.setScalar((decision==='REJECTED'?Math.max(0,1-t.current):1)*p);group.current.position.y=-.55+p*.12+(reduced?0:Math.sin(t.current*1.6)*.026);group.current.rotation.y=reduced?-.12:opened?-.12+Math.max(0,1-t.current/2.8)*Math.PI*2:0;}if(shellRoot.current){shellRoot.current.scale.setScalar(opened?Math.max(.01,1-Math.max(0,t.current-.85)*2):1);shellRoot.current.rotation.z=opened?0:Math.sin(t.current)*.035;}});

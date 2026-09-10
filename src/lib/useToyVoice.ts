@@ -10,6 +10,7 @@ export function useToyVoice(toy:{id:string;audio_url:string},onError:()=>void){
   return()=>{++generation.current;stopVoice()};
  },[toy.id,toy.audio_url]);
  const listen=async()=>{
+  if(!toy.audio_url)return;
   const request=++generation.current;
   if(playing){stopVoice();setPlaying(false);return}
   setPlaying(true);

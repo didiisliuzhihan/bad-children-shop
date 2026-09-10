@@ -11,6 +11,9 @@
    decorative: never let its transparent area intercept capsule controls. */
 .portrait-glow{pointer-events:none}
 .reveal-portrait{isolation:isolate}
+.reveal-portrait,.reveal-copy{min-width:0}
+.reveal-copy .decision-actions{flex-wrap:wrap}
+.reveal-copy .decision-actions>button{flex-shrink:0;white-space:nowrap}
 .sealed-copy,.reveal-copy{position:relative;z-index:2}
 @media(min-width:1700px){.collection-grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
 @media(max-width:1150px){.collection-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}.reveal-overlay{padding:6vh 6vw;gap:1vw}.reveal-copy h1{font-size:32px}.tagline-zh{font-size:20px}.decision-actions{gap:12px}.decision-actions .pill-button{font-size:13px;padding:14px 19px}.background-type{font-size:16vw}}

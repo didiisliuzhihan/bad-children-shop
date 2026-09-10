@@ -18,4 +18,3 @@ export const nestPhotoOutbox=createNestPhotoOutbox({
  list:(owner:string)=>transact('readonly',s=>s.index('owner').getAll(owner)),
  remove:(item:PendingNestPhoto)=>transact('readwrite',s=>s.delete([item.owner,item.eventId])),
 });
-

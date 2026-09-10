@@ -17,9 +17,9 @@ export async function gltfRayMeshes(file){
   for(const object of [face,values,decoded,input,decoder])module.destroy(object);
  }geometries.push(primitives);}
  const nodes=gltf.nodes.map(node=>{
-  const group=new THREE.Group();group.name=node.name||'';
+  const group=new THREE.Group();group.name=node.name||'';group.userData={...node.extras};
   if(node.matrix)group.applyMatrix4(new THREE.Matrix4().fromArray(node.matrix));else{if(node.translation)group.position.fromArray(node.translation);if(node.rotation)group.quaternion.fromArray(node.rotation);if(node.scale)group.scale.fromArray(node.scale);}
-  if(node.mesh!==undefined)for(const primitive of geometries[node.mesh]){const mesh=new THREE.Mesh(primitive.geometry,new THREE.MeshBasicMaterial({side:primitive.side}));mesh.name=group.name.replaceAll(' ','_');group.add(mesh);}return group;
+  if(node.mesh!==undefined)for(const primitive of geometries[node.mesh]){const mesh=new THREE.Mesh(primitive.geometry,new THREE.MeshBasicMaterial({side:primitive.side}));mesh.name=group.name.replaceAll(' ','_');mesh.userData={...node.extras};group.add(mesh);}return group;
  });
  gltf.nodes.forEach((node,i)=>{for(const child of node.children||[])nodes[i].add(nodes[child]);});
  const scene=new THREE.Group();for(const root of gltf.scenes[gltf.scene||0].nodes)scene.add(nodes[root]);scene.updateMatrixWorld(true);return scene;
