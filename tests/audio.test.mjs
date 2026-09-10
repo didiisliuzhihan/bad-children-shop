@@ -1,6 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 const started=[],contexts=[],media=[],recordings=[],fetched=[];let resumeAllowed=false,denyPending=false;
-const parameter=()=>({value:0,cancelScheduledValues(){},setValueAtTime(v){this.value=v},exponentialRampToValueAtTime(v){this.value=v},setTargetAtTime(v){this.value=v}});
+const parameter=()=>({value:0,cancelScheduledValues(){},setValueAtTime(v){this.value=v},linearRampToValueAtTime(v){this.value=v},exponentialRampToValueAtTime(v){this.value=v},setTargetAtTime(v){this.value=v}});
 class FakeContext extends EventTarget{
  constructor(){super();this.state='suspended';this.currentTime=0;this.destination={};this.sampleRate=44100;this.gains=[];this.sources=[];contexts.push(this)}
  createGain(){const g={gain:parameter(),connect(to){this.to=to},disconnect(){}};this.gains.push(g);return g}
@@ -98,4 +98,20 @@ test('production recording uses its explicit Pages URL, not the separate BGM hos
 test('production entry explicitly resolves both audio URLs through the asset resolver',async()=>{
  const fs=await import('node:fs');const app=fs.readFileSync(new URL('../src/App.tsx',import.meta.url),'utf8');
  assert(app.includes("installAudioStart(asset('studio-loop.wav'),asset('nest-fireplace-asmr.mp3'))"));
+});
+
+test('actual shared mixer overlays one-shots without ducking/restarting fireplace or taking over story voice',async()=>{
+ const c=contexts.at(-1),create=c.createBufferSource.bind(c),shots=[];
+ c.createBufferSource=()=>{const node=create(),start=node.start.bind(node);node.start=()=>{if(!node.loop&&node.buffer?.duration)shots.push(node);start()};return node};
+ try{
+  audio.setNestAmbience(true,'room');await tick();const loops=recordings.length,loop=recordings.at(-1),mediaCount=media.length;
+  const levels=c.gains.slice(0,4).map(g=>g.gain.value),ambience=c.gains.find(g=>g.to===c.gains[0]&&g.gain.value===.55);
+  const before=ambience.gain.value;audio.setNestTapTargets(['stove','tired_crow'],file=>'https://audio.example/'+file);await tick();
+  assert.equal(await audio.playNestTap('stove'),'played');assert.equal(shots.length,1);assert.equal(shots[0].loop,false);
+  assert.equal(recordings.length,loops);assert(!loop.stopped);assert.equal(ambience.gain.value,before);assert.deepEqual(c.gains.slice(0,4).map(g=>g.gain.value),levels);assert.equal(media.length,mediaCount);
+  assert.equal(await audio.playNestTap('stove'),'busy');assert.equal(shots.length,1);
+  audio.setNestTapTargets([],file=>file);assert(shots[0].stopped);assert(!loop.stopped);assert.equal(ambience.gain.value,before);
+  audio.setNestTapTargets(['tired_crow'],file=>'https://audio.example/'+file);assert.equal(await audio.playNestTap('tired_crow'),'played');
+  audio.setMuted(true);assert(shots[1].stopped);assert.equal(await audio.playNestTap('tired_crow'),'cancelled');audio.setMuted(false);assert.equal(shots.length,2,'Unmute never replays old one-shots');
+ }finally{audio.setNestTapTargets([],file=>file);audio.setNestAmbience(false,'room');c.createBufferSource=create;}
 });

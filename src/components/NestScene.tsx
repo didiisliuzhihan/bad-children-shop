@@ -19,6 +19,9 @@ import {NestStatusBubble,type NestMoodBubble} from './NestStatusBubble';
 import {createNestMoodSchedule} from '../lib/nestMood.mjs';
 import {createNestShadowSchedule} from '../lib/nestRenderBudget.mjs';
 import {installNestTouchInput} from '../lib/nestTouchInput';
+import {createNestTapInput} from '../lib/nestTapInput';
+import {isNestTapTarget,roomTapTarget} from '../lib/nestTapCatalog.mjs';
+import {setNestTapTargets,playNestTap} from '../lib/audio';
 import '../nest-life.css';
 let rendererSequence=0;
 type SceneProps={toys:Toy[];placements:HomePlacement[];editing:boolean;active?:boolean;lifeReady?:boolean;selected:string|null;timeOfDay:NestTime;onSelect:(id:string|null)=>void;onMove:(id:string,x:number,z:number)=>void;onCapture?:(photo:CapturedNestPhoto)=>void};
@@ -28,6 +31,13 @@ export function NestScene(props:SceneProps){
  const takePhoto=async()=>{const current=api.current;if(!current||capturing)return;setCapturing(true);setCaptureError('');try{const photo=await current.capture();if(api.current===current)latest.current.onCapture?.(photo)}catch(error){if(api.current===current)setCaptureError((error as Error).message)}finally{if(api.current===current)setCapturing(false)}};
  const [failure,setFailure]=useState(false),[loading,setLoading]=useState(0),[failedIds,setFailedIds]=useState<string[]>([]),[retry,setRetry]=useState(0);
  const [roomLoading,setRoomLoading]=useState(true),[roomFailure,setRoomFailure]=useState(false);
+ const [tapNotice,setTapNotice]=useState('');
+ const tapIds=props.placements.map(p=>p.toyId).join('|');
+ useEffect(()=>{
+  setNestTapTargets(props.active!==false&&!props.editing&&!roomLoading&&!roomFailure&&!failure?['stove','window',...tapIds.split('|')]:[],asset);
+  return()=>setNestTapTargets([],asset);
+ },[props.active,props.editing,roomLoading,roomFailure,failure,tapIds]);
+ useEffect(()=>{if(!tapNotice)return;const timer=setTimeout(()=>setTapNotice(''),2600);return()=>clearTimeout(timer)},[tapNotice]);
  const captureMoment=useCallback(async(event:NestMoment)=>{if(!api.current)throw Error('Scene closed');return (await api.current.capture(event)).blob},[]);
  const life=useNestLife(props.active!==false&&props.lifeReady!==false&&!props.editing&&!roomLoading&&!loading&&!failure&&!roomFailure&&!failedIds.length,props.placements,captureMoment),lifeRef=useRef(life);lifeRef.current=life;
  const [bubble,setBubble]=useState<NestBubble|null>(null);
@@ -107,6 +117,24 @@ export function NestScene(props:SceneProps){
    latest.current={...latest.current,placements:moved};const model=actors.get(gesture.toyId);if(model)model.position.set(next.x,0,next.z);selection.position.set(next.x,.012,next.z);latest.current.onMove(gesture.toyId,next.x,next.z);invalidate();
   };
   const up=(event:NestPointer)=>{if(!gesture||event.pointerType!==gesture.pointerType||event.pointerId!==gesture.pointerId)return;gesture=null;if(event.pointerType!=='touch'&&canvas.hasPointerCapture(event.pointerId))canvas.releasePointerCapture(event.pointerId);canvas.style.cursor=latest.current.editing?'grab':'auto';};
+  // Raycast the FRONTMOST visible mesh, including the room as an occluder.
+  // No large rectangular overlay, floor-wide hit zone or through-wall activation.
+  const hitSound=(x:number,y:number)=>{
+   const rect=canvas.getBoundingClientRect();if(!rect.width||!rect.height||x<rect.left||x>rect.right||y<rect.top||y>rect.bottom)return null;
+   raycaster.setFromCamera(new THREE.Vector2((x-rect.left)/rect.width*2-1,-(y-rect.top)/rect.height*2+1),camera);scene.updateMatrixWorld(true);
+   const hit=raycaster.intersectObjects([room,...actors.values()],true)[0];if(!hit)return null;
+   const id=hit.object.userData.toyId as string|undefined;
+   return id&&isNestTapTarget(id)?id:roomTapTarget(hit.object.name);
+  };
+  const taps=createNestTapInput({enabled:()=>alive&&roomReady&&latest.current.active!==false&&!latest.current.editing&&!document.hidden,
+   hit:hitSound,play:target=>{void playNestTap(target).then(result=>{if(alive&&latest.current.active!==false&&!latest.current.editing)setTapNotice(result==='loading'?'音效还在赶来，稍后再轻点一下。':result==='unavailable'?'这声回应暂时没加载好，再轻点试试。':'');})}});
+  const tapDown=(e:PointerEvent)=>taps.down(e),tapMove=(e:PointerEvent)=>taps.move(e),tapUp=(e:PointerEvent)=>taps.up(e);
+  const cancelTap=()=>taps.cancel();
+  canvas.addEventListener('pointerdown',tapDown,{passive:true});canvas.addEventListener('pointermove',tapMove,{passive:true});canvas.addEventListener('pointerup',tapUp,{passive:true});canvas.addEventListener('pointercancel',cancelTap,{passive:true});
+  // A second finger / any ancestor scroll cancels even if the browser never
+  // delivers a final pointermove on this canvas (notably embedded WebKit).
+  const multiTouch=(e:TouchEvent)=>{if(e.touches.length!==1)taps.cancel()};
+  canvas.addEventListener('touchstart',multiTouch,{passive:true});document.addEventListener('scroll',cancelTap,true);window.addEventListener('blur',cancelTap);
   // Touch owns its native stream while arranging; don't also process the
   // compatibility pointer stream (a browser may cancel it during a pan).
   const nativeTouch=(event:PointerEvent)=>event.pointerType==='touch'&&(latest.current.editing||!!gesture?.editing);
@@ -116,13 +144,13 @@ export function NestScene(props:SceneProps){
   const cancel=(event:PointerEvent)=>{if(!nativeTouch(event)&&gesture?.pointerType===event.pointerType&&gesture.pointerId===event.pointerId)cancelGesture()};
   const touchPoint=(point:Pick<Touch,'identifier'|'clientX'|'clientY'>):NestPointer=>({pointerId:point.identifier,pointerType:'touch',clientX:point.clientX,clientY:point.clientY,isPrimary:true,button:0,preventDefault(){}});
   touchInput=installNestTouchInput(canvas,{start:point=>latest.current.editing&&down(touchPoint(point)),move:point=>move(touchPoint(point)),end:point=>up(touchPoint(point)),cancel:cancelGesture});
-  const visibility=()=>{if(document.hidden)cancelGesture();invalidate()};
+  const visibility=()=>{if(document.hidden){cancelGesture();taps.cancel();}invalidate()};
   const contextLost=(event:Event)=>{event.preventDefault();cancelGesture();setFailure(true)};
   canvas.addEventListener('pointerdown',pointerDown);canvas.addEventListener('pointermove',pointerMove);canvas.addEventListener('pointerup',pointerUp);canvas.addEventListener('pointercancel',cancel);canvas.addEventListener('lostpointercapture',cancel);canvas.addEventListener('webglcontextlost',contextLost);
   const observer=new ResizeObserver(resize);observer.observe(el);document.addEventListener('visibilitychange',visibility);window.addEventListener('blur',cancelGesture);resize();sync();
-  return()=>{alive=false;api.current=null;touchInput?.reset();touchInput?.dispose();cancelAnimationFrame(raf);observer.disconnect();document.removeEventListener('visibilitychange',visibility);window.removeEventListener('blur',cancelGesture);canvas.removeEventListener('pointerdown',pointerDown);canvas.removeEventListener('pointermove',pointerMove);canvas.removeEventListener('pointerup',pointerUp);canvas.removeEventListener('pointercancel',cancel);canvas.removeEventListener('lostpointercapture',cancel);canvas.removeEventListener('webglcontextlost',contextLost);pending.clear();actors.clear();living.dispose();ownedGeometry.forEach(g=>g.dispose());ownedMaterials.forEach(m=>m.dispose());lighting.dispose();environment.dispose();renderer.dispose();renderer.forceContextLoss();canvas.remove();};
+  return()=>{alive=false;api.current=null;taps.cancel();canvas.removeEventListener('pointerdown',tapDown);canvas.removeEventListener('pointermove',tapMove);canvas.removeEventListener('pointerup',tapUp);canvas.removeEventListener('pointercancel',cancelTap);canvas.removeEventListener('touchstart',multiTouch);document.removeEventListener('scroll',cancelTap,true);window.removeEventListener('blur',cancelTap);touchInput?.reset();touchInput?.dispose();cancelAnimationFrame(raf);observer.disconnect();document.removeEventListener('visibilitychange',visibility);window.removeEventListener('blur',cancelGesture);canvas.removeEventListener('pointerdown',pointerDown);canvas.removeEventListener('pointermove',pointerMove);canvas.removeEventListener('pointerup',pointerUp);canvas.removeEventListener('pointercancel',cancel);canvas.removeEventListener('lostpointercapture',cancel);canvas.removeEventListener('webglcontextlost',contextLost);pending.clear();actors.clear();living.dispose();ownedGeometry.forEach(g=>g.dispose());ownedMaterials.forEach(m=>m.dispose());lighting.dispose();environment.dispose();renderer.dispose();renderer.forceContextLoss();canvas.remove();};
   // Cached GLTF geometry/materials are shared with the reveal/viewer, never disposed here.
  },[retry]);
  useEffect(()=>api.current?.sync(),[props.placements,props.toys,props.editing,props.selected,props.timeOfDay,props.active]);
- return <><div className="nest-world" data-nest-mode={props.editing?'arrange':'visit'}><div ref={host} className="nest-world-canvas"/>{mood&&!props.editing&&!bubble&&<NestStatusBubble key={mood.id} mood={mood}/>}{bubble&&!props.editing&&<NestDialogueBubble key={bubble.id} bubble={bubble}/>}{roomLoading&&!failure&&<div className="nest-world-status" role="status">正在为小窝亮灯…</div>}{loading>0&&!failure&&<div className="nest-world-status" role="status">小住客正在走过来…</div>}{failedIds.length>0&&!failure&&<div className="nest-world-status" role="status">有 {failedIds.length} 只暂时没加载好。<button className="room-pill" onClick={()=>setRetry(n=>n+1)}>重试模型</button></div>}{(failure||roomFailure)&&<div className="nest-world-error" role="alert"><p>三维空间暂时没有打开，布置草稿仍在。</p><button className="room-pill" onClick={()=>setRetry(n=>n+1)}>重新打开</button></div>}</div>{life.error&&<p className="nest-life-status" role="status">{life.error}</p>}{props.onCapture&&<div className="nest-photo-actions"><span role="status">{captureError|| (props.editing?'退出布置后，可以拍下这一刻。':'')}</span><button className="room-pill" disabled={capturing||props.editing||roomLoading||roomFailure||failure||loading>0||failedIds.length>0} onClick={()=>void takePhoto()}><Icon name="camera" size={18}/>{capturing?'正在拍照…':'拍成明信片'}</button></div>}</>;
+ return <><div className="nest-world" data-nest-mode={props.editing?'arrange':'visit'}><div ref={host} className="nest-world-canvas"/>{mood&&!props.editing&&!bubble&&<NestStatusBubble key={mood.id} mood={mood}/>}{bubble&&!props.editing&&<NestDialogueBubble key={bubble.id} bubble={bubble}/>}{roomLoading&&!failure&&<div className="nest-world-status" role="status">正在为小窝亮灯…</div>}{loading>0&&!failure&&<div className="nest-world-status" role="status">小住客正在走过来…</div>}{failedIds.length>0&&!failure&&<div className="nest-world-status" role="status">有 {failedIds.length} 只暂时没加载好。<button className="room-pill" onClick={()=>setRetry(n=>n+1)}>重试模型</button></div>}{(failure||roomFailure)&&<div className="nest-world-error" role="alert"><p>三维空间暂时没有打开，布置草稿仍在。</p><button className="room-pill" onClick={()=>setRetry(n=>n+1)}>重新打开</button></div>}</div>{tapNotice&&<p className="nest-life-status" role="status">{tapNotice}</p>}{life.error&&<p className="nest-life-status" role="status">{life.error}</p>}{props.onCapture&&<div className="nest-photo-actions"><span role="status">{captureError|| (props.editing?'退出布置后，可以拍下这一刻。':'')}</span><button className="room-pill" disabled={capturing||props.editing||roomLoading||roomFailure||failure||loading>0||failedIds.length>0} onClick={()=>void takePhoto()}><Icon name="camera" size={18}/>{capturing?'正在拍照…':'拍成明信片'}</button></div>}</>;
 }

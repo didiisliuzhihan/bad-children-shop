@@ -1,6 +1,6 @@
 # A 方案 · 本地试玩
 
-Open **http://127.0.0.1:4178/** on this computer. It is separate from the old 4177 preview and the public V5.6.5 site.
+Open **http://127.0.0.1:4178/** on this computer. It is separate from the 4177 account preview and the public site. The September 10 local candidate includes all 10 user-supplied object-tap sounds; see `notes/nest-tap-audio-2026-09-10.md`. Enter the nest, leave arrangement mode, enable sound, then tap a resident, stove or arched window.
 
 ## What is real here
 
@@ -13,7 +13,7 @@ Open **http://127.0.0.1:4178/** on this computer. It is separate from the old 41
 
 This is a device-only behavioral sandbox, NOT the real Supabase `AccountProvider` or Edge Function. It has no login, cloud migration, API authentication or real network round trip. Small confirmation patches and the shared UI are exercised locally, but local speed cannot prove cloud latency, session reliability or production database behavior. Those remain publication gates.
 
-The explicit build configuration does not load `.env` files and blanks all Supabase/asset environment values. The server binds only to 127.0.0.1, serves only the preview HTML and delivery assets, rejects other Host names and non-read methods, and uses a Content Security Policy that prevents remote connections. Local files/photos are not uploaded. Public site and account Edge version 7 were not changed.
+The explicit build configuration does not load `.env` files and blanks all Supabase/asset environment values. The server binds only to 127.0.0.1, serves only the preview HTML and delivery assets, rejects other Host names and non-read methods, and uses a Content Security Policy that prevents remote connections. Local files/photos are not uploaded. This local audio candidate does not modify the public site or account Edge Function.
 
 ## Run / rebuild
 

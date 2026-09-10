@@ -3,6 +3,7 @@ import type { GLTF } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import decoderSource from 'three/examples/jsm/libs/draco/gltf/draco_decoder.js?raw';
 import type { Toy } from './types';
+import {NEST_TAP_FILES} from './lib/nestTapCatalog.mjs';
 
 // The local preview supplies this marker. Published HTML continues to use Storage.
 export const localPreview=!!document.querySelector('meta[name="bc-local-preview"]');
@@ -11,7 +12,7 @@ export const cloudAssets=!localPreview&&!!import.meta.env.VITE_ASSET_BASE_URL;
 export const assetBase=new URL(previewBase||import.meta.env.VITE_ASSET_BASE_URL||(import.meta.env.DEV?'./assets/delivery/':'../assets/delivery/'),location.href).href.replace(/\/$/,'');
 // New room assets ship atomically with the Pages release; existing media stays
 // on Storage. Local previews continue reading the same delivery originals.
-const releaseAssets=new Set(['room_furnished_nest.glb','nest-fireplace-asmr.mp3','default-stamp-white.png']);
+const releaseAssets=new Set(['room_furnished_nest.glb','nest-fireplace-asmr.mp3','default-stamp-white.png',...NEST_TAP_FILES]);
 export const asset=(name:string)=>!localPreview&&!import.meta.env.DEV&&releaseAssets.has(name)?new URL('./assets/delivery/'+encodeURIComponent(name),location.href).href:`${assetBase}/${encodeURIComponent(name)}`;
 for(const [family,file,weight] of [['Fredoka','fredoka.woff2','300 700'],['Inter','inter.woff2','100 900']]){
  const face=new FontFace(family,`url("${asset(file)}")`,{weight,display:'swap'});document.fonts.add(face);void face.load().catch(()=>{});

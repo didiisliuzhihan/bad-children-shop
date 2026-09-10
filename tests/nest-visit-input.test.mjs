@@ -8,7 +8,7 @@ const read=path=>fs.readFileSync(new URL('../'+path,import.meta.url),'utf8');
 async function handlers(editing){
  const source=read('src/components/NestScene.tsx');
  const down=source.slice(source.indexOf('  const down='),source.indexOf('  const move='));
- const up=source.slice(source.indexOf('  const up='),source.indexOf('  // Touch owns'));
+ const up=source.slice(source.indexOf('  const up='),source.indexOf('  // Raycast the FRONTMOST'));
  const result=await transformWithOxc('let gesture:any=null;'+down+up+'\nglobalThis.input={down,up};','input.ts');
  const calls=[],context={roomReady:true,latest:{current:{editing,active:true,placements:[{toyId:'tired_crow',x:0,z:0}],onSelect:id=>calls.push(['select',id])}},
   scene:{updateMatrixWorld(){calls.push(['raycast'])}},raycaster:{intersectObjects:()=>[{object:{userData:{toyId:'tired_crow'}}}]},camera:{},actors:new Map(),
@@ -16,7 +16,7 @@ async function handlers(editing){
   canvas:{getBoundingClientRect:()=>({}),style:{},setPointerCapture:id=>calls.push(['capture',id]),hasPointerCapture:()=>true,releasePointerCapture:id=>calls.push(['release',id])}};
  vm.runInNewContext(result.code,context);return {...context,calls};
 }
-test('visiting residents never captures a tap, raycasts or opens a card',async()=>{
+test('arrangement handlers stay inactive while visiting; independent sound taps never open a card',async()=>{
  const h=await handlers(false);
  for(const pointerType of ['mouse','touch','pen']){
   const e={pointerType,pointerId:1,button:0,isPrimary:true,clientX:50,clientY:50,preventDefault(){h.calls.push(['prevent'])}};

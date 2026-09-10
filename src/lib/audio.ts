@@ -1,4 +1,29 @@
 import {createNestAmbience,type RecordingState} from './nestAmbience.ts';
+import {createNestTapPlayer,type NestTapResult} from './nestTapPlayer.ts';
+import {isNestTapTarget} from './nestTapCatalog.mjs';
+let nestTaps:ReturnType<typeof createNestTapPlayer>|undefined,tapTargets:string[]=[];
+let tapAsset:((file:string)=>string)|undefined;
+function reconcileNestTaps(){
+ if(ctx&&master&&tapAsset&&tapTargets.length&&!nestTaps){
+  const owner=ctx,resolve=tapAsset;
+  nestTaps=createNestTapPlayer(owner,master,{load:async file=>{
+   const response=await fetch(resolve(file),{signal:AbortSignal.timeout(10000)});
+   if(!response.ok)throw Error('Short sound unavailable');const bytes=await response.arrayBuffer();
+   if(bytes.byteLength>512000)throw Error('Short sound too large');
+   let timer:ReturnType<typeof setTimeout>|undefined;
+   try{return await Promise.race([owner.decodeAudioData(bytes),new Promise<AudioBuffer>((_,reject)=>{timer=setTimeout(()=>reject(Error('Sound decode timed out')),10000)})]);}finally{clearTimeout(timer);}
+  }});
+ }
+ nestTaps?.setTargets(nestActive&&!muted&&isAudioReady()&&(typeof document==='undefined'||!document.hidden)?tapTargets:[]);
+}
+export function setNestTapTargets(targets:string[],resolve:(file:string)=>string){
+ tapAsset=resolve;tapTargets=targets.filter(isNestTapTarget);reconcileNestTaps();
+}
+export async function playNestTap(target:string):Promise<NestTapResult>{
+ if(muted||!nestActive||!tapTargets.includes(target)||(typeof document!=='undefined'&&document.hidden))return 'cancelled';
+ if(!isAudioReady()&&!await unlockAudio())return 'unavailable';
+ reconcileNestTaps();return nestTaps?.play(target)||'cancelled';
+}
 type Sound='click'|'roll'|'lock'|'drop'|'open'|'keep'|'reject'|'wipe'|'unlock';
 let nestActive=false,nestAmbience:ReturnType<typeof createNestAmbience>|undefined;
 const nestListeners=new Set<string>();
@@ -23,6 +48,7 @@ function reconcileMix(){
  if(nestActive)background?.pause();
  if(ctx&&master&&nestActive&&!nestAmbience){const owner=ctx;nestAmbience=createNestAmbience(owner,master,()=>loadNestRecording(owner),state=>{recordingState=state;publishNestAudioStatus()});}
  nestAmbience?.set(nestActive&&!muted&&(typeof document==='undefined'||!document.hidden),activeVoice?.14:EFFECT_LEVEL);
+ reconcileNestTaps();
  publishNestAudioStatus();
 }
 export function setNestAmbience(active:boolean,source='scene'){
@@ -68,7 +94,7 @@ export async function unlockAudio():Promise<boolean>{
       const Context=globalThis.AudioContext||(window as unknown as {webkitAudioContext?:typeof AudioContext}).webkitAudioContext;
       if(!Context)return false;
       background?.pause();backgroundSource?.disconnect();background=undefined;backgroundSource=undefined;stopVoice();
-      nestAmbience?.dispose();nestAmbience=undefined;ctx=new Context();master=ctx.createGain();master.gain.value=muted?0:1;master.connect(ctx.destination);
+      nestAmbience?.dispose();nestAmbience=undefined;nestTaps?.dispose();nestTaps=undefined;ctx=new Context();master=ctx.createGain();master.gain.value=muted?0:1;master.connect(ctx.destination);
       gain=ctx.createGain();gain.gain.value=EFFECT_LEVEL;gain.connect(master);
       musicGain=ctx.createGain();musicGain.gain.value=BACKGROUND_LEVEL;musicGain.connect(master);
       voiceGain=ctx.createGain();voiceGain.gain.value=.75;voiceGain.connect(master);

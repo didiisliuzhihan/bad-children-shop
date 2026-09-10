@@ -74,7 +74,6 @@ test('production scene keeps native scrolling, exact 3D hit testing and independ
  assert(code.includes('start:point=>latest.current.editing&&down(touchPoint(point))'));
  assert(code.includes("if(event.pointerType!=='touch')canvas.setPointerCapture(event.pointerId)"));
  assert(code.includes('if(!nativeTouch(event))down(event)'));assert(code.includes('touchInput?.reset()'));
- assert(code.includes('if(document.hidden)cancelGesture()'));
+ assert(code.includes('if(document.hidden){cancelGesture();taps.cancel();}'));
  const room=fs.readFileSync(new URL('../src/components/NestRoom.tsx',import.meta.url),'utf8');assert(room.includes('按住玩具拖动 · 空白处上下滑动'));assert(room.includes('左转'));assert(room.includes('右转'));
 });
-
