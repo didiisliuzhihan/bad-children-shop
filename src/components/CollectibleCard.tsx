@@ -1,3 +1,4 @@
+import {tx,useLanguage} from '../lib/i18n';
 import {useCallback,useEffect,useRef,useState} from 'react';
 import type {Capsule,Toy} from '../types';
 import {prepareCollectibleCard,cachedCollectibleCard,collectibleCardKey} from '../lib/cardExport';
@@ -5,6 +6,7 @@ import {CollectibleCardPreview} from './CollectibleCardPreview';
 import {Icon} from './Icon';
 type Props={toy:Toy;item:Capsule;active?:boolean;toast:(s:string)=>void;onConfirmSaved:()=>boolean|Promise<boolean>;questStage:string};
 export function CollectibleCard({toy,item,active=true,toast,onConfirmSaved,questStage}:Props){
+ useLanguage();
  const key=collectibleCardKey(toy,item),generation=useRef(0),url=useRef<string|null>(null),inflight=useRef<string|null>(null);
  const [ready,setReady]=useState<{key:string;file:File;url:string}|null>(null),[error,setError]=useState(false),[preparing,setPreparing]=useState(false),[imageReady,setImageReady]=useState(false),[sharing,setSharing]=useState(false),[saveHint,setSaveHint]=useState('');
  const current=ready?.key===key?ready:null;
@@ -30,7 +32,7 @@ export function CollectibleCard({toy,item,active=true,toast,onConfirmSaved,quest
   if(!current||sharing)return;setSaveHint('');
   // Prepared in advance: native share still runs within this user gesture.
   if(navigator.canShare?.({files:[current.file]})&&matchMedia('(pointer:coarse)').matches){
-   setSharing(true);void navigator.share({files:[current.file],title:'我的扭蛋收藏'}).then(()=>setSaveHint('保存后，点下方确认，让小任务出发。')).catch(error=>setSaveHint(error.name==='AbortError'?'已取消；保存后再确认就好。':'也可以长按上方完整卡片，保存到相册。')).finally(()=>setSharing(false));
+   setSharing(true);void navigator.share({files:[current.file],title:tx('我的扭蛋收藏')}).then(()=>setSaveHint('保存后，点下方确认，让小任务出发。')).catch(error=>setSaveHint(error.name==='AbortError'?'已取消；保存后再确认就好。':'也可以长按上方完整卡片，保存到相册。')).finally(()=>setSharing(false));
   }else{
    try{const a=document.createElement('a');a.href=current.url;a.download=current.file.name;document.body.append(a);a.click();a.remove();setSaveHint('下载已发起；确认保存后，再让小任务出发。')}
    catch{setSaveHint('下载未能打开，也可以长按上方图片保存。')}
@@ -42,11 +44,11 @@ export function CollectibleCard({toy,item,active=true,toast,onConfirmSaved,quest
   catch{setSaveHint('进度暂时没有确认，请重试。已保存的进度不会重置。')}finally{setConfirming(false)}
  };
  return <div className="collectible-card-panel">
-  <div className="export-preview">{current?<img src={current.url} alt={toy.name_zh+'完整收藏卡片，包含任务和收藏日期'} width={1080} height={1440}/>:<CollectibleCardPreview key={key} toy={toy} item={item} active={active} onImageReady={()=>setImageReady(true)}/>}</div>
-  <div className="card-save-actions"><button className="room-pill" disabled={preparing||sharing||confirming} onClick={current?save:()=>void prepare()}><Icon name="download" size={17}/>{sharing?'正在打开分享…':preparing?'正在准备高清卡片…':current?'保存卡片':error?'重试高清卡片':'准备高清卡片'}</button><span>{current?'3:4 · 可长按保存':'可先查看画面和文字'}</span></div>
+  <div className="export-preview">{tx(current?<img src={current.url} alt={tx(toy.name_zh+'完整收藏卡片，包含任务和收藏日期')} width={1080} height={1440}/>:<CollectibleCardPreview key={key} toy={toy} item={item} active={active} onImageReady={()=>setImageReady(true)}/>)}</div>
+  <div className="card-save-actions"><button className="room-pill" disabled={preparing||sharing||confirming} onClick={current?save:()=>void prepare()}><Icon name="download" size={17}/>{tx(sharing?'正在打开分享…':preparing?'正在准备高清卡片…':current?'保存卡片':error?'重试高清卡片':'准备高清卡片')}</button><span>{tx(current?'3:4 · 可长按保存':'可先查看画面和文字')}</span></div>
   <div className="quest-confirm" data-confirm-state={questStage}>
-   {questStage==='unsaved'?<><p>把卡片带走，再去完成那件小事。</p><button className="room-pill primary" disabled={!current||sharing||confirming} onClick={()=>void confirm()}>{confirming?'正在保存进度…':'已保存，去做任务'}<Icon name="arrow" size={16}/></button></>:questStage==='waiting'?<><span className="quest-status-dot"/><p>小任务已经出发</p><small>做完小任务，去模型页敲敲玻璃吧。</small></>:<><Icon name={questStage==='unlocked'?'check':'heart'} size={17}/><p>{questStage==='unlocked'?'你们已经更亲近了一点':'小任务做完了么？去模型页看看它吧。'}</p></>}
+   {tx(questStage==='unsaved'?<><p>{tx("把卡片带走，再去完成那件小事。")}</p><button className="room-pill primary" disabled={!current||sharing||confirming} onClick={()=>void confirm()}>{tx(confirming?'正在保存进度…':'已保存，去做任务')}<Icon name="arrow" size={16}/></button></>:questStage==='waiting'?<><span className="quest-status-dot"/><p>{tx("小任务已经出发")}</p><small>{tx("做完小任务，去模型页敲敲玻璃吧。")}</small></>:<><Icon name={questStage==='unlocked'?'check':'heart'} size={17}/><p>{tx(questStage==='unlocked'?'你们已经更亲近了一点':'小任务做完了么？去模型页看看它吧。')}</p></>)}
   </div>
-  {saveHint&&<p className="card-save-hint" role="status">{saveHint}</p>}
+  {tx(saveHint&&<p className="card-save-hint" role="status">{tx(saveHint)}</p>)}
  </div>;
 }

@@ -1,3 +1,4 @@
+import {localeMocks} from './helpers/locale.mjs';
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import vm from 'node:vm';import {transformWithOxc} from 'vite';
 import {createPrivateMediaCache} from '../src/lib/privateMediaCache.ts';
 const read=p=>fs.readFileSync(new URL('../'+p,import.meta.url),'utf8');
@@ -12,7 +13,7 @@ async function harness(){
   useEffect(fn,deps){const i=cursor++,old=slots[i];if(!old||deps.some((v,j)=>!Object.is(v,old.deps[j])))pending.push(()=>{old?.cleanup?.();slots[i]={deps,cleanup:fn()}})},
  };
  const result=await transformWithOxc(read('src/lib/usePostcardMedia.ts'),'hook.ts');
- vm.runInNewContext(result.code.replace(/^import[^\n]*\n/gm,'').replace(/^export function /gm,'function ')+'\nglobalThis.hook=usePostcardMedia;',context);
+ vm.runInNewContext(result.code.replace(/^import[^\n]*\n/gm,'').replace(/^export function /gm,'function ')+'\nglobalThis.hook=usePostcardMedia;',Object.assign(context,localeMocks));
  const render=(input=media,active=true,thumbnail=false)=>{cursor=0;pending=[];const value=context.hook(input,active,thumbnail);value.ref.current={};pending.forEach(fn=>fn());return value};
  const flush=async()=>{for(let n=0;n<24;n++)await Promise.resolve()};
  return {render,flush,calls,account,near:()=>observers.at(-1).callback([{isIntersecting:true}]),close(){slots.forEach(s=>s?.cleanup?.());context.privateMediaCache.clear()}};
@@ -51,6 +52,6 @@ test('deferred account load returns ownership-checked descriptors without contac
  const queries=[];const context={readAllCapsules:async()=>[{id:'capsule',obtained_at:'2026-09-08',toy_id:'crow'}],check:error=>{if(error)throw error},ownMediaPath:(path,uid)=>path.startsWith(uid+'/'),ApiError:Error,
   admin:{storage:{from(){throw Error('metadata must not contact Storage')}},from(table){queries.push(table);const result=table==='bc_account_profiles'?{user_id:'owner'}:table==='bc_account_documents'?[{key:'postcards',value:{drafts:[{media}]}}]:[{id:'story',text:'hello',created_at:'2026-09-08',media}];const builder=new Proxy({then:yes=>Promise.resolve({data:structuredClone(result),error:null}).then(yes)},{get:(target,key)=>key==='then'?target.then:()=>builder});return builder}},
  };
- vm.runInNewContext((await transformWithOxc(chunk,'load.ts')).code+'\nglobalThis.load=load;',context);const state=await context.load('owner',true);
+ vm.runInNewContext((await transformWithOxc(chunk,'load.ts')).code+'\nglobalThis.load=load;',Object.assign(context,localeMocks));const state=await context.load('owner',true);
  assert.equal(state.stories[0].media.url,'');assert.equal(state.stories[0].media.storagePath,media.storagePath);assert.equal(state.documents.postcards.value.drafts[0].media.url,'');assert.equal(state.capsules.length,1);
 });

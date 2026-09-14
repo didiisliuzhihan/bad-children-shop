@@ -1,3 +1,4 @@
+import {localeMocks} from './helpers/locale.mjs';
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import vm from 'node:vm';
 import {transformWithOxc} from 'vite';import {createNestMoodSchedule,NEST_MOODS} from '../src/lib/nestMood.mjs';
 import {LIFE_PAIRS,LIFE_SOLOS} from '../src/lib/nestLifeRules.mjs';
@@ -6,7 +7,7 @@ async function component(name){
  let value=false;const jsx=(type,props)=>({type,props});
  const context={useState:()=>[value,next=>{value=typeof next==='function'?next(value):next}],_jsx:jsx,_jsxs:jsx,_Fragment:'Fragment'};
  const compiled=await transformWithOxc(read('src/components/'+name+'.tsx'),name+'.tsx',{jsx:{runtime:'automatic'}});
- vm.runInNewContext(compiled.code.replace(/^import[^\n]*\n/gm,'').replace(/^export function /gm,'function ')+'\nglobalThis.render='+name+';',context);return context.render;
+ vm.runInNewContext(compiled.code.replace(/^import[^\n]*\n/gm,'').replace(/^export function /gm,'function ')+'\nglobalThis.render='+name+';',Object.assign(context,localeMocks));return context.render;
 }
 test('all eight existing lines expand on click and stay open across position updates',async()=>{
  for(const story of [...LIFE_PAIRS,...LIFE_SOLOS]){

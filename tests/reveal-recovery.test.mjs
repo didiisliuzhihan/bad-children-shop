@@ -1,3 +1,4 @@
+import {localeMocks} from './helpers/locale.mjs';
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import vm from 'node:vm';import {transformWithOxc} from 'vite';
 import {canTransition,chooseToy,dragProgress,shouldCommitDrag} from '../src/flow.mjs';
 const source=fs.readFileSync(new URL('../src/App.tsx',import.meta.url),'utf8');
@@ -17,7 +18,7 @@ async function harness(type='toy'){
   _jsx:(type,props)=>({type,props}),_jsxs:(type,props)=>({type,props}),_Fragment:'Fragment',
  };
  for(const name of ['Postcard','MachineScene','RevealScene','BrandMark','Icon','Collection','Modal','Tagline'])context[name]=name;
- const code=(await transformWithOxc(source,'App.tsx',{jsx:{runtime:'automatic'}})).code.replace(/^import[^\n]*\n/gm,'').replace('export default function App','function App').replace(/^export \{[^}]*\};?\s*$/gm,'');vm.runInNewContext(code+'\nglobalThis.App=App;',context);
+ const code=(await transformWithOxc(source,'App.tsx',{jsx:{runtime:'automatic'}})).code.replace(/^import[^\n]*\n/gm,'').replace('export default function App','function App').replace(/^export \{[^}]*\};?\s*$/gm,'');vm.runInNewContext(code+'\nglobalThis.App=App;',Object.assign(context,localeMocks));
  const render=()=>{let iterations=0;do{dirty=false;cursor=0;queue=[];tree=context.App({preview});queue.forEach(fn=>fn());if(++iterations>20)throw Error('Render loop');}while(dirty);return tree};
  const flush=async()=>{for(let i=0;i<12;i++){await Promise.resolve();if(dirty)render()}};
  const advance=async ms=>{const end=now+ms;while(true){const entry=[...timers].filter(([,v])=>v.at<=end).sort((a,b)=>a[1].at-b[1].at)[0];if(!entry)break;const [id,t]=entry;now=t.at;timers.delete(id);t.fn();render();await flush();}now=end;await flush()};

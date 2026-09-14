@@ -1,3 +1,4 @@
+import {localeMocks} from './helpers/locale.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -44,7 +45,7 @@ test('confirmed patches are owner-scoped, preserve document revisions and dedupl
 
 test('card preview is readable before image/font/export and hidden cards do not request artwork',async()=>{
  const source=(await transformWithOxc(read('src/components/CollectibleCardPreview.tsx'),'Card.tsx',{jsx:{runtime:'automatic'}})).code.replace(/^import[^\n]*\n/gm,'').replace(/^export function /gm,'function ');
- const context={...React,_jsx:jsx.jsx,_jsxs:jsx.jsxs};vm.runInNewContext(source+'\nglobalThis.View=CollectibleCardPreview;',context);
+ const context={...React,_jsx:jsx.jsx,_jsxs:jsx.jsxs};vm.runInNewContext(source+'\nglobalThis.View=CollectibleCardPreview;',Object.assign(context,localeMocks));
  const toy={id:'crow',name_zh:'鸦',name_en:'Crow',tagline_zh:'先休息——喝一杯水',card_image_url:'https://qa.invalid/card.png',color:'#abcabc',number:'01'},item={obtained_at:'2026-09-08T12:00:00Z'};
  const visible=renderToStaticMarkup(React.createElement(context.View,{toy,item,active:true,onImageReady(){}}));
  for(const copy of ['鸦','先休息','喝一杯水','2026/9/8'])assert(visible.includes(copy));assert(visible.includes('<img'));assert(!visible.includes('canvas'));
@@ -55,7 +56,7 @@ test('an optional font failure still produces a real image export, with a bounde
  const code=(await transformWithOxc(read('src/lib/cardExport.ts'),'cardExport.ts')).code.replace(/^import[^\n]*\n/gm,'').replace(/^export (?=(?:const|function|async function))/gm,'');
  const context={Blob,URL,AbortController,setTimeout,clearTimeout,Image:class{naturalWidth=1024;naturalHeight=1024;async decode(){}},ensureQuestFont:async()=>{throw Error('font offline')},QUEST_FONT_FAMILY:'sans-serif',
   fetch:async()=>{calls.fetch++;return {ok:true,blob:async()=>new Blob(['real image'])}},document:{createElement:()=>({getContext:()=>drawing,toBlob:callback=>{calls.encode++;callback(new Blob(['complete card'],{type:'image/png'}))}})}};
- vm.runInNewContext(code+'\nglobalThis.api={prepareCollectibleCard,cachedCollectibleCard,collectibleCardKey};',context);
+ vm.runInNewContext(code+'\nglobalThis.api={prepareCollectibleCard,cachedCollectibleCard,collectibleCardKey};',Object.assign(context,localeMocks));
  const toy={id:'crow',name_zh:'鸦',name_en:'Crow',tagline_zh:'休息——喝水',card_image_url:'https://qa.invalid/card.png',color:'#abcabc',number:'01'},item={obtained_at:'2026-09-08T12:00:00Z'};
  const [one,two]=await Promise.all([context.api.prepareCollectibleCard(toy,item),context.api.prepareCollectibleCard({...toy},{...item})]);
  assert.equal(one,two);assert.equal(one.type,'image/png');assert.equal(calls.draw,1);assert.equal(calls.encode,1);assert.equal(calls.fetch,1);

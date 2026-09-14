@@ -1,3 +1,4 @@
+import {localeMocks} from './helpers/locale.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -96,7 +97,7 @@ async function harness(){
  const result=await transformWithOxc(read('src/components/AccountProvider.tsx'),'AccountProvider.tsx',{jsx:{runtime:'automatic'}});
  const source=result.code.replace(/^import[^\n]*\n/gm,'').replace(/^export function /gm,'function ')
   .replace(/import\.meta\.env\.VITE_SUPABASE_\w+/g,JSON.stringify('https://session-test.invalid'))+'\nglobalThis.Provider=AccountProvider;';
- vm.runInNewContext(source,context);
+ vm.runInNewContext(source,Object.assign(context,localeMocks));
  const render=()=>{cursor=0;pending=[];const state=context.Provider({children:null});pending.forEach(fn=>fn());return state};
  const flush=async()=>{for(let i=0;i<24;i++)await Promise.resolve();return render()};
  render();return {render,flush,emit,requests,setReply(fn){reply=fn},unmount(){slots.forEach(s=>s?.cleanup?.())}};

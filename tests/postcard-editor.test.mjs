@@ -1,3 +1,4 @@
+import {localeMocks} from './helpers/locale.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -12,7 +13,7 @@ const read=p=>fs.readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const stamp={id:'shop-default',name:'羊女孩默认戳',imageUrl:'/preview/default-stamp.png',isDefault:true};
 async function compile(name,context){
  const result=await transformWithOxc(read('src/components/'+name+'.tsx'),name+'.tsx',{jsx:{runtime:'automatic'}});
- vm.runInNewContext(result.code.replace(/^import[^\n]*\n/gm,'').replace(/^export function /gm,'function ')+'\nglobalThis.Component='+name+';',context);return context.Component;
+ vm.runInNewContext(result.code.replace(/^import[^\n]*\n/gm,'').replace(/^export function /gm,'function ')+'\nglobalThis.Component='+name+';',Object.assign(context,localeMocks));return context.Component;
 }
 const jsx={...React,_jsx:jsxRuntime.jsx,_jsxs:jsxRuntime.jsxs,_Fragment:React.Fragment};
 function all(node,predicate){
@@ -30,7 +31,7 @@ async function studioHarness(account=null){
   useRef:initial=>{const i=cursor++;if(!(i in slots))slots[i]={current:initial};return slots[i]},
   prepareLocalPostcardMedia:()=>{throw Error('Not a media decoding test')}
  };
- const Component=await compile('TicketStudio',context);
+ const Component=await compile('TicketStudio',Object.assign(context,localeMocks));
  const h={tree:null,messages,render(){cursor=0;h.tree=Component({toast:message=>messages.push(message),active:true});return h.tree},card(){return all(h.tree,n=>n.type===Postcard&&!!n.props.editor)[0]},dialog(){return all(h.tree,n=>n.type===Modal)[0]},button(text,root=h.tree){const node=all(root,n=>n.type==='button'&&words(n)===text)[0];assert(node,'missing button '+text);return node}};
  h.render();return h;
 }

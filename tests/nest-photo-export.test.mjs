@@ -1,3 +1,4 @@
+import {localeMocks} from './helpers/locale.mjs';
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import vm from 'node:vm';import {stripTypeScriptTypes} from 'node:module';
 const source=fs.readFileSync(new URL('../src/lib/nestPhotoExport.ts',import.meta.url),'utf8');
 function harness({blank=false,decodeError=false,encodeError=false}={}){
@@ -9,7 +10,7 @@ function harness({blank=false,decodeError=false,encodeError=false}={}){
   document:{createElement:()=>{const canvas={width:0,height:0},ctx={font:'14px sans-serif',drawImage(...args){ops.push({draw:args,canvas})},getImageData:()=>({data:pixels}),measureText(text){return {width:Array.from(text).length*(parseFloat(this.font.match(/(\d+)px/)?.[1]||'14'))*.7}},scale(){},fillRect(){},strokeRect(){},beginPath(){},moveTo(){},lineTo(){},stroke(){},fillText(text,x,y){ops.push({text,x,y,canvas})}};canvas.getContext=()=>ctx;canvases.push(canvas);return canvas}},
   canvasBlob:async(canvas,type)=>{ops.push({encode:canvas,type});if(encodeError)throw Error('encode failed');return new Blob(['PNG-result'],{type})},
  };
- vm.runInNewContext(stripTypeScriptTypes(source).replace(/^import .*;\s*$/gm,'').replace(/export /g,'')+'\nglobalThis.render=renderNestKeepsake;globalThis.detail=hasNestPhotoDetail;',context);
+ vm.runInNewContext(stripTypeScriptTypes(source).replace(/^import .*;\s*$/gm,'').replace(/export /g,'')+'\nglobalThis.render=renderNestKeepsake;globalThis.detail=hasNestPhotoDetail;',Object.assign(context,localeMocks));
  return {run:input=>context.render({photo:new Blob(['real-scene'],{type:'image/jpeg'}),nickname:'小火龙',text:'今天没有大事，大家在这里待了一会儿。',date:'2026-09-08',...input}),ops,revoked,canvases,context};
 }
 test('portrait and landscape both explicitly draw decoded scene pixels before encoding',async()=>{
@@ -35,4 +36,3 @@ test('manual keepsake does not rasterize a DOM/SVG subtree and shares the same f
  assert(dialog.includes('photo:photo.blob'));assert(dialog.includes('src={ready.url}'));assert(dialog.includes('files:[ready.file]'));assert(dialog.includes('link.href=ready.url'));
  assert(dialog.includes('<div ref={card} className="nest-photo-preview"'));assert(!dialog.includes('firstElementChild'));
 });
-

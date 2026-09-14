@@ -1,3 +1,4 @@
+import {localeMocks} from './helpers/locale.mjs';
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import vm from 'node:vm';import {transformWithOxc} from 'vite';
 import {readLayout,saveLayout,NEST_ROOM_ID,NEST_LAYOUT_KEY} from '../src/lib/nestPlacement.mjs';
 const toy={id:'tired_crow',name_zh:'我没招了鸦'},placement={toyId:toy.id,x:0,z:0,rotation:0};
@@ -12,7 +13,7 @@ function room({fail=false,account=null}={}){
   useState(initial){const i=cursor++;if(!slots[i])slots[i]={value:typeof initial==='function'?initial():initial};return [slots[i].value,v=>{slots[i].value=typeof v==='function'?v(slots[i].value):v}]},
   useEffect(fn,deps){const i=cursor++,old=slots[i];if(!old||deps.some((v,j)=>v!==old.deps[j]))effects.push(()=>{old?.cleanup?.();slots[i]={deps,cleanup:fn()}})},
  };
- vm.runInNewContext(compiled+'\nglobalThis.Room=NestRoom;',context);
+ vm.runInNewContext(compiled+'\nglobalThis.Room=NestRoom;',Object.assign(context,localeMocks));
  const render=()=>{cursor=0;effects=[];const tree=context.Room({items:[],toys:[],active:true});effects.forEach(f=>f());return tree;};
  const find=(node,p)=>{if(!node||typeof node!=='object')return null;if(p(node))return node;for(const child of [node.props?.children].flat(Infinity)){const found=find(child,p);if(found)return found}return null;};
  const button=(tree,text)=>find(tree,n=>n.type==='button'&&n.props.children===text);

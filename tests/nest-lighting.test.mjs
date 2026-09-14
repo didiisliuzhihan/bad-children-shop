@@ -40,7 +40,7 @@ test('GLB removes only requested pillow and stair rail; lamp and window can visi
 
 test('mode control is labeled, updates in place and stays separate from saving a layout',()=>{
  const room=fs.readFileSync(new URL('../src/components/NestRoom.tsx',import.meta.url),'utf8'),scene=fs.readFileSync(new URL('../src/components/NestScene.tsx',import.meta.url),'utf8');
- assert(room.includes('aria-label="小窝昼夜"'));for(const mode of ['day','night'])assert(room.includes(`aria-pressed={timeOfDay==='${mode}'}`));
+ assert(room.includes('aria-label={tx("小窝昼夜")}'));for(const mode of ['day','night'])assert(room.includes(`aria-pressed={timeOfDay==='${mode}'}`));
  assert(room.includes('timeOfDay={timeOfDay}'));assert(room.includes('data-nest-active={active}'));assert(!room.includes('key={timeOfDay}'));
  assert(scene.includes('},[retry])'));assert(scene.includes('props.selected,props.timeOfDay,props.active]'));assert(scene.includes('lighting.setMode(state.timeOfDay)'));
  assert(!fs.readFileSync(new URL('../src/lib/nestLighting.ts',import.meta.url),'utf8').includes('localStorage'));

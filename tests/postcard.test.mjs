@@ -1,3 +1,4 @@
+import {localeMocks} from './helpers/locale.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -35,7 +36,7 @@ async function loadPostcard(){
  const result=await transformWithOxc(read('src/components/Postcard.tsx'),'Postcard.tsx',{jsx:{runtime:'automatic'}});
  const source=result.code.replace(/^import[^\n]*\n/gm,'').replace(/^export function /gm,'function ')+'\nglobalThis.Postcard=Postcard;';
  const context={usePostcardMedia:media=>({media,ref:{current:null},loading:false,error:'',imageFailed(){},retry(){}}),...React,_jsx:jsxRuntime.jsx,_jsxs:jsxRuntime.jsxs,defaultStamp:{name:'羊女孩默认戳',imageUrl:'/preview/default-stamp.png'},Icon:()=>null};
- vm.runInNewContext(source,context);return context;
+ vm.runInNewContext(source,Object.assign(context,localeMocks));return context;
 }
 test('rendered postcard omits the whole stamp element for home, including empty states',async()=>{
  const {Postcard}=await loadPostcard();

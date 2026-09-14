@@ -1,13 +1,16 @@
 import type {Capsule,Toy} from '../types';
 import {ensureQuestFont,QUEST_FONT_FAMILY} from './questFont';
+import {getLanguage,dateLabel,type Language} from './i18n';
+import {translateText} from './locale/en.mjs';
+import {wrapCanvasText} from './locale/wrapText.mjs';
 
 export const CARD_SIZE={width:1080,height:1440};
-export const collectibleCardKey=(toy:Toy,item:Capsule)=>JSON.stringify([toy.id,toy.card_image_url,toy.icon_url,toy.name_zh,toy.name_en,toy.tagline_zh,toy.color,toy.number,new Date(item.obtained_at).toLocaleDateString('zh-CN')]);
+export const collectibleCardKey=(toy:Toy,item:Capsule,language:Language=getLanguage())=>JSON.stringify([language,toy.id,toy.card_image_url,toy.icon_url,toy.name_zh,toy.name_en,toy.tagline_zh,toy.color,toy.number,dateLabel(item.obtained_at,language)]);
 const exportsCache=new Map<string,{promise:Promise<Blob>;blob?:Blob}>();
 export function cachedCollectibleCard(key:string){return exportsCache.get(key)?.blob}
 export function prepareCollectibleCard(toy:Toy,item:Capsule):Promise<Blob>{
- const key=collectibleCardKey(toy,item),existing=exportsCache.get(key);if(existing){exportsCache.delete(key);exportsCache.set(key,existing);return existing.promise}
- const entry:{promise:Promise<Blob>;blob?:Blob}={promise:renderCollectibleCard(toy,item)};exportsCache.set(key,entry);
+ const language=getLanguage(),key=collectibleCardKey(toy,item,language),existing=exportsCache.get(key);if(existing){exportsCache.delete(key);exportsCache.set(key,existing);return existing.promise}
+ const entry:{promise:Promise<Blob>;blob?:Blob}={promise:renderCollectibleCard(toy,item,language)};exportsCache.set(key,entry);
  entry.promise=entry.promise.then(blob=>{entry.blob=blob;let bytes=[...exportsCache.values()].reduce((sum,value)=>sum+(value.blob?.size||0),0);
   for(const [old,value] of exportsCache){if(exportsCache.size<=8&&bytes<=16*1024*1024)break;if(value.blob){bytes-=value.blob.size;exportsCache.delete(old)}}return blob;
  }).catch(error=>{if(exportsCache.get(key)===entry)exportsCache.delete(key);throw error});return entry.promise;
@@ -61,8 +64,8 @@ function fitFont(ctx:CanvasRenderingContext2D,text:string,max:number,min:number,
 /** Independent 3:4 canvas composition: never screenshots a responsive/lazy DOM node.
  * Image download and decode must succeed before any PNG can be offered to the user.
  */
-export async function renderCollectibleCard(toy:Toy,item:Capsule):Promise<Blob>{
-  const [img]=await Promise.all([decodedImage(toy.card_image_url||toy.icon_url),ensureQuestFont(1800).catch(()=>{})]);
+export async function renderCollectibleCard(toy:Toy,item:Capsule,language:Language=getLanguage()):Promise<Blob>{
+  const [img]=await Promise.all([decodedImage(toy.card_image_url||toy.icon_url),language==='zh'?ensureQuestFont(1800).catch(()=>{}):Promise.resolve()]);
   // A slow optional font cannot prevent viewing or exporting the actual card.
   const canvas=document.createElement('canvas');canvas.width=CARD_SIZE.width;canvas.height=CARD_SIZE.height;
   const ctx=canvas.getContext('2d');if(!ctx)throw Error('Canvas is unavailable');
@@ -77,6 +80,7 @@ export async function renderCollectibleCard(toy:Toy,item:Capsule):Promise<Blob>{
     ctx.fillStyle='#284550';ctx.font='500 22px Inter,sans-serif';ctx.fillText('THE LITTLE MISFITS',82,96);
     rounded(ctx,945,62,70,53,25);ctx.fillStyle='rgba(242,247,240,.85)';ctx.fill();
     ctx.fillStyle='#284550';ctx.textAlign='center';ctx.fillText(toy.number,980,96);ctx.textAlign='left';
+    if(language==='en'){englishCopy(ctx,toy,item,true);return encodeCard(canvas);}
     ctx.fillStyle='#173846';fitFont(ctx,toy.name_zh,52,35,920);ctx.fillText(toy.name_zh,80,1116);
     ctx.fillStyle='#70838a';fitFont(ctx,toy.name_en,30,22,920,450,'Fredoka,Inter,sans-serif');ctx.fillText(toy.name_en,80,1162);
     ctx.strokeStyle='#24495424';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(80,1195);ctx.lineTo(1000,1195);ctx.stroke();
@@ -91,6 +95,7 @@ export async function renderCollectibleCard(toy:Toy,item:Capsule):Promise<Blob>{
   ctx.fillStyle='#284550';ctx.font='500 23px Inter,sans-serif';ctx.fillText('THE LITTLE MISFITS',80,91);ctx.textAlign='right';ctx.fillText(toy.number,998,91);ctx.textAlign='left';
   const scale=Math.min(890/img.naturalWidth,665/img.naturalHeight),w=img.naturalWidth*scale,h=img.naturalHeight*scale;
   ctx.shadowColor='rgba(48,63,61,.13)';ctx.shadowBlur=23;ctx.shadowOffsetY=15;ctx.drawImage(img,540-w/2,145+(640-h)/2,w,h);ctx.restore();
+  if(language==='en'){englishCopy(ctx,toy,item,false);return encodeCard(canvas);}
   ctx.fillStyle='#173846';fitFont(ctx,toy.name_zh,58,39,908);ctx.fillText(toy.name_zh,80,915);
   ctx.fillStyle='#70838a';fitFont(ctx,toy.name_en,32,23,908,450,'Fredoka,Inter,sans-serif');ctx.fillText(toy.name_en,80,969);
   ctx.strokeStyle='#24495424';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(80,1011);ctx.lineTo(1000,1011);ctx.stroke();
@@ -103,4 +108,14 @@ export async function renderCollectibleCard(toy:Toy,item:Capsule):Promise<Blob>{
   if(y>1330)throw Error('Card copy is too long for this template');
   ctx.font='400 26px Inter,sans-serif';ctx.fillStyle='#899b9d';ctx.fillText(new Date(item.obtained_at).toLocaleDateString('zh-CN'),80,1365);
   return encodeCard(canvas);
+}
+
+function englishCopy(ctx:CanvasRenderingContext2D,toy:Toy,item:Capsule,art:boolean){
+ const top=art?1116:915;ctx.fillStyle='#173846';fitFont(ctx,toy.name_en,art?49:56,28,920);ctx.fillText(toy.name_en,80,top);
+ const [statement,...parts]=toy.tagline_zh.replace(/（任务）|\(任务\)/g,'').split(/——|--/);
+ const block=(text:string,y:number,size:number,color:string)=>{let rows:string[]=[];do{ctx.font=`500 ${size}px Inter,"Segoe UI",sans-serif`;rows=wrapCanvasText(text,920,t=>ctx.measureText(t).width);if(rows.length<=2)break;size--;}while(size>23);if(rows.length>2)throw Error('English card text exceeds layout');ctx.fillStyle=color;rows.forEach((line,i)=>ctx.fillText(line,80,y+i*(size+10)));};
+ ctx.strokeStyle='#24495424';ctx.beginPath();ctx.moveTo(80,top+30);ctx.lineTo(1000,top+30);ctx.stroke();
+ block(translateText(statement,'en'),top+77,art?32:38,'#284653');
+ block(translateText(parts.join('——').trim(),'en'),art?1290:1160,art?35:42,'#b84635');
+ ctx.font='400 25px Inter,sans-serif';ctx.fillStyle='#899b9d';ctx.fillText(dateLabel(item.obtained_at,'en'),80,1392);
 }

@@ -1,7 +1,10 @@
 import {ensureQuestFont,QUEST_FONT_FAMILY} from './questFont';
 import {canvasBlob} from './postcardMedia';
+import {getLanguage,dateLabel,type Language} from './i18n';
+import {translateText} from './locale/en.mjs';
+import {wrapCanvasText} from './locale/wrapText.mjs';
 
-export type NestKeepsakeInput={photo:Blob;nickname?:string;text:string;date:string;layout?:'portrait'|'landscape'};
+export type NestKeepsakeInput={photo:Blob;nickname?:string;text:string;date:string;layout?:'portrait'|'landscape';language?:Language};
 function wrap(ctx:CanvasRenderingContext2D,text:string,width:number){
  const lines:string[]=[];let line='';
  for(const char of Array.from(text)){if(char==='\n'){lines.push(line);line='';continue}if(line&&ctx.measureText(line+char).width>width){lines.push(line);line=char}else line+=char}
@@ -27,9 +30,10 @@ async function decodePhoto(blob:Blob){
 /** Direct composition from decoded scene pixels, without DOM/SVG foreignObject.
  * Preview, download and Web Share all use the same PNG. */
 export async function renderNestKeepsake(input:NestKeepsakeInput):Promise<Blob>{
+ const language=input.language||getLanguage(),t=(text:string)=>translateText(text,language),family=language==='en'?'Inter,"Segoe UI",sans-serif':QUEST_FONT_FAMILY;
  const decoded=await decodePhoto(input.photo);
  try{
-  await ensureQuestFont().catch(()=>{throw Error('留念字体暂时没有加载好，请点重新生成。')});
+  if(language==='zh')await ensureQuestFont().catch(()=>{throw Error('留念字体暂时没有加载好，请点重新生成。')});
   const check=document.createElement('canvas');check.width=16;check.height=16;
   const checkCtx=check.getContext('2d');if(!checkCtx)throw Error('浏览器暂时无法生成明信片。');
   checkCtx.drawImage(decoded.image,0,0,16,16);
@@ -38,8 +42,8 @@ export async function renderNestKeepsake(input:NestKeepsakeInput):Promise<Blob>{
   const x=landscape?496:pad,letterWidth=landscape?372:476,start=landscape?pad:610;
   const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');if(!ctx)throw Error('浏览器暂时无法生成明信片。');
   const titleSize=landscape?40:44,bodySize=landscape?25:28,lineHeight=bodySize*1.8;
-  ctx.font='400 '+titleSize+'px '+QUEST_FONT_FAMILY;const title=wrap(ctx,input.nickname?.trim()||'一个坏小孩',letterWidth);
-  ctx.font='400 '+bodySize+'px '+QUEST_FONT_FAMILY;const message=wrap(ctx,input.text,letterWidth);
+  ctx.font='400 '+titleSize+'px '+family;const title=wrapCanvasText(input.nickname?.trim()||t('一个坏小孩'),letterWidth,v=>ctx.measureText(v).width);
+  ctx.font='400 '+bodySize+'px '+family;const message=wrapCanvasText(t(input.text),letterWidth,v=>ctx.measureText(v).width);
   const titleY=start+35,sourceY=titleY+title.length*titleSize*1.35+14,messageY=sourceY+64;
   const footerY=messageY+message.length*lineHeight+42,height=Math.ceil(Math.max(pad+photoSize+64,footerY+80));
   canvas.width=width*2;canvas.height=height*2;ctx.scale(2,2);ctx.textBaseline='top';
@@ -53,12 +57,12 @@ export async function renderNestKeepsake(input:NestKeepsakeInput):Promise<Blob>{
   ctx.strokeStyle='#9f8d6c52';ctx.beginPath();
   if(landscape){ctx.moveTo(464,pad);ctx.lineTo(464,height-pad)}else{ctx.moveTo(pad,570);ctx.lineTo(width-pad,570)}ctx.stroke();
   ctx.fillText('BAD CHILDREN SHOP',x,start);
-  ctx.font='400 '+titleSize+'px '+QUEST_FONT_FAMILY;ctx.fillStyle='#9e6551';title.forEach((line,i)=>ctx.fillText(line,x,titleY+i*titleSize*1.35));
-  ctx.font='400 18px "PingFang SC","Microsoft YaHei",sans-serif';ctx.fillStyle='#827768';ctx.fillText('来自你的小窝',x,sourceY);
-  ctx.font='400 '+bodySize+'px '+QUEST_FONT_FAMILY;ctx.fillStyle='#594c43';
+  ctx.font='400 '+titleSize+'px '+family;ctx.fillStyle='#9e6551';title.forEach((line,i)=>ctx.fillText(line,x,titleY+i*titleSize*1.35));
+  ctx.font='400 18px "PingFang SC","Microsoft YaHei",sans-serif';ctx.fillStyle='#827768';ctx.fillText(t('来自你的小窝'),x,sourceY);
+  ctx.font='400 '+bodySize+'px '+family;ctx.fillStyle='#594c43';
   message.forEach((line,i)=>{const y=messageY+i*lineHeight;ctx.fillText(line,x,y);ctx.strokeStyle='#b7a48552';ctx.beginPath();ctx.moveTo(x,y+lineHeight-7);ctx.lineTo(x+letterWidth,y+lineHeight-7);ctx.stroke()});
-  ctx.fillStyle='#827768';ctx.font='400 18px "PingFang SC","Microsoft YaHei",sans-serif';ctx.fillText('把这一刻，留给你。',x,footerY);
-  ctx.font='400 14px Arial,sans-serif';ctx.fillText(new Date(input.date).toLocaleDateString('zh-CN'),x,footerY+32);
+  ctx.fillStyle='#827768';ctx.font='400 18px "PingFang SC","Microsoft YaHei",sans-serif';ctx.fillText(t('把这一刻，留给你。'),x,footerY);
+  ctx.font='400 14px Arial,sans-serif';ctx.fillText(dateLabel(input.date,language),x,footerY+32);
   return await canvasBlob(canvas,'image/png');
  }finally{decoded.release()}
 }

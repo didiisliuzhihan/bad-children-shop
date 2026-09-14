@@ -1,3 +1,4 @@
+import {localeMocks} from './helpers/locale.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -14,7 +15,7 @@ async function handlers(editing){
   scene:{updateMatrixWorld(){calls.push(['raycast'])}},raycaster:{intersectObjects:()=>[{object:{userData:{toyId:'tired_crow'}}}]},camera:{},actors:new Map(),
   floorPoint:()=>({sub(){return this}}),THREE:{Vector3:class{}},
   canvas:{getBoundingClientRect:()=>({}),style:{},setPointerCapture:id=>calls.push(['capture',id]),hasPointerCapture:()=>true,releasePointerCapture:id=>calls.push(['release',id])}};
- vm.runInNewContext(result.code,context);return {...context,calls};
+ vm.runInNewContext(result.code,Object.assign(context,localeMocks));return {...context,calls};
 }
 test('arrangement handlers stay inactive while visiting; independent sound taps never open a card',async()=>{
  const h=await handlers(false);

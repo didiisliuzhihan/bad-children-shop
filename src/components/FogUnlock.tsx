@@ -1,3 +1,4 @@
+import {tx,useLanguage} from '../lib/i18n';
 import {useEffect,useRef,useState} from 'react';
 import type {PointerEvent as ReactPointerEvent} from 'react';
 import type {Toy} from '../types';
@@ -7,6 +8,7 @@ import {Icon} from './Icon';
 
 const questions:Record<string,string>={jimao:'奶茶安排上了么？',kuku_sunflower:'摸了葵的脑袋了么？',stressed_jimao:'帮小鸡毛做了那件小事了么？',miss_popcorn:'告诉她“别急，你好漂亮”了么？',tired_crow:'陪鸦理直气壮地歇过一会儿了么？'};
 export function FogUnlock({toy,stage,onCard,onUnlock}:{toy:Toy;stage:string;onCard:()=>void;onUnlock:()=>boolean|Promise<boolean>}){
+ useLanguage();
  const [armed,setArmed]=useState(false),[progress,setProgress]=useState(0),[error,setError]=useState(false);
  const canvas=useRef<HTMLCanvasElement>(null),coverage=useRef(new WipeCoverage()),pointer=useRef<number|null>(null),last=useRef<{x:number;y:number}|null>(null),lastSound=useRef(0),finished=useRef(false);
  const ready=stage==='ready';
@@ -46,8 +48,8 @@ export function FogUnlock({toy,stage,onCard,onUnlock}:{toy:Toy;stage:string;onCa
   <div className="fog-water" aria-hidden="true"><i/><i/><i/><i/></div>
   <div className="fog-message">
    <span className="fog-seal"><Icon name={armed?'heart':'lock'} size={18}/></span>
-   {stage==='unsaved'?<><h3>它在雾里，等你靠近</h3><p>先把卡片带走，<br/>再去完成那件小事吧。</p><button className="room-pill" onClick={onCard}>去保存卡片<Icon name="arrow" size={15}/></button></>:stage==='waiting'?<><h3>去忙那件小事吧</h3><p>它会在这里等你。</p><span className="fog-task-reminder">做完小任务，再来敲敲玻璃吧。</span></>:<><h3>{armed?(questions[toy.id]||'答应它的那件小事，做完了么？'):'它好像听见你回来了'}</h3><p>{armed?'做完了，就擦擦玻璃吧。':'轻敲玻璃，看看它想说什么。'}</p>{!armed?<button className="room-pill" onClick={()=>{setArmed(true);sound('click')}}>敲敲玻璃<Icon name="heart" size={15}/></button>:<><span className="wipe-progress" aria-hidden="true"><i style={{width:progress*100+'%'}}/></span><button className="wipe-alternative" onClick={unlock}>做完啦，直接解锁</button></>}</>}
-   {error&&<p className="room-error" role="alert">进度暂时没能保存，请再试一次。</p>}
+   {tx(stage==='unsaved'?<><h3>{tx("它在雾里，等你靠近")}</h3><p>{tx("先把卡片带走，")}<br/>{tx("再去完成那件小事吧。")}</p><button className="room-pill" onClick={onCard}>{tx("去保存卡片")}<Icon name="arrow" size={15}/></button></>:stage==='waiting'?<><h3>{tx("去忙那件小事吧")}</h3><p>{tx("它会在这里等你。")}</p><span className="fog-task-reminder">{tx("做完小任务，再来敲敲玻璃吧。")}</span></>:<><h3>{tx(armed?(questions[toy.id]||'答应它的那件小事，做完了么？'):'它好像听见你回来了')}</h3><p>{tx(armed?'做完了，就擦擦玻璃吧。':'轻敲玻璃，看看它想说什么。')}</p>{tx(!armed?<button className="room-pill" onClick={()=>{setArmed(true);sound('click')}}>{tx("敲敲玻璃")}<Icon name="heart" size={15}/></button>:<><span className="wipe-progress" aria-hidden="true"><i style={{width:progress*100+'%'}}/></span><button className="wipe-alternative" onClick={unlock}>{tx("做完啦，直接解锁")}</button></>)}</>)}
+   {tx(error&&<p className="room-error" role="alert">{tx("进度暂时没能保存，请再试一次。")}</p>)}
   </div>
  </div>;
 }

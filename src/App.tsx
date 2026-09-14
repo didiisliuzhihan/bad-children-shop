@@ -1,3 +1,5 @@
+import {tx,useLanguage} from './lib/i18n';
+import {LanguageSwitch} from './components/LanguageSwitch';
 import {useCallback,useEffect,useRef,useState} from 'react';
 import type {ReactNode} from 'react';
 import type {AccountDraw} from './lib/nestLifeTypes';
@@ -19,6 +21,7 @@ const phaseCopy:Partial<Record<Phase,string>>={IDLE:'向右滑动，遇见你的
 
 export type ShopPreview={items:Capsule[];catalog?:Toy[];mode:'local'|'cloud';owner?:string;nickname?:string;storyCount?:number;initialBag?:boolean;production?:boolean;extra:ReactNode;onDraw:()=>Promise<AccountDraw>;onKeep:(draw:AccountDraw)=>Promise<void>;onReject:(draw:AccountDraw)=>Promise<void>};
 export default function App({preview}:{preview?:ShopPreview}={}){
+ useLanguage();
   const[machine,setMachine]=useState<GLTF|null>(null),[loadPercent,setLoadPercent]=useState(0),[loadError,setLoadError]=useState(false),[retry,setRetry]=useState(0);
   const[phase,setPhase]=useState<Phase>('IDLE'),[drag,setDrag]=useState(0),[muted,setMuted]=useState(false);
   const[audioReady,setAudioReady]=useState(isAudioReady);
@@ -118,20 +121,20 @@ export default function App({preview}:{preview?:ShopPreview}={}){
   return <main className={'shop is-entered '+(bag?'has-bag ':'')+(overlay?'is-revealing':'')} data-community-preview={!!preview} data-phase={phase} data-audio-ready={audioReady}>
     <div className="grain" aria-hidden="true"/>
     <header className="topbar" inert={overlay?true:undefined}>
-      <button className="brand" onClick={()=>{if(phase==='IDLE')setBag(false)}} aria-label="Bad Children Shop 首页"><BrandMark/><span>BAD CHILDREN<br/>SHOP</span></button>
-      <div className="top-actions">{preview?.extra}
-        <button className="icon-button" onClick={()=>setGuide(true)} aria-label="使用说明"><Icon name="info"/></button>
-        <button className="icon-button" data-audio-toggle onClick={toggleAudio} aria-label={muted?'开启声音':audioReady?'关闭声音':'开启声音'} aria-pressed={!muted&&audioReady}><Icon name={muted||!audioReady?'mute':'sound'} size={20}/></button>
-        <button ref={bagButton} className="bag-button" onClick={()=>setBag(true)} disabled={phase!=='IDLE'} aria-label={'我的扭蛋包，'+(items.length+(preview?.storyCount||0))+'个收藏'}><Icon name="bag" size={20}/><span>扭蛋包</span><b>{items.length+(preview?.storyCount||0)}</b></button>
+      <button className="brand" onClick={()=>{if(phase==='IDLE')setBag(false)}} aria-label={tx("Bad Children Shop 首页")}><BrandMark/><span>BAD CHILDREN<br/>SHOP</span></button>
+      <div className="top-actions"><LanguageSwitch/>{tx(preview?.extra)}
+        <button className="icon-button" onClick={()=>setGuide(true)} aria-label={tx("使用说明")}><Icon name="info"/></button>
+        <button className="icon-button" data-audio-toggle onClick={toggleAudio} aria-label={tx(muted?'开启声音':audioReady?'关闭声音':'开启声音')} aria-pressed={!muted&&audioReady}><Icon name={muted||!audioReady?'mute':'sound'} size={20}/></button>
+        <button ref={bagButton} className="bag-button" onClick={()=>setBag(true)} disabled={phase!=='IDLE'} aria-label={tx('我的扭蛋包，'+(items.length+(preview?.storyCount||0))+'个收藏')}><Icon name="bag" size={20}/><span>{tx("扭蛋包")}</span><b>{tx(items.length+(preview?.storyCount||0))}</b></button>
       </div>
     </header>
     <section className={'machine-page '+(bag?'behind-bag':'')} aria-hidden={bag||overlay} inert={bag||overlay?true:undefined}>
       <div className="studio-halo" aria-hidden="true"/><div className="background-type" aria-hidden="true">BAD<br/>CHILDREN</div>
-      <div className="canvas-wrap">{machine&&!bag&&!overlay&&<MachineScene model={machine} phase={phase} progress={drag} onProgress={setDrag} onTurn={spin} reduced={reduced}/>}</div>
-      {!machine&&<div className="machine-loading" role="status">{loadError?<><p>模型暂时未能加载</p><button className="pill-button dark" onClick={()=>setRetry(value=>value+1)}>重新加载<Icon name="arrow"/></button></>:<><span className="loading-ring"/><p>加载模型 <span>{loadPercent}%</span></p></>}</div>}
+      <div className="canvas-wrap">{tx(machine&&!bag&&!overlay&&<MachineScene model={machine} phase={phase} progress={drag} onProgress={setDrag} onTurn={spin} reduced={reduced}/>)}</div>
+      {tx(!machine&&<div className="machine-loading" role="status">{tx(loadError?<><p>{tx("模型暂时未能加载")}</p><button className="pill-button dark" onClick={()=>setRetry(value=>value+1)}>{tx("重新加载")}<Icon name="arrow"/></button></>:<><span className="loading-ring"/><p>{tx("加载模型 ")}<span>{tx(loadPercent)}%</span></p></>)}</div>)}
       <div className="interaction-dock">
-        <p className="gesture-label" aria-live="polite">{requesting?'正在准备这枚扭蛋…':phaseCopy[phase]||phaseCopy.IDLE}</p>
-        <button className={'turn-control '+(phase!=='IDLE'?'busy':'')} disabled={!machine||phase!=='IDLE'||requesting} aria-label="轻点或向右滑动旋钮，或按回车抽取扭蛋"
+        <p className="gesture-label" aria-live="polite">{tx(requesting?'正在准备这枚扭蛋…':phaseCopy[phase]||phaseCopy.IDLE)}</p>
+        <button className={'turn-control '+(phase!=='IDLE'?'busy':'')} disabled={!machine||phase!=='IDLE'||requesting} aria-label={tx("轻点或向右滑动旋钮，或按回车抽取扭蛋")}
           onClick={event=>{if(event.detail===0||tapAllowed.current)spin()}}
           onKeyDown={event=>{if(['Enter',' ','ArrowRight'].includes(event.key)){event.preventDefault();spin()}}}
           onPointerDown={event=>{if(phase!=='IDLE')return;tapAllowed.current=true;dragStart.current=event.clientX;event.currentTarget.setPointerCapture(event.pointerId)}}
@@ -140,26 +143,26 @@ export default function App({preview}:{preview?:ShopPreview}={}){
           onPointerCancel={()=>{tapAllowed.current=false;dragStart.current=null;if(phaseRef.current==='IDLE')setDrag(0)}}>
           <span className="turn-fill" style={{width:drag*100+'%'}}/>
           <span className="dial-travel" aria-hidden="true" style={{transform:'translateX('+drag*100+'%)'}}><span className="dial-mini" style={{transform:'rotate('+drag*180+'deg)'}}><i/></span></span>
-          <span className="turn-copy">{phase==='IDLE'?(!audioReady&&!muted?'轻点开始 · 开启声音':'抽取扭蛋'):'抽取中'}</span><Icon name="arrow" size={19}/>
+          <span className="turn-copy">{tx(phase==='IDLE'?(!audioReady&&!muted?'轻点开始 · 开启声音':'抽取扭蛋'):'抽取中')}</span><Icon name="arrow" size={19}/>
         </button>
       </div>
     </section>
-    {overlay&&selected&&!(drawResult?.type==='story'&&phase!=='SEALED')&&<section ref={revealRef} tabIndex={-1} className={'reveal-overlay phase-'+phase.toLowerCase()+(toyReady?' toy-ready':'')} role="dialog" aria-modal="true" aria-label={phase==='SEALED'?'打开扭蛋':'玩偶详情'}>
+    {tx(overlay&&selected&&!(drawResult?.type==='story'&&phase!=='SEALED')&&<section ref={revealRef} tabIndex={-1} className={'reveal-overlay phase-'+phase.toLowerCase()+(toyReady?' toy-ready':'')} role="dialog" aria-modal="true" aria-label={tx(phase==='SEALED'?'打开扭蛋':'玩偶详情')}>
       <div className="reveal-portrait"><div className="portrait-glow"/><RevealScene toy={selected} opened={phase!=='SEALED'} decision={phase} reduced={reduced} loadToy={drawResult?.type!=='story'} onReady={ready} onError={modelError}/>
-        {phase!=='SEALED'&&toyError&&<div className="model-fallback"><img src={selected.icon_url} alt={selected.name_zh}/><small>暂时显示收藏图片，不影响收留</small></div>}
+        {tx(phase!=='SEALED'&&toyError&&<div className="model-fallback"><img src={selected.icon_url} alt={tx(selected.name_zh)}/><small>{tx("暂时显示收藏图片，不影响收留")}</small></div>)}
       </div>
-      {phase==='SEALED'?<div className="sealed-copy"><button className="pill-button cream" onClick={open}>打开扭蛋<Icon name="arrow"/></button></div>:<div className="reveal-copy">
-        <h1>{selected.name_zh}</h1><p className="toy-name-en">{selected.name_en}</p><Tagline toy={selected}/><p className="tagline-en">{selected.tagline_en.replace(/\s*\(quest\)/gi,'')}</p>
-        {!toyReady&&!toyError&&<small className="toy-loading-label">加载玩偶中…</small>}
+      {tx(phase==='SEALED'?<div className="sealed-copy"><button className="pill-button cream" onClick={open}>{tx("打开扭蛋")}<Icon name="arrow"/></button></div>:<div className="reveal-copy">
+        <h1>{tx(selected.name_zh)}</h1><p className="toy-name-en">{tx(selected.name_en)}</p><Tagline toy={selected}/><p className="tagline-en">{tx(selected.tagline_en.replace(/\s*\(quest\)/gi,''))}</p>
+        {tx(!toyReady&&!toyError&&<small className="toy-loading-label">{tx("加载玩偶中…")}</small>)}
         <div className={'decision-actions'+(requesting?' is-saving':'')} aria-busy={requesting} style={{visibility:phase==='DECISION'?'visible':'hidden'}}>
-          <button className="pill-button cream" disabled={requesting} onClick={()=>void adopt()}><Icon name="heart" size={19}/>{requesting?'正在保存选择…':'收留并疼爱它'}</button><button className="pill-button cast-button" disabled={requesting} onClick={()=>void reject()}>赶出去<Icon name="arrow" size={18}/></button>
+          <button className="pill-button cream" disabled={requesting} onClick={()=>void adopt()}><Icon name="heart" size={19}/>{tx(requesting?'正在保存选择…':'收留并疼爱它')}</button><button className="pill-button cast-button" disabled={requesting} onClick={()=>void reject()}>{tx("赶出去")}<Icon name="arrow" size={18}/></button>
         </div>
-      </div>}
-      {phase==='COLLECTED'&&<div className={'flying-card'+(selected.card_image_url?' has-artwork':'')} ref={flyingCard}><div><img src={selected.card_image_url||selected.icon_url} alt=""/></div><span className="card-series">THE LITTLE MISFITS</span><h3>{selected.name_zh}</h3><Tagline toy={selected}/></div>}
-    </section>}
-    {overlay&&drawResult?.type==='story'&&drawResult.story&&phase!=='SEALED'&&<section ref={revealRef} tabIndex={-1} className="story-reveal" role="dialog" aria-modal="true" aria-label="来自自己小窝的故事彩蛋"><Postcard source="nest" text={drawResult.story.text} date={drawResult.story.createdAt} media={drawResult.story.media}/><div className={'decision-actions'+(requesting?' is-saving':'')} aria-busy={requesting} style={{visibility:phase==='DECISION'?'visible':'hidden'}}><button className="pill-button dark" disabled={requesting} onClick={()=>void adopt()}>{requesting?'正在保存选择…':'把这一刻收好'}<Icon name="heart"/></button><button className="pill-button" disabled={requesting} onClick={()=>void reject()}>先放回去</button></div></section>}
-    {bag&&<Collection key={preview?.owner||'default'} items={items} toys={toys} mode={mode} communityPreview={!!preview} production={preview?.production} playerNickname={preview?.nickname} onClose={()=>setBag(false)} toast={toast}/>}
-    {guide&&<Modal label="使用说明" onClose={closeGuide} className="guide-modal"><h2>使用说明</h2><ol><li>轻点抽取按钮或红色旋钮即可开启声音并抽取，也可以向右拖动或按回车。</li><li>落蛋后点击“打开扭蛋”，查看玩偶。</li><li>收留后可在扭蛋包里听故事、读故事和保存卡片。</li></ol><p>部分手机需一次轻点才能允许出声。游客收藏跟随当前浏览器；登录站内账户后，收藏和小窝可在其他浏览器恢复。已有收藏可通过账户菜单“带上本机旧收藏”追加导入。请妥善保管密码和备用钥匙。</p></Modal>}
-    <div className={'toast '+(toastText?'show':'')} role="status"><Icon name="check" size={17}/>{toastText}</div>
+      </div>)}
+      {tx(phase==='COLLECTED'&&<div className={'flying-card'+(selected.card_image_url?' has-artwork':'')} ref={flyingCard}><div><img src={selected.card_image_url||selected.icon_url} alt=""/></div><span className="card-series">THE LITTLE MISFITS</span><h3>{tx(selected.name_zh)}</h3><Tagline toy={selected}/></div>)}
+    </section>)}
+    {tx(overlay&&drawResult?.type==='story'&&drawResult.story&&phase!=='SEALED'&&<section ref={revealRef} tabIndex={-1} className="story-reveal" role="dialog" aria-modal="true" aria-label={tx("来自自己小窝的故事彩蛋")}><Postcard source="nest" text={drawResult.story.text} date={drawResult.story.createdAt} media={drawResult.story.media}/><div className={'decision-actions'+(requesting?' is-saving':'')} aria-busy={requesting} style={{visibility:phase==='DECISION'?'visible':'hidden'}}><button className="pill-button dark" disabled={requesting} onClick={()=>void adopt()}>{tx(requesting?'正在保存选择…':'把这一刻收好')}<Icon name="heart"/></button><button className="pill-button" disabled={requesting} onClick={()=>void reject()}>{tx("先放回去")}</button></div></section>)}
+    {tx(bag&&<Collection key={preview?.owner||'default'} items={items} toys={toys} mode={mode} communityPreview={!!preview} production={preview?.production} playerNickname={preview?.nickname} onClose={()=>setBag(false)} toast={toast}/>)}
+    {tx(guide&&<Modal label={tx("使用说明")} onClose={closeGuide} className="guide-modal"><h2>{tx("使用说明")}</h2><ol><li>{tx("轻点抽取按钮或红色旋钮即可开启声音并抽取，也可以向右拖动或按回车。")}</li><li>{tx("落蛋后点击“打开扭蛋”，查看玩偶。")}</li><li>{tx("收留后可在扭蛋包里听故事、读故事和保存卡片。")}</li></ol><p>{tx("部分手机需一次轻点才能允许出声。游客收藏跟随当前浏览器；登录站内账户后，收藏和小窝可在其他浏览器恢复。已有收藏可通过账户菜单“带上本机旧收藏”追加导入。请妥善保管密码和备用钥匙。")}</p></Modal>)}
+    <div className={'toast '+(toastText?'show':'')} role="status"><Icon name="check" size={17}/>{tx(toastText)}</div>
   </main>;
 }

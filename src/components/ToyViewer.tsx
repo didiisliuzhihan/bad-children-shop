@@ -1,3 +1,4 @@
+import {tx,useLanguage} from '../lib/i18n';
 import {useEffect,useRef,useState} from 'react';
 import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
@@ -9,6 +10,7 @@ import type {ViewerLighting} from '../lib/viewerLighting';
 
 const directions={front:[0,.065,1],quarter:[.35,.14,1],side:[-1,.065,0],back:[0,.065,-1]} as const;
 export function ToyViewer({toy,lighting=viewerLighting}:{toy:Toy;lighting?:ViewerLighting}){
+ useLanguage();
  const host=useRef<HTMLDivElement>(null),api=useRef<{angle:(name:keyof typeof directions)=>void;rotate:(value:boolean)=>void}|null>(null);
  const [ready,setReady]=useState(false),[failed,setFailed]=useState(false),[retry,setRetry]=useState(0),[angle,setAngle]=useState('quarter'),[rotating,setRotating]=useState(false);
  useEffect(()=>{
@@ -63,12 +65,12 @@ export function ToyViewer({toy,lighting=viewerLighting}:{toy:Toy;lighting?:Viewe
   };
  },[toy.model_url,retry,lighting]);
  return <div className="toy-viewer" data-viewer-ready={ready&&!failed} data-viewer-look={lighting.id}>
-  <div ref={host} className="toy-viewer-canvas" aria-label={toy.name_zh+'三维模型，可拖动旋转和双指缩放'}/>
-  {!ready&&!failed&&<div className="viewer-status" role="status"><span className="loading-ring"/><span>它正在走过来…</span></div>}
-  {failed&&<div className="viewer-status"><p>模型暂时没能加载，解锁进度还在。</p><button className="room-pill" onClick={()=>setRetry(n=>n+1)}>重新加载</button></div>}
-  <div className="viewer-angles" aria-label="模型观察角度">
-   {([['front','正面'],['quarter','斜侧'],['side','侧面'],['back','背面']] as const).map(([key,label])=><button key={key} disabled={!ready||failed} aria-pressed={angle===key&&!rotating} onClick={()=>{api.current?.angle(key);setAngle(key);setRotating(false)}}>{label}</button>)}
-   <button disabled={!ready||failed} aria-pressed={rotating} onClick={()=>{api.current?.rotate(!rotating);setRotating(!rotating)}}>自动旋转</button>
-  </div><p className="viewer-hint">拖动旋转 · 双指或滚轮缩放</p>
+  <div ref={host} className="toy-viewer-canvas" aria-label={tx(toy.name_zh+'三维模型，可拖动旋转和双指缩放')}/>
+  {tx(!ready&&!failed&&<div className="viewer-status" role="status"><span className="loading-ring"/><span>{tx("它正在走过来…")}</span></div>)}
+  {tx(failed&&<div className="viewer-status"><p>{tx("模型暂时没能加载，解锁进度还在。")}</p><button className="room-pill" onClick={()=>setRetry(n=>n+1)}>{tx("重新加载")}</button></div>)}
+  <div className="viewer-angles" aria-label={tx("模型观察角度")}>
+   {tx(([['front','正面'],['quarter','斜侧'],['side','侧面'],['back','背面']] as const).map(([key,label])=><button key={key} disabled={!ready||failed} aria-pressed={angle===key&&!rotating} onClick={()=>{api.current?.angle(key);setAngle(key);setRotating(false)}}>{tx(label)}</button>))}
+   <button disabled={!ready||failed} aria-pressed={rotating} onClick={()=>{api.current?.rotate(!rotating);setRotating(!rotating)}}>{tx("自动旋转")}</button>
+  </div><p className="viewer-hint">{tx("拖动旋转 · 双指或滚轮缩放")}</p>
  </div>;
 }

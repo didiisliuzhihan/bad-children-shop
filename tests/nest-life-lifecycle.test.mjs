@@ -1,3 +1,4 @@
+import {localeMocks} from './helpers/locale.mjs';
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import vm from 'node:vm';import {stripTypeScriptTypes} from 'node:module';
 import {eligibleMoments,lifeDirection} from '../src/lib/nestLifeRules.mjs';
 function harness(accountMode=true,options={}){
@@ -11,7 +12,7 @@ function harness(accountMode=true,options={}){
   setInterval:(fn,ms)=>{const id=++seq;timers.set(id,{fn,at:now+ms,ms});return id},clearInterval:id=>timers.delete(id),
   setNestAmbience:value=>ambience.push(value),cookingCue(){},
  };
- const source=stripTypeScriptTypes(fs.readFileSync(new URL('../src/lib/useNestLife.ts',import.meta.url),'utf8')).replace(/^import .*;\s*$/gm,'').replace('export function useNestLife','function useNestLife')+'\nglobalThis.hook=useNestLife;';vm.runInNewContext(source,context);
+ const source=stripTypeScriptTypes(fs.readFileSync(new URL('../src/lib/useNestLife.ts',import.meta.url),'utf8')).replace(/^import .*;\s*$/gm,'').replace('export function useNestLife','function useNestLife')+'\nglobalThis.hook=useNestLife;';vm.runInNewContext(source,Object.assign(context,localeMocks));
  const placements=[{toyId:'miss_popcorn',x:0,z:1},{toyId:'tired_crow',x:2,z:1}];
  const render=(ready=true)=>{cursor=0;pending=[];const result=context.hook(ready,placements,async(event)=>{shots.push({event,at:now});if(shots.length<=(options.failShots||0))throw Error('capture unavailable');return {type:'image/png'}});pending.forEach(f=>f());return result};
  const flush=async()=>{for(let i=0;i<12;i++)await Promise.resolve()};
@@ -37,4 +38,3 @@ test('a missed shot is retried inside the same event, and fills the original mis
 test('failed captures are visible and never upload a placeholder',async()=>{
  const h=harness(true,{failShots:3});h.render();await h.advance(48500);assert.equal(h.photos.length,0);assert.match(h.render().error,/照片没拍好/);h.unmount();
 });
-

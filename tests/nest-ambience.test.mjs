@@ -1,3 +1,4 @@
+import {localeMocks} from './helpers/locale.mjs';
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import vm from 'node:vm';
 import {stripTypeScriptTypes} from 'node:module';import {transformWithOxc} from 'vite';
 import {createHash} from 'node:crypto';
@@ -10,7 +11,7 @@ function cooking(loader=async()=>({duration:11.34})){
   createBufferSource(){const source={loop:false,started:false,stopped:false,connect(){},disconnect(){},start(){this.started=true},stop(){this.stopped=true}};sources.push(source);return source},
  };
  const context={setTimeout(fn,ms){timers.set(++id,{fn,at:now+ms});return id},clearTimeout(key){timers.delete(key)}};
- vm.runInNewContext(stripTypeScriptTypes(read('src/lib/nestAmbience.ts')).replace('export function','function')+'\nglobalThis.create=createNestAmbience;',context);
+ vm.runInNewContext(stripTypeScriptTypes(read('src/lib/nestAmbience.ts')).replace('export function','function')+'\nglobalThis.create=createNestAmbience;',Object.assign(context,localeMocks));
  const states=[];const engine=context.create(audio,{},loader,state=>states.push(state));
  const advance=ms=>{now+=ms;for(const [key,t] of timers)if(t.at<=now){timers.delete(key);t.fn()}};
  const flush=async()=>{for(let i=0;i<12;i++)await Promise.resolve()};
@@ -55,7 +56,7 @@ test('actual room opens ambience with zero unlocked toys and no saved room revis
   useEffect(fn,deps){const i=cursor++,old=slots[i];if(!old||deps.some((v,j)=>v!==old.deps[j]))pending.push(()=>{old?.cleanup?.();slots[i]={deps,cleanup:fn()}})},
  };
  const compiled=await transformWithOxc(read('src/components/NestRoom.tsx'),'NestRoom.tsx',{jsx:{runtime:'automatic'}});
- vm.runInNewContext(compiled.code.replace(/^import[^\n]*\n/gm,'').replace(/^export function /gm,'function ')+'\nglobalThis.Room=NestRoom;',context);
+ vm.runInNewContext(compiled.code.replace(/^import[^\n]*\n/gm,'').replace(/^export function /gm,'function ')+'\nglobalThis.Room=NestRoom;',Object.assign(context,localeMocks));
  const render=soundActive=>{cursor=0;pending=[];const tree=context.Room({items:[],toys:[],active:true,soundActive});pending.forEach(fn=>fn());return tree};
  try{
   const tree=render(true);assert(calls.some(([active,source])=>active&&source==='room'));

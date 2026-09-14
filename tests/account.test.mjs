@@ -1,3 +1,4 @@
+import {localeMocks} from './helpers/locale.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -81,7 +82,7 @@ async function menuMarkup({profile=null,mode='register',rescue=''}={}){
  let index=0;const context={...React,localPreview:false,_jsx:jsxRuntime.jsx,_jsxs:jsxRuntime.jsxs,_Fragment:React.Fragment,
   useState:initial=>{const i=index++;return [i===0?true:i===1?mode:i===5?rescue:initial,()=>{}]},useCallback:fn=>fn,
   useAccount:()=>({profile,status:'ready',capsules:[],error:''}),Icon:()=>null,Modal:({children})=>React.createElement('section',null,children)};
- vm.runInNewContext(source,context);return renderToStaticMarkup(React.createElement(context.AccountMenu));
+ vm.runInNewContext(source,Object.assign(context,localeMocks));return renderToStaticMarkup(React.createElement(context.AccountMenu));
 }
 test('rendered account forms ask for username/password, never an email, and expose accessible recovery',async()=>{
  for(const mode of ['register','login','recover']){const markup=await menuMarkup({mode});assert(markup.includes('autoComplete="username"'));assert(markup.includes('type="password"'));assert(markup.includes('minLength="6"'));assert(markup.includes('placeholder="至少 6 个字符"'));assert(!markup.includes('type="email"'));if(mode==='recover')assert(markup.includes('找回码'));}
