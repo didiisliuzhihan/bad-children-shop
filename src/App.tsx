@@ -1,3 +1,4 @@
+import {ChineseOnly} from './components/ChineseOnly';
 import {tx,useLanguage} from './lib/i18n';
 import {LanguageSwitch} from './components/LanguageSwitch';
 import {useCallback,useEffect,useRef,useState} from 'react';
@@ -152,7 +153,7 @@ export default function App({preview}:{preview?:ShopPreview}={}){
         {tx(phase!=='SEALED'&&toyError&&<div className="model-fallback"><img src={selected.icon_url} alt={tx(selected.name_zh)}/><small>{tx("暂时显示收藏图片，不影响收留")}</small></div>)}
       </div>
       {tx(phase==='SEALED'?<div className="sealed-copy"><button className="pill-button cream" onClick={open}>{tx("打开扭蛋")}<Icon name="arrow"/></button></div>:<div className="reveal-copy">
-        <h1>{tx(selected.name_zh)}</h1><p className="toy-name-en">{tx(selected.name_en)}</p><Tagline toy={selected}/><p className="tagline-en">{tx(selected.tagline_en.replace(/\s*\(quest\)/gi,''))}</p>
+        <h1>{tx(selected.name_zh)}</h1><ChineseOnly><p className="toy-name-en">{tx(selected.name_en)}</p></ChineseOnly><Tagline toy={selected}/><ChineseOnly><p className="tagline-en">{tx(selected.tagline_en.replace(/\s*\(quest\)/gi,''))}</p></ChineseOnly>
         {tx(!toyReady&&!toyError&&<small className="toy-loading-label">{tx("加载玩偶中…")}</small>)}
         <div className={'decision-actions'+(requesting?' is-saving':'')} aria-busy={requesting} style={{visibility:phase==='DECISION'?'visible':'hidden'}}>
           <button className="pill-button cream" disabled={requesting} onClick={()=>void adopt()}><Icon name="heart" size={19}/>{tx(requesting?'正在保存选择…':'收留并疼爱它')}</button><button className="pill-button cast-button" disabled={requesting} onClick={()=>void reject()}>{tx("赶出去")}<Icon name="arrow" size={18}/></button>

@@ -1,3 +1,4 @@
+import {ChineseOnly} from './ChineseOnly';
 import {tx,useLanguage,dateLabel} from '../lib/i18n';
 import {useCallback,useEffect,useRef,useState} from 'react';
 import type {Capsule,Toy} from '../types';
@@ -23,7 +24,7 @@ export function ToyCard({item,toy,onRead,onListen,onSave,playing}:{item:Capsule;
     onPointerDown={event=>{if(event.pointerType==='touch'&&!(event.target as HTMLElement).closest('button'))longPress.current=setTimeout(onSave,650)}}
     onPointerUp={cancel} onPointerMove={cancel} onPointerCancel={cancel}>
     <div className={'card-image'+(toy.card_image_url?' has-artwork':'')}><div className="card-series">THE LITTLE MISFITS<span>{tx(toy.number)}</span></div><ToyImage toy={toy}/></div>
-    <div className="card-content"><div className="card-name"><h3>{tx(toy.name_zh)}</h3><span>{tx(toy.name_en)}</span></div><Tagline toy={toy}/>
+    <div className="card-content"><div className="card-name"><h3>{tx(toy.name_zh)}</h3><ChineseOnly><span>{tx(toy.name_en)}</span></ChineseOnly></div><Tagline toy={toy}/>
       <div className="card-actions"><button onClick={onListen} aria-label={tx('听故事 '+toy.name_zh)}><Icon name={playing?'pause':'headphones'} size={16}/>{tx(playing?'暂停':'听故事')}</button><button onClick={onRead}><Icon name="book" size={16}/>{tx("读故事")}</button><button className="save-card" onClick={onSave} aria-label={tx("保存卡片图片")}><Icon name="download" size={17}/></button></div>
       <time className="card-date" dateTime={item.obtained_at}>{tx(dateLabel(item.obtained_at))}</time>
     </div>
@@ -43,7 +44,7 @@ export function Collection({items,toys,mode,onClose,toast}:{items:Capsule[];toys
     <header className="collection-header"><button className="text-button" onClick={onClose}><Icon name="back"/>{tx("返回机器")}</button><h1>{tx("我的扭蛋包")}<span>{tx(items.length)}</span></h1></header>
     {tx(items.length?<div className="collection-grid">{tx(items.map(item=>{const toy=toys.find(t=>t.id===item.toy_id);return toy?<ToyCard key={item.id} item={item} toy={toy} onRead={()=>setStory(toy)} onListen={()=>listen(toy)} onSave={()=>setSaveTarget({toy,item})} playing={playing===toy.id}/>:null}))}</div>:<div className="empty-bag"><Icon name="bag" size={45}/><p>{tx("扭蛋包还是空的")}</p><button className="pill-button dark" onClick={onClose}>{tx("去抽扭蛋")}<Icon name="arrow"/></button></div>)}
     <footer className="collection-footer"><span><i className={'status-dot '+(mode==='cloud'?'online':'')}/>{tx(mode==='cloud'?'云端已连接':'收藏保存在本机')}</span><span>{tx("长按卡片可保存图片")}</span></footer>
-    {tx(story&&<Modal label={tx(story.name_zh+'的故事')} onClose={closeStory} className="story-modal"><div className="story-image"><ToyImage toy={story} story/></div><div className="story-copy"><h2>{tx(story.name_zh)}</h2><p className="toy-name-en">{tx(story.name_en)}</p><p className="story-zh">{tx(story.story_text)}</p>{tx(story.story_note&&<p className="story-note">{tx(story.story_note)}</p>)}<button className="pill-button dark" onClick={()=>listen(story)}><Icon name={playing===story.id?'pause':'headphones'}/>{tx(playing===story.id?'暂停播放':'听故事')}</button></div></Modal>)}
+    {tx(story&&<Modal label={tx(story.name_zh+'的故事')} onClose={closeStory} className="story-modal"><div className="story-image"><ToyImage toy={story} story/></div><div className="story-copy"><h2>{tx(story.name_zh)}</h2><ChineseOnly><p className="toy-name-en">{tx(story.name_en)}</p></ChineseOnly><p className="story-zh">{tx(story.story_text)}</p>{tx(story.story_note&&<p className="story-note">{tx(story.story_note)}</p>)}<button className="pill-button dark" onClick={()=>listen(story)}><Icon name={playing===story.id?'pause':'headphones'}/>{tx(playing===story.id?'暂停播放':'听故事')}</button></div></Modal>)}
     {tx(saveTarget&&<CardExportDialog toy={saveTarget.toy} item={saveTarget.item} onClose={closeSave} toast={toast}/>)}
   </section>;
 }

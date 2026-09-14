@@ -1,3 +1,4 @@
+import {ChineseOnly} from './ChineseOnly';
 import {tx,useLanguage,dateLabel} from '../lib/i18n';
 import {useCallback,useEffect,useState} from 'react';
 import {useAccount} from '../lib/AccountContext';
@@ -19,7 +20,7 @@ function CollectionCard({item,toy,onOpen}:{item:Capsule;toy:Toy;onOpen:()=>void}
  useEffect(()=>setFailed(false),[toy.icon_url,toy.card_image_url]);
  return <article className="toy-card collection-entry" style={{'--toy-color':toy.color} as React.CSSProperties}>
   <button className={'card-image'+(toy.card_image_url?' has-artwork':'')} onClick={onOpen} aria-label={tx('查看 '+toy.name_zh+'的收藏卡片')}><div className="card-series">THE LITTLE MISFITS<span>{tx(toy.number)}</span></div>{tx(failed?<span className="toy-image-fallback"><Icon name="heart" size={36}/><small>{tx(toy.name_zh)}</small></span>:<img src={toy.card_image_url||toy.icon_url} loading="lazy" decoding="async" alt={tx(toy.name_zh)} onError={()=>setFailed(true)}/>)}</button>
-  <div className="card-content"><div className="card-name"><h3>{tx(toy.name_zh)}</h3><span>{tx(toy.name_en)}</span></div><Tagline toy={toy}/>
+  <div className="card-content"><div className="card-name"><h3>{tx(toy.name_zh)}</h3><ChineseOnly><span>{tx(toy.name_en)}</span></ChineseOnly></div><Tagline toy={toy}/>
    <div className="card-actions"><button onClick={onOpen}>{tx("查看玩具")}<Icon name="arrow" size={15}/></button><button className="save-card" onClick={onOpen} aria-label={tx('保存 '+toy.name_zh+'的卡片')}><Icon name="download" size={17}/><span>{tx("保存卡片")}</span></button></div>
    <time className="card-date" dateTime={item.obtained_at}>{tx(dateLabel(item.obtained_at))}</time>
   </div>

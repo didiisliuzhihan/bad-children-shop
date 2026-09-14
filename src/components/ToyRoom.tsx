@@ -1,3 +1,4 @@
+import {ChineseOnly} from './ChineseOnly';
 import {tx,useLanguage} from '../lib/i18n';
 import {useEffect,useState} from 'react';
 import type {Capsule,Toy} from '../types';
@@ -24,7 +25,7 @@ export function ToyRoom({toy,item,onClose,toast,returnLabel='扭蛋包'}:{toy:To
   {tx(mobile&&tabs(true))}
   <div className="toy-room-layout">
    {tx(showModel&&<section id="room-panel-model" className={'room-model-panel '+(quest.stage==='unlocked'?'is-unlocked':'is-locked')} aria-label={tx("模型展示")} data-model-state={quest.stage}>
-    <div className="room-model-heading"><span>THE LITTLE MISFITS / {tx(toy.number)}</span><h2>{tx(toy.name_en)}</h2><p>{tx(toy.name_zh)}</p></div>
+    <div className="room-model-heading"><span>THE LITTLE MISFITS / {tx(toy.number)}</span><h2>{tx(toy.name_en)}</h2><ChineseOnly><p>{tx(toy.name_zh)}</p></ChineseOnly></div>
     {tx(quest.stage==='unlocked'?<ToyViewer toy={toy}/>:<FogUnlock toy={toy} stage={quest.stage} onCard={()=>setPane('card')} onUnlock={quest.unlock}/>)}
    </section>)}
    <section className="room-companion" hidden={mobile&&pane==='model'}>
@@ -32,7 +33,7 @@ export function ToyRoom({toy,item,onClose,toast,returnLabel='扭蛋包'}:{toy:To
     <div id="room-panel-card" role="tabpanel" aria-labelledby={'room-'+(mobile?'mobile-':'desktop-')+'card'} hidden={pane!=='card'}><CollectibleCard toy={toy} item={item} active={pane==='card'} toast={toast} onConfirmSaved={quest.confirmSaved} questStage={quest.stage}/></div>
     {tx(pane==='story'&&<article id="room-panel-story" role="tabpanel" aria-labelledby={'room-'+(mobile?'mobile-':'desktop-')+'story'} className="room-story">
      <img className="room-story-photo" src={toy.story_image_url} alt={tx(toy.name_zh+'的故事照片')}/>
-     <div className="room-story-copy">{language==='en'&&<small className="voice-language-note">English reading · Original Chinese audio and artwork</small>}<h2>{tx(toy.name_zh)}</h2><p className="room-name-en">{tx(toy.name_en)}</p><p className="room-story-caption">{tx(toy.story_text)}</p>{tx(toy.story_note&&<p className="room-story-note">{tx(toy.story_note)}</p>)}{tx(toy.audio_url?<button className="room-pill room-voice" aria-pressed={playing} onClick={listen}><Icon name={playing?'pause':'play'} size={17}/>{tx(playing?'暂停故事':'听它说说话')}</button>:<p className="room-story-note">{tx("声音还在准备中，先读读它的小故事。")}</p>)}</div>
+     <div className="room-story-copy">{language==='en'&&<small className="voice-language-note">English reading · Original Chinese audio and artwork</small>}<h2>{tx(toy.name_zh)}</h2><ChineseOnly><p className="room-name-en">{tx(toy.name_en)}</p></ChineseOnly><p className="room-story-caption">{tx(toy.story_text)}</p>{tx(toy.story_note&&<p className="room-story-note">{tx(toy.story_note)}</p>)}{tx(toy.audio_url?<button className="room-pill room-voice" aria-pressed={playing} onClick={listen}><Icon name={playing?'pause':'play'} size={17}/>{tx(playing?'暂停故事':'听它说说话')}</button>:<p className="room-story-note">{tx("声音还在准备中，先读读它的小故事。")}</p>)}</div>
     </article>)}
    </section>
   </div>

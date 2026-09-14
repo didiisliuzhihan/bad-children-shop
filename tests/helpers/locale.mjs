@@ -6,5 +6,5 @@ import {Fragment} from 'react';
 export const localeMocks={
  useLanguage:()=> 'zh',getLanguage:()=> 'zh',tx:value=>value,translateText,wrapCanvasText,
  dateLabel:(date,language='zh')=>new Date(date).toLocaleDateString(language==='en'?'en-US':'zh-CN'),
- LanguageSwitch:()=>null,_Fragment:Fragment,
+ LanguageSwitch:()=>null,ChineseOnly:({children})=>children,_Fragment:Fragment,
 };

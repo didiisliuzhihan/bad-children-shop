@@ -2,7 +2,7 @@
 export const EN_ENTRIES=[
  [
   "向右滑动，遇见你的坏小孩",
-  "Swipe right to meet your little misfit"
+  "Swipe right. Meet your misfit."
  ],
  [
   "抽取中…",
@@ -114,7 +114,7 @@ export const EN_ENTRIES=[
  ],
  [
   "赶出去",
-  "Send them back"
+  "Kick them out"
  ],
  [
   "来自自己小窝的故事彩蛋",
@@ -150,7 +150,7 @@ export const EN_ENTRIES=[
  ],
  [
   "开心开心，我太有面子了——今天给你买一杯奶茶。",
-  "So happy. You're making me look good!——Treat your favorite person to bubble tea today."
+  "So happy. Look at me now!——Treat Jimao to a bubble tea today."
  ],
  [
   "我是你们的皇后",
@@ -166,7 +166,7 @@ export const EN_ENTRIES=[
  ],
  [
   "你忘了给葵浇水，葵emo了——这周记得摸摸葵的脑袋。",
-  "You forgot to water Kuku. Kuku is feeling blue.——Give Kuku a gentle pat on the head this week."
+  "Forgot to water Kuku? Cue the tears.——Give Kuku a little head pat this week."
  ],
  [
   "不枯不枯",
@@ -198,7 +198,7 @@ export const EN_ENTRIES=[
  ],
  [
   "今天又惹爆米花小姐不得劲了——惹怒她记得说“别急，你好漂亮”",
-  "You've upset Miss Popcorn again.——Tell her, “Easy now. You look beautiful.”"
+  "You've set Miss Popcorn off. Again.——Tell her, “Don't fret. You're gorgeous.”"
  ],
  [
   "今天的家务额度已经用完了。",
@@ -246,7 +246,7 @@ export const EN_ENTRIES=[
  ],
  [
   "登录 · 住下来",
-  "Sign in · Stay awhile"
+  "Sign in"
  ],
  [
   "收好账户备用钥匙",
@@ -2026,11 +2026,11 @@ export const EN_ENTRIES=[
  ],
  [
   "终于当上大人了，先正经一秒——今天找葫芦碰个杯，庆祝他正经了一秒。",
-  "Finally a grown-up. Serious for one second.——Clink a glass with Hulu today. Celebrate his one serious second."
+  "Finally a grown-up. Serious for one whole second.——Clink glasses with Hulu today. Cheers to his one serious second."
  ],
  [
   "今日大盘：屁股决定脑袋。",
-  "Today's market: the bottom calls the shots."
+  "Today's market: the butt calls the shots."
  ],
  [
   "葫芦终于戴上领带，当上了白领炒股经理。每天最期待上班，最擅长在办公室里大闹一场。别人研究股市，他顺便研究怎么把屁股炒热；别人等行情，他宣布自己已经“臀部上涨”。终于当一回大人了，他把领带扶正——正经了一秒，又笑出了声。",

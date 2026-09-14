@@ -2,7 +2,7 @@
 .language-switch button{border:0;background:transparent;border-radius:999px;color:inherit;padding:7px 9px;min-height:32px;font-size:12px;line-height:1;cursor:pointer;font-family:inherit;white-space:nowrap}
 .language-switch button[aria-pressed=true]{background:#f7f2e2;color:#254b46;box-shadow:0 1px 4px #2a4a4820}
 .language-switch button:focus-visible{outline:2px solid #466b57;outline-offset:2px}
-html[lang=en] .toy-name-en,html[lang=en] .room-name-en,html[lang=en] .collectible-live-english,html[lang=en] .card-name>span,html[lang=en] .room-model-heading>p{display:none}
+html[lang=en] .toy-name-en,html[lang=en] .tagline-en,html[lang=en] .room-name-en,html[lang=en] .collectible-live-english,html[lang=en] .card-name>span,html[lang=en] .room-model-heading>p{display:none}
 html[lang=en] .quest-text,html[lang=en] .collectible-live-task,html[lang=en] .postcard-message{font-family:Inter,"Segoe UI",sans-serif;letter-spacing:0;line-height:1.55;word-break:normal;overflow-wrap:break-word}
 html[lang=en] .postcard-message{font-size:clamp(16px,2.4vw,23px)}
 html[lang=en] .community-tabs button{white-space:normal;line-height:1.35}
@@ -15,3 +15,39 @@ html[lang=en] .postcard-sheet-help,html[lang=en] .account-small{line-height:1.6}
 @media(max-width:600px){.topbar{padding-inline:12px!important}.top-actions{min-width:0}.top-actions .account-entry{max-width:100px!important;min-width:0;flex-shrink:1;gap:5px!important}.top-actions .account-entry svg{display:none}.top-actions .bag-button{padding-inline:8px!important}.top-actions .icon-button{padding-inline:4px!important}}
 @media(max-width:600px){.top-actions{gap:5px!important}.topbar{gap:8px;padding-left:12px;padding-right:12px}.language-switch button{padding:6px 7px;font-size:11px}.top-actions .account-entry{max-width:125px;padding:9px 10px}.top-actions .account-entry span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.top-actions .icon-button{width:32px;min-width:32px}.top-actions .bag-button{padding-left:10px;padding-right:10px}html[lang=en] .community-tabs button{font-size:13px;padding-left:8px;padding-right:8px}html[lang=en] .decision-actions{flex-wrap:wrap;gap:12px}html[lang=en] .nest-nudge-buttons,html[lang=en] .nest-transform-buttons{flex-wrap:wrap}}
 @media(max-width:380px){.top-actions .account-entry svg{display:none}.top-actions .account-entry{max-width:100px}.topbar>.brand{width:26px}.top-actions{gap:2px!important}}
+
+/* Keep the machine, invitation and control in separate flow rows, including
+   wrapped labels and enlarged text. Chinese layout remains unchanged. */
+html[lang=en] .machine-page{display:grid;grid-template-rows:minmax(0,1fr) auto;row-gap:16px;padding:88px 0 calc(24px + env(safe-area-inset-bottom))}
+html[lang=en] .machine-page .canvas-wrap{position:relative;inset:auto;grid-row:1;min-height:0;min-width:0}
+html[lang=en] .interaction-dock{position:relative;inset:auto;transform:none;grid-row:2;justify-self:center;display:flex;flex-direction:column;align-items:center;gap:16px;width:min(390px,calc(100% - 40px))}
+html[lang=en] .gesture-label{font-size:16px;font-weight:500;letter-spacing:0;line-height:1.5;margin:0;text-wrap:balance}
+html[lang=en] .turn-control{width:min(100%,298px);flex-shrink:0}
+html[lang=en] .turn-copy{font-size:13px;letter-spacing:.03em}
+html[lang=en] .reveal-copy{min-width:0}
+html[lang=en] .reveal-copy h1{text-wrap:balance}
+html[lang=en] .reveal-copy .tagline-zh{margin-top:22px;font-size:clamp(16px,1.65vw,21px);line-height:1.55;letter-spacing:0;text-wrap:pretty}
+html[lang=en] .reveal-copy .quest-text{margin-top:10px;line-height:1.5}
+html[lang=en] .reveal-copy .decision-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-width:410px;width:100%;margin-top:26px;align-items:stretch}
+html[lang=en] .reveal-copy .decision-actions .pill-button{min-width:0;min-height:48px;padding:12px;gap:8px;font-size:14px;line-height:1.4}
+html[lang=en] .pill-button>svg,html[lang=en] .room-pill>svg{flex-shrink:0}
+html[lang=en] .card-actions{flex-wrap:wrap;gap:8px}
+html[lang=en] .card-actions button{font-size:14px;padding:10px 12px}
+html[lang=en] .story-reveal .decision-actions{flex-wrap:wrap;justify-content:center;row-gap:12px}
+html[lang=en] .room-story-note{line-height:1.7;text-wrap:pretty}
+@media(max-width:767px){
+ html[lang=en] .machine-page{padding-top:76px;padding-bottom:calc(20px + env(safe-area-inset-bottom));row-gap:12px}
+ html[lang=en] .reveal-copy .decision-actions{margin-inline:auto}
+ html[lang=en] .reveal-copy .tagline-zh{margin-top:18px}
+}
+@media(max-width:767px) and (max-height:650px) and (orientation:portrait){
+ html[lang=en] .machine-page{padding-bottom:calc(16px + env(safe-area-inset-bottom));row-gap:8px}
+ html[lang=en] .interaction-dock{gap:12px}
+ html[lang=en] .reveal-copy .tagline-zh{margin-top:14px;font-size:16px}
+ html[lang=en] .reveal-copy .decision-actions{margin-top:18px}
+}
+@media(orientation:landscape) and (max-height:520px){
+ html[lang=en] .machine-page{padding:65px 24px 20px;grid-template-columns:minmax(0,1.1fr) minmax(270px,.9fr);grid-template-rows:minmax(0,1fr);gap:12px}
+ html[lang=en] .machine-page .canvas-wrap{grid-column:1;grid-row:1}
+ html[lang=en] .interaction-dock{grid-column:2;grid-row:1;align-self:center;width:100%;max-width:330px}
+}

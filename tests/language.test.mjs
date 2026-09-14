@@ -55,6 +55,39 @@ test('English wrapping respects word boundaries; Chinese wrapping stays within t
  assert.deepEqual(wrapCanvasText('小窝里的一刻',3,s=>s.length),['小窝里','的一刻']);
  assert(wrapCanvasText('supercalifragilistic',5,s=>s.length).every(x=>x.length<=5));
 });
+
+test('auxiliary English is present in Chinese and absent from the English card DOM',async()=>{
+ let language='en';
+ const context={...React,...english,useLanguage:()=>language,tx:value=>translateText(value,language),_jsx:jsx.jsx,_jsxs:jsx.jsxs};
+ await compile('src/components/ChineseOnly.tsx',context,'globalThis.ChineseOnly=ChineseOnly;');
+ await compile('src/components/CollectibleCardPreview.tsx',context,'globalThis.Preview=CollectibleCardPreview;');
+ const toy=JSON.parse(read('tests/fixtures/locale-toys.json'))[0];
+ const render=()=>renderToStaticMarkup(React.createElement(context.Preview,{toy,item:{obtained_at:'2026-09-08'},active:true,onImageReady(){}}));
+ assert(!render().includes('collectible-live-english'));
+ language='zh';assert(render().includes('collectible-live-english'));
+ for(const [file,classes] of [
+  ['src/App.tsx',['toy-name-en','tagline-en']],
+  ['src/components/ToyRoom.tsx',['room-name-en']],
+  ['src/components/CollectibleCardPreview.tsx',['collectible-live-english']],
+ ])for(const name of classes)assert(read(file).includes('<ChineseOnly><p className="'+name+'">'),file+': '+name);
+ for(const file of ['src/components/Collection.tsx','src/components/CollectionGallery.tsx'])assert(read(file).includes('<ChineseOnly><span>{tx(toy.name_en)}</span></ChineseOnly>'));
+});
+
+test('toy dismissal keeps its cheeky tone without changing the gentler postcard action',()=>{
+ assert.equal(translateText('赶出去','en'),'Kick them out');
+ assert.equal(translateText('先放回去','en'),'Put it back for now');
+ assert.equal(translateText('登录 · 住下来','en'),'Sign in');
+ assert(!translateText('向右滑动，遇见你的坏小孩','en').includes('your little'));
+});
+
+test('English homepage reserves separate flow rows and equal-width reveal actions',()=>{
+ const css=read('src/language.css');
+ assert(css.includes('grid-template-rows:minmax(0,1fr) auto'));
+ assert(css.includes('.machine-page .canvas-wrap{position:relative;inset:auto;grid-row:1'));
+ assert(css.includes('.interaction-dock{position:relative;inset:auto;transform:none;grid-row:2'));
+ assert(css.includes('grid-template-columns:repeat(2,minmax(0,1fr))'));
+ assert(css.includes('@media(orientation:landscape) and (max-height:520px)'));
+});
 test('every English toy export fits its frame, uses English copy and has a distinct locale cache key',async()=>{
  const built=await transformWithOxc(read('src/assets.ts').slice(read('src/assets.ts').indexOf('export const fallbackToys')),'toys.ts');
  const toyContext={asset:x=>x,sourceLink:x=>x,residentExpansionToys};
