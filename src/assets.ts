@@ -15,8 +15,9 @@ export const assetBase=new URL(previewBase||import.meta.env.VITE_ASSET_BASE_URL|
 // on Storage. Local previews continue reading the same delivery originals.
 const releaseAssets=new Set(['room_furnished_nest.glb','nest-fireplace-asmr.mp3','default-stamp-white.png',...NEST_TAP_FILES,...RESIDENT_RELEASE_FILES]);
 export const asset=(name:string)=>!localPreview&&!import.meta.env.DEV&&releaseAssets.has(name)?new URL('./assets/delivery/'+encodeURIComponent(name),location.href).href:`${assetBase}/${encodeURIComponent(name)}`;
+export const interfaceFonts=new Map<string,FontFace>();
 for(const [family,file,weight] of [['Fredoka','fredoka.woff2','300 700'],['Inter','inter.woff2','100 900']]){
- const face=new FontFace(family,`url("${asset(file)}")`,{weight,display:'swap'});document.fonts.add(face);void face.load().catch(()=>{});
+ const face=new FontFace(family,`url("${asset(file)}")`,{weight,display:'swap'});interfaceFonts.set(family,face);document.fonts.add(face);void face.load().catch(()=>{});
 }
 export const sourceLink=asset;
 // Decoder JavaScript belongs to the single HTML bundle. Its Blob is local generated code,

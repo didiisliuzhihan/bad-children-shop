@@ -9,6 +9,9 @@ import gsap from 'gsap';
 import type {GLTF} from 'three/addons/loaders/GLTFLoader.js';
 import {asset,fallbackToys,loadModel} from './assets';
 import {MachineScene,RevealScene} from './components/Scene';
+import {CapsuleSeam} from './components/CapsuleSeam';
+import type {SeamLayout} from './lib/capsuleSeam';
+import {useCapsuleOpeningMotion} from './lib/useCapsuleOpeningMotion';
 import {BrandMark,Icon} from './components/Icon';
 import {Collection} from './components/CollectionGallery';
 import {Modal} from './components/Modal';
@@ -31,7 +34,9 @@ export default function App({preview}:{preview?:ShopPreview}={}){
   const [drawResult,setDrawResult]=useState<AccountDraw|null>(null),[requesting,setRequesting]=useState(false),savingDraw=useRef(false),mounted=useRef(true);
   const ownerRef=useRef(preview?.owner);ownerRef.current=preview?.owner;
   const[toyReady,setToyReady]=useState(false),[toyError,setToyError]=useState(false),[toastText,setToastText]=useState('');
+  const [seamLayout,setSeamLayout]=useState<SeamLayout|null>(null),seamDrag=useRef(0);
   const reduced=useRef(matchMedia('(prefers-reduced-motion: reduce)').matches).current;
+  const {portraitRef,rememberPose}=useCapsuleOpeningMotion(phase,reduced);
   const phaseRef=useRef<Phase>('IDLE'),locked=useRef(false),dragStart=useRef<number|null>(null);
   const tapAllowed=useRef(true);
   const timeouts=useRef<ReturnType<typeof setTimeout>[]>([]),toastTimer=useRef<ReturnType<typeof setTimeout>|null>(null);
@@ -81,12 +86,12 @@ export default function App({preview}:{preview?:ShopPreview}={}){
     const result=preview?await preview.onDraw():null;if(!mounted.current||owner!==ownerRef.current)return;
     const chosen=result?(toys.find(t=>t.id===result.toyId)||toys[0]):chooseToy(toys);
     if(result?.type!=='story')void loadModel(chosen.model_url).catch(()=>{});
-    setDrawResult(result);setSelected(chosen);setToyReady(false);setToyError(false);transition('SPINNING');setDrag(1);sound('roll');
+    setDrawResult(result);setSelected(chosen);setToyReady(false);setToyError(false);setSeamLayout(null);seamDrag.current=0;transition('SPINNING');setDrag(1);sound('roll');
     later(()=>{transition('LOCKING');sound('lock')},2000);later(()=>transition('DROPPING'),3000);later(()=>sound('drop'),3800);later(()=>transition('PAUSE'),4500);later(()=>transition('SEALED'),5500);
     }catch(e){if(mounted.current&&owner===ownerRef.current){locked.current=false;setDrag(0);toast((e as Error).message)}}finally{if(mounted.current&&owner===ownerRef.current)setRequesting(false)}
   },[machine,toys,transition,later,preview]);
   const reset=useCallback(()=>{transition('IDLE');setSelected(null);setDrawResult(null);setDrag(0);setToyReady(false);locked.current=false;timeouts.current.forEach(clearTimeout);timeouts.current=[]},[transition]);
-  const open=()=>{if(transition('REVEALED'))sound('open')};
+  const open=()=>{if(phaseRef.current!=='SEALED')return;rememberPose();if(transition('REVEALED'))sound('open')};
   const ready=useCallback(()=>{setToyReady(true);setToyError(false)},[]);
   const modelError=useCallback(()=>setToyError(true),[]);
   // Decisions depend on phase, not on a one-off loader callback. Even a stalled
@@ -94,7 +99,7 @@ export default function App({preview}:{preview?:ShopPreview}={}){
   useEffect(()=>{
    if(phase!=='REVEALED')return;
    const story=drawResult?.type==='story',settled=story||toyReady||toyError;
-   const timer=setTimeout(()=>settled?transition('DECISION'):setToyError(true),settled?(story?800:toyError?0:reduced?150:1900):6500);
+   const timer=setTimeout(()=>settled?transition('DECISION'):setToyError(true),settled?(story?(reduced?200:1200):toyError?0:reduced?150:1900):6500);
    return()=>clearTimeout(timer);
   },[phase,drawResult?.type,toyReady,toyError,reduced,transition]);
   const adopt=async()=>{
@@ -148,11 +153,12 @@ export default function App({preview}:{preview?:ShopPreview}={}){
         </button>
       </div>
     </section>
-    {tx(overlay&&selected&&!(drawResult?.type==='story'&&phase!=='SEALED')&&<section ref={revealRef} tabIndex={-1} className={'reveal-overlay phase-'+phase.toLowerCase()+(toyReady?' toy-ready':'')} role="dialog" aria-modal="true" aria-label={tx(phase==='SEALED'?'打开扭蛋':'玩偶详情')}>
-      <div className="reveal-portrait"><div className="portrait-glow"/><RevealScene toy={selected} opened={phase!=='SEALED'} decision={phase} reduced={reduced} loadToy={drawResult?.type!=='story'} onReady={ready} onError={modelError}/>
+    {tx(overlay&&selected&&!(drawResult?.type==='story'&&!['SEALED','REVEALED'].includes(phase))&&<section ref={revealRef} tabIndex={-1} className={'reveal-overlay phase-'+phase.toLowerCase()+(toyReady?' toy-ready':'')+(drawResult?.type==='story'?' is-story-capsule':'')} role="dialog" aria-modal="true" aria-label={tx(phase==='SEALED'?'打开扭蛋':'玩偶详情')}>
+      <div ref={portraitRef} className="reveal-portrait"><div className="portrait-glow"/><RevealScene toy={selected} opened={phase!=='SEALED'} decision={phase} reduced={reduced} loadToy={drawResult?.type!=='story'} onReady={ready} onError={modelError} seamDrag={seamDrag} onSeamLayout={setSeamLayout}/>
+        {phase==='SEALED'&&<CapsuleSeam layout={seamLayout} drag={seamDrag} onOpen={open}/>}
         {tx(phase!=='SEALED'&&toyError&&<div className="model-fallback"><img src={selected.icon_url} alt={tx(selected.name_zh)}/><small>{tx("暂时显示收藏图片，不影响收留")}</small></div>)}
       </div>
-      {tx(phase==='SEALED'?<div className="sealed-copy"><button className="pill-button cream" onClick={open}>{tx("打开扭蛋")}<Icon name="arrow"/></button></div>:<div className="reveal-copy">
+      {tx(phase==='SEALED'?<div className="sealed-copy"><p id="capsule-seam-hint" className="seam-hint">{tx('沿发光接缝，向左或向右滑开')}</p><button className="seam-fallback" onClick={open}>{tx("直接打开")}<Icon name="arrow" size={13}/></button></div>:drawResult?.type==='story'?null:<div className="reveal-copy">
         <h1>{tx(selected.name_zh)}</h1><ChineseOnly><p className="toy-name-en">{tx(selected.name_en)}</p></ChineseOnly><Tagline toy={selected}/><ChineseOnly><p className="tagline-en">{tx(selected.tagline_en.replace(/\s*\(quest\)/gi,''))}</p></ChineseOnly>
         {tx(!toyReady&&!toyError&&<small className="toy-loading-label">{tx("加载玩偶中…")}</small>)}
         <div className={'decision-actions'+(requesting?' is-saving':'')} aria-busy={requesting} style={{visibility:phase==='DECISION'?'visible':'hidden'}}>
@@ -161,9 +167,9 @@ export default function App({preview}:{preview?:ShopPreview}={}){
       </div>)}
       {tx(phase==='COLLECTED'&&<div className={'flying-card'+(selected.card_image_url?' has-artwork':'')} ref={flyingCard}><div><img src={selected.card_image_url||selected.icon_url} alt=""/></div><span className="card-series">THE LITTLE MISFITS</span><h3>{tx(selected.name_zh)}</h3><Tagline toy={selected}/></div>)}
     </section>)}
-    {tx(overlay&&drawResult?.type==='story'&&drawResult.story&&phase!=='SEALED'&&<section ref={revealRef} tabIndex={-1} className="story-reveal" role="dialog" aria-modal="true" aria-label={tx("来自自己小窝的故事彩蛋")}><Postcard source="nest" text={drawResult.story.text} date={drawResult.story.createdAt} media={drawResult.story.media}/><div className={'decision-actions'+(requesting?' is-saving':'')} aria-busy={requesting} style={{visibility:phase==='DECISION'?'visible':'hidden'}}><button className="pill-button dark" disabled={requesting} onClick={()=>void adopt()}>{tx(requesting?'正在保存选择…':'把这一刻收好')}<Icon name="heart"/></button><button className="pill-button" disabled={requesting} onClick={()=>void reject()}>{tx("先放回去")}</button></div></section>)}
+    {tx(overlay&&drawResult?.type==='story'&&drawResult.story&&!['SEALED','REVEALED'].includes(phase)&&<section ref={revealRef} tabIndex={-1} className="story-reveal" role="dialog" aria-modal="true" aria-label={tx("来自自己小窝的故事彩蛋")}><Postcard source="nest" text={drawResult.story.text} date={drawResult.story.createdAt} media={drawResult.story.media}/><div className={'decision-actions'+(requesting?' is-saving':'')} aria-busy={requesting} style={{visibility:phase==='DECISION'?'visible':'hidden'}}><button className="pill-button dark" disabled={requesting} onClick={()=>void adopt()}>{tx(requesting?'正在保存选择…':'把这一刻收好')}<Icon name="heart"/></button><button className="pill-button" disabled={requesting} onClick={()=>void reject()}>{tx("先放回去")}</button></div></section>)}
     {tx(bag&&<Collection key={preview?.owner||'default'} items={items} toys={toys} mode={mode} communityPreview={!!preview} production={preview?.production} playerNickname={preview?.nickname} onClose={()=>setBag(false)} toast={toast}/>)}
-    {tx(guide&&<Modal label={tx("使用说明")} onClose={closeGuide} className="guide-modal"><h2>{tx("使用说明")}</h2><ol><li>{tx("轻点抽取按钮或红色旋钮即可开启声音并抽取，也可以向右拖动或按回车。")}</li><li>{tx("落蛋后点击“打开扭蛋”，查看玩偶。")}</li><li>{tx("收留后可在扭蛋包里听故事、读故事和保存卡片。")}</li></ol><p>{tx("部分手机需一次轻点才能允许出声。游客收藏跟随当前浏览器；登录站内账户后，收藏和小窝可在其他浏览器恢复。已有收藏可通过账户菜单“带上本机旧收藏”追加导入。请妥善保管密码和备用钥匙。")}</p></Modal>)}
+    {tx(guide&&<Modal label={tx("使用说明")} onClose={closeGuide} className="guide-modal"><h2>{tx("使用说明")}</h2><ol><li>{tx("轻点抽取按钮或红色旋钮即可开启声音并抽取，也可以向右拖动或按回车。")}</li><li>{tx("落蛋后，沿发光接缝向左或向右滑开，也可以直接打开或按回车。")}</li><li>{tx("收留后可在扭蛋包里听故事、读故事和保存卡片。")}</li></ol><p>{tx("部分手机需一次轻点才能允许出声。游客收藏跟随当前浏览器；登录站内账户后，收藏和小窝可在其他浏览器恢复。已有收藏可通过账户菜单“带上本机旧收藏”追加导入。请妥善保管密码和备用钥匙。")}</p></Modal>)}
     <div className={'toast '+(toastText?'show':'')} role="status"><Icon name="check" size={17}/>{tx(toastText)}</div>
   </main>;
 }

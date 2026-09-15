@@ -1,5 +1,9 @@
 // Curated interface and built-in story translations. No network translation.
 export const EN_ENTRIES=[
+ ["沿发光接缝，向左或向右滑开","Slide the glowing seam left or right"],
+ ["左右滑动发光接缝打开扭蛋，或按回车","Slide the glowing seam left or right to open, or press Enter"],
+ ["直接打开","Just pop it open"],
+ ["落蛋后，沿发光接缝向左或向右滑开，也可以直接打开或按回车。","Once it drops, slide the glowing seam left or right. You can also open it directly or press Enter."],
  ["翻卡区","Card deck"],
  ["玩具卡片","Toy cards"],
  ["上一张卡片","Previous card"],

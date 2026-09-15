@@ -1,5 +1,5 @@
 import type {Capsule,Toy} from '../types';
-import {ensureQuestFont,QUEST_FONT_FAMILY} from './questFont';
+import {ensureQuestFont,QUEST_FONT_FAMILY,EN_QUEST_FONT_FAMILY} from './questFont';
 import {getLanguage,dateLabel,type Language} from './i18n';
 import {translateText} from './locale/en.mjs';
 import {wrapCanvasText} from './locale/wrapText.mjs';
@@ -65,7 +65,7 @@ function fitFont(ctx:CanvasRenderingContext2D,text:string,max:number,min:number,
  * Image download and decode must succeed before any PNG can be offered to the user.
  */
 export async function renderCollectibleCard(toy:Toy,item:Capsule,language:Language=getLanguage()):Promise<Blob>{
-  const [img]=await Promise.all([decodedImage(toy.card_image_url||toy.icon_url),language==='zh'?ensureQuestFont(1800).catch(()=>{}):Promise.resolve()]);
+  const [img]=await Promise.all([decodedImage(toy.card_image_url||toy.icon_url),ensureQuestFont(1800,language).catch(()=>{})]);
   // A slow optional font cannot prevent viewing or exporting the actual card.
   const canvas=document.createElement('canvas');canvas.width=CARD_SIZE.width;canvas.height=CARD_SIZE.height;
   const ctx=canvas.getContext('2d');if(!ctx)throw Error('Canvas is unavailable');
@@ -113,9 +113,9 @@ export async function renderCollectibleCard(toy:Toy,item:Capsule,language:Langua
 function englishCopy(ctx:CanvasRenderingContext2D,toy:Toy,item:Capsule,art:boolean){
  const top=art?1116:915;ctx.fillStyle='#173846';fitFont(ctx,toy.name_en,art?49:56,28,920);ctx.fillText(toy.name_en,80,top);
  const [statement,...parts]=toy.tagline_zh.replace(/（任务）|\(任务\)/g,'').split(/——|--/);
- const block=(text:string,y:number,size:number,color:string)=>{let rows:string[]=[];do{ctx.font=`500 ${size}px Inter,"Segoe UI",sans-serif`;rows=wrapCanvasText(text,920,t=>ctx.measureText(t).width);if(rows.length<=2)break;size--;}while(size>23);if(rows.length>2)throw Error('English card text exceeds layout');ctx.fillStyle=color;rows.forEach((line,i)=>ctx.fillText(line,80,y+i*(size+10)));};
+ const block=(text:string,y:number,size:number,color:string,quest=false)=>{let rows:string[]=[];do{ctx.font=quest?`400 ${size}px ${EN_QUEST_FONT_FAMILY}`:`500 ${size}px Inter,"Segoe UI",sans-serif`;rows=wrapCanvasText(text,920,t=>ctx.measureText(t).width);if(rows.length<=2)break;size--;}while(size>23);if(rows.length>2)throw Error('English card text exceeds layout');ctx.fillStyle=color;rows.forEach((line,i)=>ctx.fillText(line,80,y+i*(size+10)));};
  ctx.strokeStyle='#24495424';ctx.beginPath();ctx.moveTo(80,top+30);ctx.lineTo(1000,top+30);ctx.stroke();
  block(translateText(statement,'en'),top+77,art?32:38,'#284653');
- block(translateText(parts.join('——').trim(),'en'),art?1290:1160,art?35:42,'#b84635');
+ block(translateText(parts.join('——').trim(),'en'),art?1290:1160,art?35:42,'#b84635',true);
  ctx.font='400 25px Inter,sans-serif';ctx.fillStyle='#899b9d';ctx.fillText(dateLabel(item.obtained_at,'en'),80,1392);
 }

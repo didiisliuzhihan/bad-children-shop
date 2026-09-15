@@ -3,8 +3,10 @@
 .language-switch button[aria-pressed=true]{background:#f7f2e2;color:#254b46;box-shadow:0 1px 4px #2a4a4820}
 .language-switch button:focus-visible{outline:2px solid #466b57;outline-offset:2px}
 html[lang=en] .toy-name-en,html[lang=en] .tagline-en,html[lang=en] .room-name-en,html[lang=en] .collectible-live-english,html[lang=en] .card-name>span,html[lang=en] .room-model-heading>p{display:none}
-html[lang=en] .quest-text,html[lang=en] .collectible-live-task,html[lang=en] .postcard-message{font-family:Inter,"Segoe UI",sans-serif;letter-spacing:0;line-height:1.55;word-break:normal;overflow-wrap:break-word}
-html[lang=en] .postcard-message{font-size:clamp(16px,2.4vw,23px)}
+/* The English companion to BC Quest: playful copy, not navigation or controls. */
+html[lang=en] .quest-text,html[lang=en] .collectible-live-task,html[lang=en] .postcard-message,html[lang=en] .postcard-nickname,html[lang=en] .postcard-no-photo,html[lang=en] .collected-postcard-text,html[lang=en] .ticket-message{font-family:"Fredoka","BC Quest","PingFang SC","Microsoft YaHei",sans-serif;font-weight:400;font-synthesis:none;letter-spacing:0;word-break:normal;overflow-wrap:break-word}
+html[lang=en] .quest-text,html[lang=en] .collectible-live-task{line-height:1.55}
+html[lang=en] .postcard-message{font-size:clamp(16px,2.4vw,23px);line-height:1.8}
 html[lang=en] .community-tabs button{white-space:normal;line-height:1.35}
 html[lang=en] .pill-button,html[lang=en] .room-pill{white-space:normal;text-align:center;line-height:1.3;min-height:42px}
 html[lang=en] .nest-heading{flex-wrap:wrap;gap:16px}

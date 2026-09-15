@@ -1,4 +1,4 @@
-import {ensureQuestFont,QUEST_FONT_FAMILY} from './questFont';
+import {ensureQuestFont,QUEST_FONT_FAMILY,EN_QUEST_FONT_FAMILY} from './questFont';
 import {canvasBlob} from './postcardMedia';
 import {getLanguage,dateLabel,type Language} from './i18n';
 import {translateText} from './locale/en.mjs';
@@ -30,10 +30,14 @@ async function decodePhoto(blob:Blob){
 /** Direct composition from decoded scene pixels, without DOM/SVG foreignObject.
  * Preview, download and Web Share all use the same PNG. */
 export async function renderNestKeepsake(input:NestKeepsakeInput):Promise<Blob>{
- const language=input.language||getLanguage(),t=(text:string)=>translateText(text,language),family=language==='en'?'Inter,"Segoe UI",sans-serif':QUEST_FONT_FAMILY;
+ const language=input.language||getLanguage(),t=(text:string)=>translateText(text,language),family=language==='en'?EN_QUEST_FONT_FAMILY:QUEST_FONT_FAMILY;
  const decoded=await decodePhoto(input.photo);
  try{
-  if(language==='zh')await ensureQuestFont().catch(()=>{throw Error('留念字体暂时没有加载好，请点重新生成。')});
+  // Decorative font loading must not strand a successfully captured photo.
+  await Promise.all([
+   ensureQuestFont(1800,language).catch(()=>{}),
+   language==='en'&&/[\u3400-\u9fff]/.test((input.nickname||'')+t(input.text))?ensureQuestFont(1800,'zh').catch(()=>{}):Promise.resolve(),
+  ]);
   const check=document.createElement('canvas');check.width=16;check.height=16;
   const checkCtx=check.getContext('2d');if(!checkCtx)throw Error('浏览器暂时无法生成明信片。');
   checkCtx.drawImage(decoded.image,0,0,16,16);

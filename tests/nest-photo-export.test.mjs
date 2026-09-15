@@ -1,13 +1,13 @@
 import {localeMocks} from './helpers/locale.mjs';
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import vm from 'node:vm';import {stripTypeScriptTypes} from 'node:module';
 const source=fs.readFileSync(new URL('../src/lib/nestPhotoExport.ts',import.meta.url),'utf8');
-function harness({blank=false,decodeError=false,encodeError=false}={}){
+function harness({blank=false,decodeError=false,encodeError=false,fontError=false}={}){
  const ops=[],revoked=[],canvases=[];
  const pixels=new Uint8ClampedArray(16*16*4);for(let i=0;i<pixels.length;i+=4){pixels[i]=blank?220:(i%28?220:40);pixels[i+1]=210;pixels[i+2]=190;pixels[i+3]=255}
- const context={Uint8ClampedArray,Array,Math,Date,Promise,Error,Blob,setTimeout,clearTimeout,QUEST_FONT_FAMILY:'"BC Quest",sans-serif',ensureQuestFont:async()=>ops.push('font'),
+ const context={Uint8ClampedArray,Array,Math,Date,Promise,Error,Blob,setTimeout,clearTimeout,QUEST_FONT_FAMILY:'"BC Quest",sans-serif',EN_QUEST_FONT_FAMILY:'"Fredoka","BC Quest",sans-serif',ensureQuestFont:async(timeout,language)=>{ops.push({fontLoad:language,timeout});if(fontError)throw Error('font offline')},
   URL:{createObjectURL:()=> 'blob:scene-only',revokeObjectURL:url=>revoked.push(url)},
   Image:class {naturalWidth=960;naturalHeight=960;async decode(){ops.push('decode');if(decodeError)throw Error('decode failed')}},
-  document:{createElement:()=>{const canvas={width:0,height:0},ctx={font:'14px sans-serif',drawImage(...args){ops.push({draw:args,canvas})},getImageData:()=>({data:pixels}),measureText(text){return {width:Array.from(text).length*(parseFloat(this.font.match(/(\d+)px/)?.[1]||'14'))*.7}},scale(){},fillRect(){},strokeRect(){},beginPath(){},moveTo(){},lineTo(){},stroke(){},fillText(text,x,y){ops.push({text,x,y,canvas})}};canvas.getContext=()=>ctx;canvases.push(canvas);return canvas}},
+  document:{createElement:()=>{const canvas={width:0,height:0},ctx={font:'14px sans-serif',drawImage(...args){ops.push({draw:args,canvas})},getImageData:()=>({data:pixels}),measureText(text){return {width:Array.from(text).length*(parseFloat(this.font.match(/(\d+)px/)?.[1]||'14'))*.7}},scale(){},fillRect(){},strokeRect(){},beginPath(){},moveTo(){},lineTo(){},stroke(){},fillText(text,x,y){ops.push({text,x,y,canvas,font:this.font})}};canvas.getContext=()=>ctx;canvases.push(canvas);return canvas}},
   canvasBlob:async(canvas,type)=>{ops.push({encode:canvas,type});if(encodeError)throw Error('encode failed');return new Blob(['PNG-result'],{type})},
  };
  vm.runInNewContext(stripTypeScriptTypes(source).replace(/^import .*;\s*$/gm,'').replace(/export /g,'')+'\nglobalThis.render=renderNestKeepsake;globalThis.detail=hasNestPhotoDetail;',Object.assign(context,localeMocks));
@@ -35,4 +35,15 @@ test('manual keepsake does not rasterize a DOM/SVG subtree and shares the same f
  const dialog=fs.readFileSync(new URL('../src/components/NestPhotoDialog.tsx',import.meta.url),'utf8');
  assert(dialog.includes('photo:photo.blob'));assert(dialog.includes('src={ready.url}'));assert(dialog.includes('files:[ready.file]'));assert(dialog.includes('link.href=ready.url'));
  assert(dialog.includes('<div ref={card} className="nest-photo-preview"'));assert(!dialog.includes('firstElementChild'));
+});
+test('English keepsakes use Fredoka for the message and nickname, with loaded Chinese fallback for a Chinese nickname',async()=>{
+ const h=harness();await h.run({language:'en',nickname:'小火龙',text:'A tiny moment with my little misfits.'});
+ assert.deepEqual(h.ops.filter(op=>op.fontLoad).map(op=>op.fontLoad),['en','zh']);
+ assert(h.ops.filter(op=>op.fontLoad).every(op=>op.timeout===1800));
+ assert(h.ops.find(op=>op.text==='小火龙').font.includes('Fredoka'));
+ assert(h.ops.some(op=>op.text?.startsWith('A tiny')&&op.font.includes('Fredoka')));
+ const zh=harness();await zh.run();assert(zh.ops.find(op=>op.text==='小火龙').font.startsWith('400 44px "BC Quest"'));
+});
+test('a slow or unavailable decorative font cannot discard a valid keepsake photo in either language',async()=>{
+ for(const language of ['zh','en']){const h=harness({fontError:true});const blob=await h.run({language});assert.equal(blob.type,'image/png');assert(h.ops.some(op=>op.encode));}
 });

@@ -1,5 +1,5 @@
 import {tx,useLanguage} from '../lib/i18n';
-import {Component,Suspense,useEffect,useMemo,useRef,useState,type ReactNode} from 'react';
+import {Component,Suspense,useEffect,useMemo,useRef,useState,type ReactNode,type RefObject} from 'react';
 import {Canvas,useFrame,useThree} from '@react-three/fiber';
 import type {ThreeEvent} from '@react-three/fiber';
 import {Environment,Lightformer,ContactShadows} from '@react-three/drei';
@@ -9,6 +9,7 @@ import {asset,loadModel} from '../assets';
 import {dragProgress,shouldCommitDrag} from '../flow.mjs';
 import type {Phase,Toy} from '../types';
 import {normalizeRevealModel,revealMotionBounds,frameRevealCamera} from '../lib/revealFraming';
+import {projectCapsuleSeam,type SeamLayout} from '../lib/capsuleSeam';
 
 export function Studio({reveal=false}:{reveal?:boolean}){
  useLanguage();
@@ -69,8 +70,8 @@ export function MachineScene(props:{model:GLTF;phase:Phase;progress:number;onPro
  return <Canvas dpr={[1,Math.min(devicePixelRatio,innerWidth<768?1.4:1.75)]} camera={{position:[1.65,3.8,13.5],fov:32}} gl={{alpha:true,antialias:true,powerPreference:'high-performance'}}><CameraRig/><Studio/><Suspense fallback={null}><Machine {...props}/></Suspense><ContactShadows position={[0,.015,0]} opacity={.38} scale={11} blur={2.8} far={8} resolution={256} color="#28495c" frames={1}/></Canvas>
 }
 
-type RevealProps={toy:Toy;opened:boolean;decision:Phase;reduced:boolean;loadToy?:boolean;onReady:()=>void;onError:()=>void};
-function RevealObjects({toy,opened,decision,reduced,loadToy=true,onReady,onError}:RevealProps){
+type RevealProps={toy:Toy;opened:boolean;decision:Phase;reduced:boolean;loadToy?:boolean;onReady:()=>void;onError:()=>void;seamDrag?:RefObject<number>;onSeamLayout?:(layout:SeamLayout)=>void};
+function RevealObjects({toy,opened,decision,reduced,loadToy=true,onReady,onError,seamDrag,onSeamLayout}:RevealProps){
  useLanguage();
  const {camera,size}=useThree();
  const [model,setModel]=useState<GLTF|null>(null),[shell,setShell]=useState<GLTF|null>(null);const group=useRef<THREE.Group>(null),t=useRef(0);const shellRoot=useRef<THREE.Group>(null);
@@ -82,10 +83,24 @@ function RevealObjects({toy,opened,decision,reduced,loadToy=true,onReady,onError
  useEffect(()=>{if(!opened)return;if(model)onReady();else if(failed)onError()},[opened,model,failed,onReady,onError]);
  const modelClone=useMemo(()=>model?normalizeRevealModel(model.scene,toy.id):undefined,[model,toy.id]);const shellClone=useMemo(()=>shell?.scene.clone(true),[shell]);
  const motionBounds=useMemo(()=>modelClone?revealMotionBounds(modelClone,toy.id):undefined,[modelClone,toy.id]);
- useEffect(()=>{frameRevealCamera(camera as THREE.PerspectiveCamera,size.width,size.height,opened?motionBounds:undefined)},[camera,size.width,size.height,opened,motionBounds]);
- const mixer=useMemo(()=>shellClone?new THREE.AnimationMixer(shellClone):null,[shellClone]);
- useEffect(()=>{t.current=0;if(opened&&mixer&&shell){const clip=shell.animations.find(c=>c.name==='shell_open');if(clip){const a=mixer.clipAction(clip);a.reset().setLoop(THREE.LoopOnce,1);a.clampWhenFinished=true;a.play()}}return()=>{mixer?.stopAllAction()}},[opened,mixer,shell]);
- useFrame((_,dt)=>{t.current+=dt;mixer?.update(dt);if(group.current){const p=opened?Math.min(t.current/1.1,1):0;group.current.scale.setScalar((decision==='REJECTED'?Math.max(0,1-t.current):1)*p);group.current.position.y=-.55+p*.12+(reduced?0:Math.sin(t.current*1.6)*.026);group.current.rotation.y=reduced?-.12:opened?-.12+Math.max(0,1-t.current/2.8)*Math.PI*2:0;}if(shellRoot.current){shellRoot.current.scale.setScalar(opened?Math.max(.01,1-Math.max(0,t.current-.85)*2):1);shellRoot.current.rotation.z=opened?0:Math.sin(t.current)*.035;}});
+ const cameraTarget=useRef(new THREE.Vector3());
+ useEffect(()=>{const previous=camera.position.clone();frameRevealCamera(camera as THREE.PerspectiveCamera,size.width,size.height,opened?motionBounds:undefined);cameraTarget.current.copy(camera.position);if(opened&&!reduced)camera.position.copy(previous);if(!opened)onSeamLayout?.(projectCapsuleSeam(camera as THREE.PerspectiveCamera,size.width,size.height))},[camera,size.width,size.height,opened,motionBounds,onSeamLayout,reduced]);
+ useEffect(()=>{t.current=0},[opened]);
+ const halves=useMemo(()=>({top:shellClone?.getObjectByName('shell_top'),bottom:shellClone?.getObjectByName('shell_bottom')}),[shellClone]);
+ useFrame((_,dt)=>{
+  if(opened&&!reduced){camera.position.lerp(cameraTarget.current,1-Math.exp(-dt*5));camera.lookAt(0,.45,0);}
+  const elapsed=reduced?dt*4:dt;t.current+=elapsed;
+  const drag=seamDrag?.current||0;
+  for(const [half,sign] of [[halves.top,1],[halves.bottom,-1]] as const){if(!half)continue;
+   const separation=THREE.MathUtils.smoothstep(t.current,0,.85);
+   half.rotation.y=THREE.MathUtils.damp(half.rotation.y,opened?0:drag*.22*sign,16,dt);
+   half.rotation.z=opened&&!reduced?separation*-.1*sign:0;
+   half.position.x=opened?separation*.16*sign:0;
+   half.position.y=opened?separation*(sign===1?.95:-.7):THREE.MathUtils.damp(half.position.y,Math.abs(drag)*.055*sign,16,dt);
+  }
+  if(group.current){const p=opened?THREE.MathUtils.smoothstep(t.current,.22,1.1):0;group.current.scale.setScalar((decision==='REJECTED'?Math.max(0,1-t.current):1)*p);group.current.position.y=-.55+p*.12+(reduced?0:Math.sin(t.current*1.6)*.026);group.current.rotation.y=reduced?-.12:opened?-.12+Math.max(0,1-t.current/2.8)*Math.PI*2:0;}
+  if(shellRoot.current){shellRoot.current.scale.setScalar(opened?Math.max(.01,1-Math.max(0,t.current-.85)*2):1);shellRoot.current.rotation.z=0;}
+ });
  useEffect(()=>{if(decision==='REJECTED')t.current=0},[decision]);
  return <><group ref={shellRoot} position={[0,.3,0]}>{tx(shellClone?<primitive object={shellClone}/>:<mesh><sphereGeometry args={[.8,32,24]}/><meshPhysicalMaterial color="#b5cddd" roughness={.3}/></mesh>)}{tx(!opened&&<mesh><sphereGeometry args={[.783,32,24]}/><meshPhysicalMaterial color="#9ab9ce" roughness={.32}/></mesh>)}</group>
   <group ref={group} visible={opened&&!!modelClone} scale={0}>{tx(modelClone&&<group scale={toy.id==='jimao'?1.25:1}><primitive object={modelClone}/></group>)}</group>
@@ -97,5 +112,5 @@ class RevealBoundary extends Component<{children:ReactNode;onError:()=>void},{fa
 }
 export function RevealScene(props:RevealProps){
  useLanguage();
- return <RevealBoundary onError={props.onError}><Canvas dpr={[1,1.6]} camera={{position:[.1,1.1,5.7],fov:32}} gl={{alpha:true,antialias:true}} onCreated={({camera})=>{camera.lookAt(0,.45,0)}}><Studio reveal/><RevealObjects {...props}/></Canvas></RevealBoundary>
+ return <RevealBoundary onError={props.onError}><Canvas resize={{offsetSize:true}} dpr={[1,1.6]} camera={{position:[.1,1.1,5.7],fov:32}} gl={{alpha:true,antialias:true}} onCreated={({camera})=>{camera.lookAt(0,.45,0)}}><Studio reveal/><RevealObjects {...props}/></Canvas></RevealBoundary>
 }

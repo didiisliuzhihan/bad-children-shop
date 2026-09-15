@@ -92,13 +92,13 @@ test('every English toy export fits its frame, uses English copy and has a disti
  const built=await transformWithOxc(read('src/assets.ts').slice(read('src/assets.ts').indexOf('export const fallbackToys')),'toys.ts');
  const toyContext={asset:x=>x,sourceLink:x=>x,residentExpansionToys};
  vm.runInNewContext(built.code.replace('export const','const')+'\nglobalThis.toys=fallbackToys;',toyContext);
- const ops=[];let fontCalls=0;
+ const ops=[],fontCalls=[];
  const drawing=new Proxy({font:'12px sans-serif',createRadialGradient:()=>({addColorStop(){}}),measureText(text){return {width:text.length*Number(this.font.match(/(\d+)px/)?.[1]||12)*.54}},fillText(text,x,y){ops.push({text,x,y,font:this.font})}},{get:(target,key)=>key in target?target[key]:()=>{},set:(target,key,value)=>(target[key]=value,true)});
- const context={...english,Blob,URL,AbortController,setTimeout,clearTimeout,Image:class{naturalWidth=1024;naturalHeight=1024;async decode(){}},ensureQuestFont:async()=>{fontCalls++},QUEST_FONT_FAMILY:'sans-serif',fetch:async()=>({ok:true,blob:async()=>new Blob(['image'])}),document:{createElement:()=>({getContext:()=>drawing,toBlob:callback=>callback(new Blob(['PNG'],{type:'image/png'}))})}};
+ const context={...english,Blob,URL,AbortController,setTimeout,clearTimeout,Image:class{naturalWidth=1024;naturalHeight=1024;async decode(){}},ensureQuestFont:async(timeout,language)=>fontCalls.push([timeout,language]),QUEST_FONT_FAMILY:'"BC Quest",sans-serif',EN_QUEST_FONT_FAMILY:'"Fredoka","BC Quest",sans-serif',fetch:async()=>({ok:true,blob:async()=>new Blob(['image'])}),document:{createElement:()=>({getContext:()=>drawing,toBlob:callback=>callback(new Blob(['PNG'],{type:'image/png'}))})}};
  await compile('src/lib/cardExport.ts',context,'globalThis.api={prepareCollectibleCard,collectibleCardKey};');
  const item={obtained_at:'2026-09-08T12:00:00Z'};
- for(const toy of toyContext.toys){ops.length=0;await context.api.prepareCollectibleCard(toy,item);assert(ops.some(o=>o.text===toy.name_en));assert(ops.every(o=>!han.test(o.text)),toy.name_en);assert(ops.every(o=>o.y<1440&&o.y>=0));assert.notEqual(context.api.collectibleCardKey(toy,item,'en'),context.api.collectibleCardKey(toy,item,'zh'));}
- assert.equal(fontCalls,0);
+ for(const toy of toyContext.toys){ops.length=0;await context.api.prepareCollectibleCard(toy,item);assert(ops.some(o=>o.text===toy.name_en));assert(ops.every(o=>!han.test(o.text)),toy.name_en);assert(ops.every(o=>o.y<1440&&o.y>=0));assert(ops.some(o=>o.font.includes('Fredoka')),toy.name_en+' task uses playful type');assert.notEqual(context.api.collectibleCardKey(toy,item,'en'),context.api.collectibleCardKey(toy,item,'zh'));}
+ assert.equal(fontCalls.length,7);assert(fontCalls.every(([timeout,language])=>timeout===1800&&language==='en'));
 });
 test('language switching does not key-remount the app/room, or enter account save requests',()=>{
  const app=read('src/App.tsx'),scene=read('src/components/NestScene.tsx'),account=read('src/components/AccountProvider.tsx');

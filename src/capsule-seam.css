@@ -1,0 +1,41 @@
+/* Only the curved, 44px-high hit stroke owns the gesture. Blue space and the
+ * remainder of the capsule never capture a swipe. No full-screen touch lock. */
+.capsule-seam{position:absolute;inset:0;width:100%;height:100%;z-index:3;overflow:visible;pointer-events:none;touch-action:pan-y pinch-zoom;user-select:none;-webkit-user-select:none}
+.capsule-seam path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.capsule-seam .seam-light{pointer-events:none;animation:seam-breathe 2.8s ease-in-out infinite}
+.capsule-seam .seam-aura{stroke:#ffdbaf;stroke-width:22;filter:blur(9px);animation:seam-aura-breathe 2.8s ease-in-out infinite}
+.capsule-seam .seam-halo{stroke:#ffe3b8;stroke-width:13;filter:blur(4px);opacity:.9}
+.capsule-seam .seam-bloom{stroke:#fff2d6;stroke-width:6.5;filter:blur(1.5px);opacity:.95}
+.capsule-seam .seam-core{stroke:#fffdf2;stroke-width:3.2}
+.capsule-seam .seam-arrows{stroke:#fff9e8;stroke-width:1.5}
+.capsule-seam .seam-charge{stroke:#fffef7;stroke-width:3.5;pointer-events:none;filter:drop-shadow(0 0 6px #ffdfa4)}
+.capsule-seam .seam-guide{pointer-events:none;transition:opacity .12s ease-out}
+.capsule-seam .seam-guide-tail{fill:#fff6d8;filter:blur(2px);opacity:.75}
+.capsule-seam .seam-guide-halo{fill:#fff6de;filter:blur(3.5px);opacity:.95}
+.capsule-seam .seam-guide-core{fill:#fffef8}
+.capsule-seam .seam-hit{stroke:transparent;stroke-width:44;pointer-events:stroke;touch-action:pan-y pinch-zoom;cursor:grab;outline:none}
+.capsule-seam .seam-hit:focus-visible{stroke:#fff4d329;stroke-width:20}
+.capsule-seam.is-dragging .seam-hit{cursor:grabbing}
+.capsule-seam.is-dragging .seam-light{animation:none;opacity:1}
+.capsule-seam.is-dragging .seam-aura{animation:none;opacity:.9}
+.capsule-seam.is-dragging .seam-arrows{opacity:0}
+.capsule-seam.is-dragging .seam-guide{opacity:0}
+.reveal-overlay.phase-sealed{display:flex;flex-direction:column;justify-content:center;gap:0;padding:90px 22px 30px}
+.reveal-overlay.phase-sealed .reveal-portrait{width:min(100%,600px);height:min(53dvh,520px);min-height:210px;max-height:none;flex-shrink:0}
+.reveal-overlay.is-story-capsule.phase-revealed{display:flex;flex-direction:column;justify-content:center;gap:0}
+.reveal-overlay.is-story-capsule.phase-revealed .reveal-portrait{width:min(100%,600px)}
+.reveal-overlay.phase-sealed .reveal-portrait canvas{pointer-events:none;touch-action:pan-y pinch-zoom}
+.reveal-overlay.phase-sealed .sealed-copy{display:flex;flex-direction:column;align-items:center;gap:10px;margin:0;text-align:center}
+.sealed-copy .seam-hint{font-size:14px;line-height:1.6;letter-spacing:.04em;color:#f4ecda;margin:0}
+.sealed-copy .seam-fallback{display:inline-flex;align-items:center;gap:8px;font-size:12px;line-height:1.5;min-height:44px;padding:8px 18px;color:#e5e8dcba;background:transparent;border:0;border-radius:22px;cursor:pointer}
+.sealed-copy .seam-fallback:hover{color:#fff6d6;background:#fff4d309}
+.sealed-copy .seam-fallback:focus-visible{outline:1px solid #fff6d6;outline-offset:2px}
+.reveal-overlay.phase-revealed .reveal-copy{opacity:0;pointer-events:none}
+.reveal-overlay.phase-decision .reveal-copy{animation:rise .45s both}
+/* Pulse opacity only: the wider, warm spill becomes clearly visible at the
+ * crest without animating blur radii, geometry or the full-screen canvas. */
+@keyframes seam-breathe{0%,100%{opacity:.48}50%{opacity:1}}
+@keyframes seam-aura-breathe{0%,100%{opacity:.22}50%{opacity:.95}}
+@media(max-width:767px){.reveal-overlay.phase-sealed .reveal-portrait{height:47dvh;min-height:220px}.sealed-copy .seam-hint{font-size:13px;letter-spacing:.02em}}
+@media(orientation:landscape) and (max-height:520px){.reveal-overlay.phase-sealed{padding:60px 20px 12px}.reveal-overlay.phase-sealed .reveal-portrait{height:58dvh;min-height:140px}.sealed-copy .seam-hint{font-size:12px}.reveal-overlay.phase-sealed .sealed-copy{gap:0}}
+@media(prefers-reduced-motion:reduce){.capsule-seam .seam-light{animation:none;opacity:.9}.capsule-seam .seam-aura{animation:none;opacity:.65}.capsule-seam .seam-guide{display:none;transition:none}}
