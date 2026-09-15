@@ -1,5 +1,12 @@
 // Curated interface and built-in story translations. No network translation.
 export const EN_ENTRIES=[
+ ["翻卡区","Card deck"],
+ ["玩具卡片","Toy cards"],
+ ["上一张卡片","Previous card"],
+ ["下一张卡片","Next card"],
+ ["左右轻滑 · 点中间查看玩具","Swipe to browse · Tap to meet them"],
+ ["左右轻滑 · 点中间展开明信片","Swipe to browse · Tap to open"],
+ ["点中间的卡片查看详情","Tap the front card for a closer look"],
  [
   "向右滑动，遇见你的坏小孩",
   "Swipe right. Meet your misfit."

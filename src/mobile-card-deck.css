@@ -1,0 +1,40 @@
+/* Phone-only enhancement. Desktop continues to use the original collection grids. */
+@media(max-width:767px){
+ .collection-view:has(.mobile-card-deck) .collection-header{margin-bottom:18px}
+ .collection-view:has(.mobile-card-deck) .collection-header h1{margin-top:18px}
+ .collection-shelf:has(.mobile-card-deck) .collection-shelf-toolbar{gap:9px;margin-bottom:18px}
+ .mobile-card-deck{overflow:clip;padding:4px 0 8px;color:var(--community-ink,#23434a)}
+ .mobile-deck-stage{--deck-x:0px;--deck-turn:0deg;--deck-progress:0;display:grid;width:calc(100% - 64px);max-width:330px;margin:0 auto;padding:56px 0 12px;isolation:isolate;touch-action:pan-y pinch-zoom;user-select:none;-webkit-user-select:none}
+ .mobile-deck-card{grid-area:1/1;min-width:0;transform-origin:50% 75%;align-self:start;cursor:grab}
+ .mobile-deck-card[data-depth="0"]{transform:translateX(var(--deck-x)) rotate(var(--deck-turn))}
+ .mobile-deck-card[data-depth="1"]{transform:translateY(calc(-24px + 24px * var(--deck-progress))) scale(calc(.94 + .06 * var(--deck-progress))) rotate(calc(5deg - 5deg * var(--deck-progress)));pointer-events:none}
+ .mobile-deck-card[data-depth="2"]{transform:translateY(calc(-45px + 21px * var(--deck-progress))) scale(calc(.88 + .06 * var(--deck-progress))) rotate(calc(-6deg + 11deg * var(--deck-progress)));pointer-events:none}
+ .mobile-deck-stage[data-phase="dragging"] .mobile-deck-card{will-change:transform;cursor:grabbing}
+ .mobile-deck-stage[data-phase="leaving"] .mobile-deck-card,.mobile-deck-stage[data-phase="returning"] .mobile-deck-card{transition:transform 360ms ease-out;will-change:transform}
+ .mobile-deck-card .toy-card{animation:none;transition:none;background:#f8f2e3;border:1px solid transparent;border-radius:22px;padding:14px;box-shadow:0 9px 24px #31535b0c}
+ /* Published artwork is square: match its ratio instead of letterboxing it. */
+ .mobile-deck-card .card-image,.mobile-deck-card .card-image.has-artwork{aspect-ratio:1;border-radius:15px}
+ .mobile-deck-card .card-image .card-series{font-size:8px;left:12px;right:12px;top:12px}
+ .mobile-deck-card .card-image .card-series:before{backdrop-filter:none;-webkit-backdrop-filter:none}
+ .mobile-deck-card .card-content{padding:18px 4px 0}
+ .mobile-deck-card .card-name h3{font-size:21px;line-height:1.35;min-height:57px;overflow-wrap:anywhere}
+ .mobile-deck-card .card-name>span,.mobile-deck-card .tagline-zh,.mobile-deck-card .tagline-en,.mobile-deck-card .card-date,.mobile-deck-card .card-actions .save-card{display:none}
+ .mobile-deck-card .card-actions{margin:0;padding:0;border:0}
+ .mobile-deck-card .card-actions button{padding:4px 0;background:transparent;font-size:12px;min-height:36px;color:#5d797a;gap:8px}
+ .mobile-deck-card .collected-postcard{width:100%;padding:14px;border-color:transparent;border-radius:18px;box-shadow:0 9px 24px #31535b0c;transition:none;translate:none}
+ .mobile-deck-card .collected-postcard-body{gap:10px;padding-top:14px}
+ .mobile-deck-card .collected-postcard-text{font-size:17px;line-height:1.7;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;min-height:87px;flex:none}
+ .mobile-deck-card .collected-postcard-kind{font-size:10px;letter-spacing:0;min-height:25px;align-items:center}
+ .mobile-deck-card .collected-postcard-kind>span{font-size:9px}
+ .mobile-deck-card .collected-postcard-bottom{padding-top:10px;min-height:44px}
+ .mobile-deck-card .collected-postcard-bottom time,.mobile-deck-card .collected-postcard-stamp{display:none}
+ .mobile-deck-navigation{display:flex;justify-content:center;align-items:center;gap:34px;margin:8px 0 12px}
+ .mobile-deck-navigation>button{display:grid;place-items:center;width:44px;height:44px;padding:0;border-radius:50%;background:#f8f2e3;color:#43665f}
+ .mobile-deck-navigation>button:disabled{opacity:.35;cursor:default}
+ .mobile-deck-navigation>[role=status]{min-width:52px;text-align:center;font:13px var(--round);font-variant-numeric:tabular-nums}
+ .mobile-deck-hint{text-align:center;font-size:12px;line-height:1.7;margin:0 auto;max-width:290px;padding:0 12px;color:#607d80}
+ html[lang=en] .mobile-deck-card .card-actions button{font-size:12px;padding:4px 0}
+ html[lang=en] .mobile-deck-card .card-name h3{font-size:20px}
+}
+@media(max-width:359px){.mobile-deck-stage{width:calc(100% - 44px)}.mobile-deck-card .card-name h3{font-size:19px}.mobile-deck-card .toy-card,.mobile-deck-card .collected-postcard{padding:12px}}
+@media(prefers-reduced-motion:reduce){.mobile-deck-stage .mobile-deck-card{transition:none!important}.mobile-deck-stage[data-phase="dragging"] .mobile-deck-card[data-depth="0"]{transform:translateX(clamp(-12px,var(--deck-x),12px))}}
